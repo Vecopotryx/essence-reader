@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { unzip } from "unzipit";
-	import { XMLParser } from "fast-xml-parser";
+	import { parseOpf, Book } from './parse';
 
-	let metadata = "";
+	let book: Book;
 
 	async function readFiles(e: Event) {
 		let file = (e.target as HTMLInputElement).files[0];
@@ -11,23 +11,17 @@
 		console.log(entries);
 		for (const [name, entry] of Object.entries(entries)) {
 			if (name.includes(".opf")) {
-				const xml = await entry.text();
-				metadata = parseMeta(xml);
+				book = parseOpf(await entry.text());;
 			}
 		}
 	}
 
-	const parseMeta = (xml: string) => {
-    	const parsed = new XMLParser().parse(xml);
-		console.log(parsed);
-		const title = parsed["package"]["metadata"]["dc:title"];
-		const author = parsed["package"]["metadata"]["dc:creator"];
-		return title + " - " + author;
-	}
+
 </script>
 
 <main>
-	<h1>{metadata}</h1>
+	<h1>{book !== undefined ? book.meta.title : ""}</h1>
+	<h2>{book !== undefined ? book.meta.author : ""}</h2>
 	<input type="file" on:change={(e) => readFiles(e)}/>
 </main>
 
