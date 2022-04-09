@@ -1,20 +1,33 @@
 <script lang="ts">
-	export let name: string;
 	import { unzip } from "unzipit";
+	import { XMLParser } from "fast-xml-parser";
 
+	let metadata = "";
 
 	async function readFiles(e: Event) {
 		let file = (e.target as HTMLInputElement).files[0];
 
 		const { entries } = await unzip(file);
 		console.log(entries);
+		for (const [name, entry] of Object.entries(entries)) {
+			if (name.includes(".opf")) {
+				const xml = await entry.text();
+				metadata = parseMeta(xml);
+			}
+		}
+	}
+
+	const parseMeta = (xml: string) => {
+    	const parsed = new XMLParser().parse(xml);
+		console.log(parsed);
+		const title = parsed["package"]["metadata"]["dc:title"];
+		const author = parsed["package"]["metadata"]["dc:creator"];
+		return title + " - " + author;
 	}
 </script>
 
 <main>
-	<h1>Hello {name}!</h1>
-	<p>Visit the <a href="https://svelte.dev/tutorial">Svelte tutorial</a> to learn how to build Svelte apps.</p>
-
+	<h1>{metadata}</h1>
 	<input type="file" on:change={(e) => readFiles(e)}/>
 </main>
 
