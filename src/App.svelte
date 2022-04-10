@@ -1,19 +1,12 @@
 <script lang="ts">
-	import { unzip } from "unzipit";
-	import { parseOpf, Book } from "./parse";
+	import { parser, Book } from "./parse";
 
 	let book: Book;
 
 	async function readFiles(e: Event) {
 		let file = (e.target as HTMLInputElement).files[0];
 
-		const { entries } = await unzip(file);
-		console.log(entries);
-		for (const [name, entry] of Object.entries(entries)) {
-			if (name.includes(".opf")) {
-				book = parseOpf(await entry.text(), Object.entries(entries));
-			}
-		}
+		book = await parser(file);
 	}
 </script>
 
@@ -22,9 +15,7 @@
 	<h2>{book !== undefined ? book.meta.author : ""}</h2>
 
 	{#each book !== undefined ? book.contents : "" as content}
-		{#await content then value}
-			{@html value}
-		{/await}
+		{@html content}
 	{/each}
 
 	<input type="file" on:change={(e) => readFiles(e)} />

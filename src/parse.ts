@@ -1,4 +1,5 @@
 import { XMLParser } from "fast-xml-parser";
+import { unzip } from "unzipit";
 
 interface Metadata {
     title: string;
@@ -12,14 +13,16 @@ export type Book = {
 
 
 let sections = [];
-let htmls = [];
+let contents = [];
+let images = [];
 
+let meta: Metadata;
 
-export const parseOpf = (xml: string, entries: any) => {
+const parseOpf = (xml: string) => {
 
     const parsed = new XMLParser().parse(xml)["package"];
 
-    const meta: Metadata = parseMeta(parsed["metadata"]);
+    meta = parseMeta(parsed["metadata"]);
 
     const parsedAtt = new XMLParser({ ignoreAttributes: false }).parse(xml)["package"];
 
@@ -27,43 +30,54 @@ export const parseOpf = (xml: string, entries: any) => {
 
     parseSpine(parsedAtt["spine"], manifestSections);
 
-    assembleContent(entries);
+    //sortImages().then(() => assembleContent());
 
-    sortEntries(entries).then((images) => updateContents(images));
+    console.log(sections);
 
-    return { meta, contents }
 }
 
 
-let contents = [];
 
-const sortEntries = async (entries: any) => {
-    let temp = [];
-    for (const [name, entry] of entries) {
-        if (
-            name.endsWith(".jpg") ||
-            name.endsWith(".jpeg") ||
-            name.endsWith(".gif")
-        ) {
-            const blob = await entry.blob();
-            const url = URL.createObjectURL(blob);
-            temp.push({ name, url });
+export const parser = async (epub: any) => {
+    parseOpf(await extract(epub));
+    assembleContent();
+    return { meta, contents }
+
+}
+
+let htmls = [];
+
+const extract = async (file: any) => {
+    const { entries } = await unzip(file);
+
+    let opf = "";
+
+    for (const [name, entry] of Object.entries(entries)) {
+        switch (name.substring(name.lastIndexOf("."))) {
+            case ".opf":
+                opf = await entry.text();
+                break;
+            case ".jpg":
+            case ".jpeg":
+            case ".gif":
+                const blob = await entry.blob();
+                const url = URL.createObjectURL(blob);
+                images.push({ name, url });
+                break;
+            case ".html":
+            case ".xhtml":
+                const text = await entry.text();
+                htmls.push([name, text]);
+                break;
+            default: break;
         }
     }
-    return temp;
-
+    return opf;
 }
 
-const updateContents = (images: any) => {
-    console.log(images);
-    htmls.forEach(html => {
-        contents.push(updateHTML(html, images));
-    });
-}
 
-const updateHTML = async (html: string, images: any) => {
-    let text = await html;
-    let modified = text.replace(/<img [^>]*src=['"]([^'"]+)[^>]*>/gi, function (match, source) {
+const updateHTML = (html: string, images: any) => {
+    let modified = html.replace(/<img [^>]*src=['"]([^'"]+)[^>]*>/gi, function (match, source) {
 
         let index = 0;
         let filename = source.split('\\').pop().split('/').pop();
@@ -109,11 +123,11 @@ const parseSpine = (spine: object, manifestSec: any) => {
     sections = sortArr.map((i) => manifestSec.find((j) => j.id === i));
 }
 
-const assembleContent = (entries: any) => {
+const assembleContent = () => {
     for (let i = 0; i < sections.length; i++) {
-        for (const [name, entry] of entries) {
+        for (const [name, text] of htmls) {
             if (name.includes(sections[i].href)) {
-                htmls.push(entry.text());
+                contents.push(updateHTML(text, images));
                 break;
             }
         }
