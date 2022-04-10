@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { parser, Book } from "./parse";
 
+	import Reader from "./Reader.svelte";
+
 	let book: Book;
 
 	async function readFiles(e: Event) {
@@ -11,34 +13,10 @@
 </script>
 
 <main>
-	<h1>{book !== undefined ? book.meta.title : ""}</h1>
-	<h2>{book !== undefined ? book.meta.author : ""}</h2>
-
-	{#each book !== undefined ? book.contents : "" as content}
-		{@html content}
-	{/each}
-
 	<input type="file" on:change={(e) => readFiles(e)} />
+	<Reader book={book}/>
 </main>
 
 <style>
-	main {
-		text-align: center;
-		padding: 1em;
-		max-width: 240px;
-		margin: 0 auto;
-	}
 
-	h1 {
-		color: #ff3e00;
-		text-transform: uppercase;
-		font-size: 4em;
-		font-weight: 100;
-	}
-
-	@media (min-width: 640px) {
-		main {
-			max-width: none;
-		}
-	}
 </style>
