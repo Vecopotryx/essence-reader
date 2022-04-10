@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { unzip } from "unzipit";
-	import { parseOpf, Book } from './parse';
+	import { parseOpf, Book } from "./parse";
 
 	let book: Book;
 
@@ -11,18 +11,23 @@
 		console.log(entries);
 		for (const [name, entry] of Object.entries(entries)) {
 			if (name.includes(".opf")) {
-				book = parseOpf(await entry.text());;
+				book = parseOpf(await entry.text(), Object.entries(entries));
 			}
 		}
 	}
-
-
 </script>
 
 <main>
 	<h1>{book !== undefined ? book.meta.title : ""}</h1>
 	<h2>{book !== undefined ? book.meta.author : ""}</h2>
-	<input type="file" on:change={(e) => readFiles(e)}/>
+
+	{#each book !== undefined ? book.htmls : "" as content}
+		{#await content then value}
+			{@html value}
+		{/await}
+	{/each}
+
+	<input type="file" on:change={(e) => readFiles(e)} />
 </main>
 
 <style>
