@@ -16,6 +16,9 @@ let htmls = [];
 
 
 export const parseOpf = (xml: string, entries: any) => {
+    sortEntries(entries);
+    console.log(images);
+
     const parsed = new XMLParser().parse(xml)["package"];
 
     const meta: Metadata = parseMeta(parsed["metadata"]);
@@ -28,7 +31,24 @@ export const parseOpf = (xml: string, entries: any) => {
 
     assembleContent(entries);
 
+
     return { meta, htmls }
+}
+
+
+let images = [];
+
+const sortEntries = (entries: any) => {
+    for (const [name, entry] of entries) {
+        if (
+            name.endsWith(".jpg") ||
+            name.endsWith(".jpeg") ||
+            name.endsWith(".gif")
+        ) {
+            const blob = entry.blob();
+            images.push({ name, blob });
+        }
+    }
 }
 
 const parseMeta = (meta: object) => {
