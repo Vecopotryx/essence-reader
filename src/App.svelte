@@ -21,7 +21,7 @@
 	<h1>{book !== undefined ? book.meta.title : ""}</h1>
 	<h2>{book !== undefined ? book.meta.author : ""}</h2>
 
-	{#each book !== undefined ? book.htmls : "" as content}
+	{#each book !== undefined ? book.contents : "" as content}
 		{#await content then value}
 			{@html value}
 		{/await}

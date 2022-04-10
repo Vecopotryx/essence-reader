@@ -7,7 +7,7 @@ interface Metadata {
 
 export type Book = {
     meta: Metadata,
-    htmls: string[]
+    contents: string[]
 }
 
 
@@ -16,8 +16,6 @@ let htmls = [];
 
 
 export const parseOpf = (xml: string, entries: any) => {
-    sortEntries(entries);
-    console.log(images);
 
     const parsed = new XMLParser().parse(xml)["package"];
 
@@ -31,25 +29,57 @@ export const parseOpf = (xml: string, entries: any) => {
 
     assembleContent(entries);
 
+    sortEntries(entries).then((images) => updateContents(images));
 
-    return { meta, htmls }
+    return { meta, contents }
 }
 
 
-let images = [];
+let contents = [];
 
-const sortEntries = (entries: any) => {
+const sortEntries = async (entries: any) => {
+    let temp = [];
     for (const [name, entry] of entries) {
         if (
             name.endsWith(".jpg") ||
             name.endsWith(".jpeg") ||
             name.endsWith(".gif")
         ) {
-            const blob = entry.blob();
-            images.push({ name, blob });
+            const blob = await entry.blob();
+            const url = URL.createObjectURL(blob);
+            temp.push({ name, url });
         }
     }
+    return temp;
+
 }
+
+const updateContents = (images: any) => {
+    console.log(images);
+    htmls.forEach(html => {
+        contents.push(updateHTML(html, images));
+    });
+}
+
+const updateHTML = async (html: string, images: any) => {
+    let text = await html;
+    let modified = text.replace(/<img [^>]*src=['"]([^'"]+)[^>]*>/gi, function (match, source) {
+
+        let index = 0;
+        let filename = source.split('\\').pop().split('/').pop();
+        for (let i = 0; i < images.length; i++) {
+            if (images[i].name.includes(filename)) {
+                index = i;
+            }
+        }
+
+        return "<img src=" + images[index].url + "><img/>";
+    });
+
+    return modified;
+}
+
+
 
 const parseMeta = (meta: object) => {
     const title = meta["dc:title"];
