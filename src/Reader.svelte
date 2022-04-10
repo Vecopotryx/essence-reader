@@ -8,6 +8,8 @@
     $: percent = Math.floor(100 * (section / book.contents.length));
 
     let fontSize = 16;
+    let fontFamily = "Arial";
+    let settingsVisible = false;
 </script>
 
 <main>
@@ -21,17 +23,56 @@
         </h4>
 
         <button on:click={() => (section += 2)}>Next</button>
-        <input name="fontsize" style="float: right; margin-right: 2%" type="range" min="12" max="40" bind:value={fontSize}>
-        <label for="fontsize" style="float: right">Font size:</label>
+
+        <button
+            style="float: right"
+            on:click={() => (settingsVisible = !settingsVisible)}
+        >
+            ⚙ Settings
+        </button>
     </div>
 
-    <div id="container" style="font-size: {fontSize}px">
+    <div
+        id="container"
+        style="font-size: {fontSize}px; font-family: {fontFamily}"
+    >
         {@html book.contents[section]}
         {@html book.contents[section + 1]}
     </div>
+
+    {#if settingsVisible}
+        <div id="readerSettings">
+            <input
+                name="fontsize"
+                style="float: right; margin-right: 2%"
+                type="range"
+                min="12"
+                max="40"
+                bind:value={fontSize}
+            />
+            <label for="fontsize" style="float: right">Font size:</label>
+
+            <select bind:value={fontFamily}>
+                <option style="font-family:'Arial'">Arial</option>
+                <option style="font-family:'Courier New '">Courier New </option>
+                <option style="font-family:'Helvetica'">Helvetica</option>
+                <option style="font-family:'Times New Roman'"
+                    >Times New Roman</option
+                >
+            </select>
+        </div>
+    {/if}
 </main>
 
 <style>
+    #readerSettings {
+        position: absolute;
+        top: 2.5em;
+        right: 0;
+        width: 20%;
+        background-color: lightgray;
+    }
+
     #percentage {
         float: left;
         margin: auto;
