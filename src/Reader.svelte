@@ -12,6 +12,12 @@
     let settingsVisible = false;
 </script>
 
+<svelte:head>
+    <title>
+        {book.meta.title + " - " + book.meta.author}
+    </title>
+</svelte:head>
+
 <main>
     <div id="topbar">
         <p id="percentage">{percent}%</p>
