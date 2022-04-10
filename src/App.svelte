@@ -9,14 +9,19 @@
 		let file = (e.target as HTMLInputElement).files[0];
 
 		book = await parser(file);
+		reading = true;
 	}
+
+	let reading = false;
 </script>
 
 <main>
-	<input type="file" on:change={(e) => readFiles(e)} />
-	<Reader book={book}/>
+	{#if reading}
+		<Reader {book} />
+	{:else}
+		<input type="file" on:change={(e) => readFiles(e)} />
+	{/if}
 </main>
 
 <style>
-
 </style>
