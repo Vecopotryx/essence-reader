@@ -39,15 +39,28 @@
 </script>
 
 <main>
-	{#if dragging}
-		<h2>Drop file</h2>
-	{/if}
 	{#if reading}
 		<Reader {book} />
 	{:else}
-		<input type="file" on:change={(e) => useFileInput(e)} />
+		<div
+			id="dropInfo"
+			style="border: 1px solid {dragging ? 'green' : 'black'}"
+		>
+			<h2 style="color: {dragging ? 'green' : 'black'}">
+				Drop or click to select a file
+			</h2>
+			<input type="file" on:change={(e) => useFileInput(e)} />
+		</div>
 	{/if}
 </main>
 
 <style>
+	#dropInfo {
+		margin: 2% auto;
+		border-radius: 10px;
+		border: 1px solid black;
+		text-align: center;
+		width: 50%;
+		height: 50%;
+	}
 </style>
