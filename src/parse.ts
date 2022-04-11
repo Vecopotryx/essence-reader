@@ -15,6 +15,7 @@ export type Book = {
 let sections = [];
 let contents = [];
 let images = [];
+let htmls = [];
 
 let meta: Metadata;
 
@@ -29,23 +30,19 @@ const parseOpf = (xml: string) => {
     const manifestSections = parseManifest(parsedAtt["manifest"]);
 
     parseSpine(parsedAtt["spine"], manifestSections);
-
-    //sortImages().then(() => assembleContent());
-
-    console.log(sections);
-
 }
 
-
-
 export const parser = async (epub: any) => {
+    contents = [];
+    images = [];
+    sections = [];
+    htmls = [];
     parseOpf(await extract(epub));
     assembleContent();
     return { meta, contents }
 
 }
 
-let htmls = [];
 
 const extract = async (file: any) => {
     const { entries } = await unzip(file);
