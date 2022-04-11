@@ -11,7 +11,10 @@
     let fontFamily = "Arial";
     let settingsVisible = false;
 
+    let dark = false;
+
     const toggleDark = () => {
+        dark = !dark;
         window.document.body.classList.toggle("dark-mode");
     };
 </script>
@@ -33,12 +36,14 @@
         </h4>
 
         <button on:click={() => (section += 2)}>Next</button>
+    </div>
 
-        <button
-            style="float: right"
-            on:click={() => (settingsVisible = !settingsVisible)}
+    <div id="sidebar">
+        <button style="border: none" on:click={() => toggleDark()}
+            >{dark ? "☾" : "☼"}</button
         >
-            ⚙ Settings
+        <button on:click={() => (settingsVisible = !settingsVisible)}>
+            ⚙
         </button>
     </div>
 
@@ -61,8 +66,6 @@
                 bind:value={fontSize}
             />
             <label for="fontsize" style="float: right">Font size:</label>
-
-            <button on:click={() => toggleDark()}>Toggle dark mode</button>
 
             <select bind:value={fontFamily}>
                 <option style="font-family:'Arial'">Arial</option>
@@ -107,6 +110,22 @@
         padding-top: 3em;
         height: 100% - 3em;
         width: 50%;
+    }
+
+    #sidebar {
+        border: 1px solid gray;
+        border-radius: 5px;
+        position: fixed;
+        top: 10%;
+        left: 20%;
+    }
+
+    #sidebar > button {
+        border: none;
+        background-color: transparent;
+        color: inherit;
+        font-size: 2em;
+        display: block;
     }
 
     #topbar {
