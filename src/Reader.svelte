@@ -10,6 +10,10 @@
     let fontSize = 16;
     let fontFamily = "Arial";
     let settingsVisible = false;
+
+    const toggleDark = () => {
+        window.document.body.classList.toggle("dark-mode");
+    };
 </script>
 
 <svelte:head>
@@ -40,7 +44,7 @@
 
     <div
         id="container"
-        style="font-size: {fontSize}px; font-family: {fontFamily}"
+        style="font-size: {fontSize}px; font-family: {fontFamily};"
     >
         {@html book.contents[section]}
         {@html book.contents[section + 1]}
@@ -58,6 +62,8 @@
             />
             <label for="fontsize" style="float: right">Font size:</label>
 
+            <button on:click={() => toggleDark()}>Toggle dark mode</button>
+
             <select bind:value={fontFamily}>
                 <option style="font-family:'Arial'">Arial</option>
                 <option style="font-family:'Courier New '">Courier New </option>
@@ -71,8 +77,18 @@
 </main>
 
 <style>
+    :global(body) {
+        background-color: #fff;
+        color: black;
+        transition: background-color 0.3s;
+    }
+    :global(body.dark-mode) {
+        background-color: #1d3040;
+        color: #bfc2c7;
+    }
+
     #readerSettings {
-        position: absolute;
+        position: fixed;
         top: 2.5em;
         right: 0;
         width: 20%;
@@ -87,9 +103,10 @@
     }
 
     #container {
+        margin: auto;
         padding-top: 3em;
         height: 100% - 3em;
-        columns: 2;
+        width: 50%;
     }
 
     #topbar {
