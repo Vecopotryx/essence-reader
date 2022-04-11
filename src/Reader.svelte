@@ -27,15 +27,11 @@
 
 <main>
     <div id="topbar">
-        <p id="percentage">{percent}%</p>
-        <button on:click={() => (section -= 2)}>Previous</button>
-
         <h4>
             <b>{book !== undefined ? book.meta.title + " - " : ""}</b>
             {book !== undefined ? book.meta.author : ""}
         </h4>
-
-        <button on:click={() => (section += 2)}>Next</button>
+        <p id="percentage">{percent}%</p>
     </div>
 
     <div id="sidebar">
@@ -45,6 +41,10 @@
         <button on:click={() => (settingsVisible = !settingsVisible)}>
             ⚙
         </button>
+        <button on:click={() => (section -= 2)}>«</button>
+
+        <button on:click={() => (section += 2)}>»</button>
+
     </div>
 
     <div
@@ -92,23 +92,20 @@
 
     #readerSettings {
         position: fixed;
-        top: 2.5em;
-        right: 0;
+        top: calc(10% + 4em);
+        left: calc(20% + 3.5em);
+        padding: 0.5em;
         width: 20%;
-        background-color: lightgray;
+        background-color: #3e6485;
     }
 
-    #percentage {
-        float: left;
-        margin: auto;
+    h4, #percentage {
         display: inline;
-        color: black;
     }
 
     #container {
         margin: auto;
         padding-top: 3em;
-        height: 100% - 3em;
         width: 50%;
     }
 
@@ -118,12 +115,15 @@
         position: fixed;
         top: 10%;
         left: 20%;
+        width: 3.5em;
     }
 
     #sidebar > button {
+        margin: auto;
         border: none;
         background-color: transparent;
         color: inherit;
+        height: 2em;
         font-size: 2em;
         display: block;
     }
@@ -132,12 +132,8 @@
         text-align: center;
         height: 2em;
         width: 100%;
-        background-color: gray;
         position: fixed;
     }
 
-    h4 {
-        display: inline;
-        color: black;
-    }
+
 </style>
