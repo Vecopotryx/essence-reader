@@ -8,7 +8,7 @@
     $: percent = Math.floor(100 * (section / book.contents.length));
 
     let fontSize = 16;
-    let fontFamily = "Arial";
+    let fontFamily = "Verdana";
     let settingsVisible = false;
 
     let dark = false;
@@ -62,6 +62,7 @@
     {#if settingsVisible}
         <div id="readerSettings">
             <select bind:value={fontFamily}>
+                <option style="font-family:'Verdana'">Verdana</option>
                 <option style="font-family:'Arial'">Arial</option>
                 <option style="font-family:'Courier New '">Courier New </option>
                 <option style="font-family:'Helvetica'">Helvetica</option>
