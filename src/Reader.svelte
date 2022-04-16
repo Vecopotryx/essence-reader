@@ -17,6 +17,8 @@
         dark = !dark;
         window.document.body.classList.toggle("dark-mode");
     };
+
+    let scrolled = 0;
 </script>
 
 <svelte:head>
@@ -34,17 +36,19 @@
         <p id="percentage">{percent}%</p>
     </div>
 
-    <div id="sidebar">
-        <button style="border: none" on:click={() => toggleDark()}
-            >{dark ? "☾" : "☼"}</button
-        >
+    <div
+        id="sidebar"
+        style={scrolled > 100
+            ? "opacity: 0.5; border: 1px solid transparent;"
+            : ""}
+    >
+        <button on:click={() => toggleDark()}>{dark ? "☾" : "☼"}</button>
         <button on:click={() => (settingsVisible = !settingsVisible)}>
             ⚙
         </button>
         <button on:click={() => (section -= 2)}>«</button>
 
         <button on:click={() => (section += 2)}>»</button>
-
     </div>
 
     <div
@@ -57,16 +61,6 @@
 
     {#if settingsVisible}
         <div id="readerSettings">
-            <input
-                name="fontsize"
-                style="float: right; margin-right: 2%"
-                type="range"
-                min="12"
-                max="40"
-                bind:value={fontSize}
-            />
-            <label for="fontsize" style="float: right">Font size:</label>
-
             <select bind:value={fontFamily}>
                 <option style="font-family:'Arial'">Arial</option>
                 <option style="font-family:'Courier New '">Courier New </option>
@@ -75,9 +69,20 @@
                     >Times New Roman</option
                 >
             </select>
+            <br />
+            <label for="fontsize">Font size:</label>
+            <input
+                name="fontsize"
+                type="range"
+                min="12"
+                max="40"
+                bind:value={fontSize}
+            />
         </div>
     {/if}
 </main>
+
+<svelte:window bind:scrollY={scrolled} />
 
 <style>
     :global(body) {
@@ -95,11 +100,14 @@
         top: calc(10% + 4em);
         left: calc(20% + 3.5em);
         padding: 0.5em;
-        width: 20%;
-        background-color: #3e6485;
+        background-color: #414242;
+        text-align: center;
+        color: #efefef;
+        border-radius: 0.5em;
     }
 
-    h4, #percentage {
+    h4,
+    #percentage {
         display: inline;
     }
 
@@ -116,16 +124,22 @@
         top: 10%;
         left: 20%;
         width: 3.5em;
+        transition: all 0.3s;
     }
 
     #sidebar > button {
         margin: auto;
         border: none;
         background-color: transparent;
+        cursor: pointer;
         color: inherit;
         height: 2em;
         font-size: 2em;
         display: block;
+    }
+
+    #sidebar > button:hover {
+        filter: invert(0.5);
     }
 
     #topbar {
@@ -134,6 +148,4 @@
         width: 100%;
         position: fixed;
     }
-
-
 </style>
