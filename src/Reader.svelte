@@ -46,9 +46,9 @@
         <button on:click={() => (settingsVisible = !settingsVisible)}>
             ⚙
         </button>
-        <button on:click={() => (section -= 2)}>«</button>
+        <button on:click={() => {section -= 2; scrolled = 0}}>«</button>
 
-        <button on:click={() => (section += 2)}>»</button>
+        <button on:click={() => {section += 2; scrolled = 0}}>»</button>
     </div>
 
     <div
