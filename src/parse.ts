@@ -23,7 +23,7 @@ const parseOpf = (xml: string) => {
 
     const parsed = new XMLParser().parse(xml)["package"];
 
-    meta = parseMeta(parsed["metadata"]);
+    meta = parseMeta(parsed["metadata"] === undefined ? parsed["opf:metadata"] : parsed["metadata"]);
 
     const parsedAtt = new XMLParser({ ignoreAttributes: false }).parse(xml)["package"];
 
@@ -48,7 +48,6 @@ const extract = async (file: any) => {
     const { entries } = await unzip(file);
 
     let opf = "";
-
     for (const [name, entry] of Object.entries(entries)) {
         switch (name.substring(name.lastIndexOf("."))) {
             case ".opf":
@@ -61,6 +60,8 @@ const extract = async (file: any) => {
                 const url = URL.createObjectURL(blob);
                 images.push({ name, url });
                 break;
+            case ".htm":
+            case ".xml":
             case ".html":
             case ".xhtml":
                 const text = await entry.text();
@@ -103,7 +104,7 @@ const parseManifest = (manifest: object) => {
     let tempSection = [];
 
     manifest["item"].forEach(element => {
-        if (element["@_media-type"] === "application/xhtml+xml") {
+        if (element["@_media-type"] === "application/xhtml+xml" || element["@_media-type"] === "text/html") {
             tempSection.push({ id: element["@_id"], href: element["@_href"] });
         }
     });
