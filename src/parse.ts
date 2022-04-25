@@ -85,13 +85,11 @@ const updateHTML = (html: string, images: any) => {
             }
         }
 
-        return "<img src=" + images[index].url + "><img/>";
+        return "<img src=" + images[index].url + " style='max-height: 100%; max-width: 100%; object-fit: cover'><img/>";
     });
 
     return modified;
 }
-
-
 
 const parseMeta = (meta: object) => {
     const title = meta["dc:title"];
