@@ -166,4 +166,14 @@
         width: 100%;
         position: fixed;
     }
+
+    @media (max-width: 900px) { 
+		#sidebar {
+			left: 2%;
+		}
+
+        #readerSettings {
+            left: calc(2% + 3.5em);
+        }
+	 }
 </style>
