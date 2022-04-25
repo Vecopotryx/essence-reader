@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { afterUpdate } from 'svelte';
     import type { Book } from "./parse";
 
     export let book: Book;
@@ -19,6 +20,15 @@
     };
 
     let scrolled = 0;
+
+    let currentTitle = book.meta.title;
+
+    afterUpdate(() => {
+		if(currentTitle != book.meta.title){
+            section = 0;
+            currentTitle = book.meta.title;
+        }
+	})
 </script>
 
 <svelte:head>
