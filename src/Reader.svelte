@@ -29,6 +29,13 @@
             currentTitle = book.meta.title;
         }
 	})
+
+    const updateSection = (inc) => {
+        if(0 <= (section + inc) && (section + inc) <= book.contents.length){
+            section += inc;
+            scrolled = 0;
+        }
+    }
 </script>
 
 <svelte:head>
@@ -56,9 +63,9 @@
         <button on:click={() => (settingsVisible = !settingsVisible)}>
             ⚙
         </button>
-        <button on:click={() => {section -= 2; scrolled = 0}}>«</button>
+        <button on:click={() => updateSection(-2)}>«</button>
 
-        <button on:click={() => {section += 2; scrolled = 0}}>»</button>
+        <button on:click={() => updateSection(2)}>»</button>
     </div>
 
     <div
