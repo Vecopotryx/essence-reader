@@ -33,8 +33,14 @@
 		readFiles(e.dataTransfer.files[0]);
 	});
 
-	const useFileInput = (e: Event) => {
-		readFiles((e.target as HTMLInputElement).files[0]);
+	const clickFile = () => {
+		let input = document.createElement("input");
+		input.type = "file";
+		input.onchange = (e) => {
+			readFiles((e.target as HTMLInputElement).files[0]);
+		};
+
+		input.click();
 	};
 </script>
 
@@ -42,25 +48,46 @@
 	{#if reading}
 		<Reader {book} />
 	{:else}
+		<h1>Essence Reader</h1>
 		<div
+			on:click={() => clickFile()}
 			id="dropInfo"
-			style="border: 1px solid {dragging ? 'green' : 'black'}"
+			style={dragging
+				? "border: 1px solid green; background-color: #dfffdf"
+				: ""}
 		>
+			<h1>📚</h1>
 			<h2 style="color: {dragging ? 'green' : 'black'}">
-				Drop or click to select a file
+				Drop anywhere or click to select a file
 			</h2>
-			<input type="file" on:change={(e) => useFileInput(e)} />
 		</div>
 	{/if}
 </main>
 
 <style>
+	h1 {
+		text-align: center;
+		font-size: 400%;
+		margin-bottom: 0;
+	}
+
 	#dropInfo {
 		margin: 2% auto;
 		border-radius: 10px;
 		border: 1px solid black;
 		text-align: center;
+		user-select: none;
 		width: 50%;
-		height: 50%;
+		transition: all 0.3s ease;
+	}
+
+	#dropInfo:hover {
+		background-color: #dfdff0;
+	}
+
+	@media (max-width: 900px) {
+		#dropInfo {
+			width: 90%;
+		}
 	}
 </style>
