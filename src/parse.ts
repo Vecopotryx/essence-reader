@@ -8,7 +8,8 @@ interface Metadata {
 
 export type Book = {
     meta: Metadata,
-    contents: string[]
+    contents: string[],
+    styles: string[]
 }
 
 
@@ -16,6 +17,7 @@ let sections = [];
 let contents = [];
 let images = [];
 let htmls = [];
+let styles = [];
 
 let meta: Metadata;
 
@@ -39,7 +41,7 @@ export const parser = async (epub: any) => {
     htmls = [];
     parseOpf(await extract(epub));
     assembleContent();
-    return { meta, contents }
+    return { meta, contents, styles }
 
 }
 
@@ -59,6 +61,10 @@ const extract = async (file: any) => {
                 const blob = await entry.blob();
                 const url = URL.createObjectURL(blob);
                 images.push({ name, url });
+                break;
+            case ".css":
+                const css = await entry.text();
+                styles.push(css);
                 break;
             case ".htm":
             case ".xml":

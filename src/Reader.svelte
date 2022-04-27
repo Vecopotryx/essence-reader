@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { afterUpdate } from 'svelte';
+    import { afterUpdate } from "svelte";
     import type { Book } from "./parse";
 
     export let book: Book;
@@ -22,20 +22,36 @@
     let scrolled = 0;
 
     let currentTitle = book.meta.title;
-
+    
     afterUpdate(() => {
-		if(currentTitle != book.meta.title){
+        if (currentTitle != book.meta.title) {
             section = 0;
             currentTitle = book.meta.title;
+            updateStyles();
         }
-	})
+    });
+
+    const updateStyles = () => {
+        // Doesn't adapt based on which section is loaded, but works for now
+        for (let styleE of document.querySelectorAll("style")) {
+            styleE.remove();
+        }
+
+        book.styles.forEach((stylesheet) => {
+            const styleE = document.createElement("style");
+            styleE.innerText = stylesheet;
+            document.head.appendChild(styleE);
+        });
+    };
 
     const updateSection = (inc) => {
-        if(0 <= (section + inc) && (section + inc) <= book.contents.length){
+        if (0 <= section + inc && section + inc <= book.contents.length) {
             section += inc;
             scrolled = 0;
         }
-    }
+    };
+
+    updateStyles();
 </script>
 
 <svelte:head>
@@ -167,13 +183,13 @@
         position: fixed;
     }
 
-    @media (max-width: 900px) { 
-		#sidebar {
-			left: 2%;
-		}
+    @media (max-width: 900px) {
+        #sidebar {
+            left: 2%;
+        }
 
         #readerSettings {
             left: calc(2% + 3.5em);
         }
-	 }
+    }
 </style>
