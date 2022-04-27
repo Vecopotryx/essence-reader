@@ -39,7 +39,7 @@
 
         book.styles.forEach((stylesheet) => {
             const styleE = document.createElement("style");
-            styleE.innerText = stylesheet;
+            styleE.innerText = stylesheet.css;
             document.head.appendChild(styleE);
         });
     };

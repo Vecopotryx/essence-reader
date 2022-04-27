@@ -9,7 +9,7 @@ interface Metadata {
 export type Book = {
     meta: Metadata,
     contents: string[],
-    styles: string[]
+    styles: { name: string, css: string }[]
 }
 
 
@@ -64,7 +64,7 @@ const extract = async (file: any) => {
                 break;
             case ".css":
                 const css = await entry.text();
-                styles.push(css);
+                styles.push({ name, css });
                 break;
             case ".htm":
             case ".xml":
@@ -124,6 +124,19 @@ const updateHTML = (html: string) => {
         } else {
             e.remove();
         }
+    }
+
+    for (let linkE of newHTML.querySelectorAll("link")) {
+        styles.forEach(stylesheet => {
+            if (linkE.href.includes(stylesheet.name.split('\\').pop().split('/').pop())) {
+                linkE.remove();
+            }
+        });
+    }
+
+    for (let aE of newHTML.getElementsByTagName("a")) {
+        aE.removeAttribute("href");
+        // TODO: Don't remove proper links to other websites.
     }
 
     return newHTML.innerHTML;
