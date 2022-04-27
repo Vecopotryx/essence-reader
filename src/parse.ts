@@ -73,24 +73,6 @@ const extract = async (file: any) => {
     return opf;
 }
 
-
-const updateHTML = (html: string, images: any) => {
-    let modified = html.replace(/<img [^>]*src=['"]([^'"]+)[^>]*>/gi, function (match, source) {
-
-        let index = 0;
-        let filename = source.split('\\').pop().split('/').pop();
-        for (let i = 0; i < images.length; i++) {
-            if (images[i].name.includes(filename)) {
-                index = i;
-            }
-        }
-
-        return "<img src=" + images[index].url + " style='max-height: 100%; max-width: 100%; object-fit: cover'><img/>";
-    });
-
-    return modified;
-}
-
 const parseMeta = (meta: object) => {
     const title = meta["dc:title"];
     const author = meta["dc:creator"];
@@ -119,11 +101,33 @@ const parseSpine = (spine: object, manifestSec: any) => {
     sections = sortArr.map((i) => manifestSec.find((j) => j.id === i));
 }
 
+const updateHTML = (html: string) => {
+    let newHTML = document.createElement('newHTML');
+    newHTML.innerHTML = html.trim();
+    for (let e of newHTML.getElementsByTagName("img")) {
+        let index = -1;
+        let filename = e.src.split('\\').pop().split('/').pop();
+        for (let i = 0; i < images.length; i++) {
+            if (images[i].name.includes(filename)) {
+                index = i;
+                break;
+            }
+        }
+        if (index != -1) {
+            e.src = images[index].url;
+        } else {
+            e.remove();
+        }
+    }
+
+    return newHTML.innerHTML;
+}
+
 const assembleContent = () => {
     for (let i = 0; i < sections.length; i++) {
         for (const [name, text] of htmls) {
             if (name.includes(sections[i].href)) {
-                contents.push(updateHTML(text, images));
+                contents.push(updateHTML(text));
                 break;
             }
         }
