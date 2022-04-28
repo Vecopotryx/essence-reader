@@ -33,8 +33,9 @@
 
     const updateStyles = () => {
         // Doesn't adapt based on which section is loaded, but works for now
-        for (let styleE of document.querySelectorAll("style")) {
-            styleE.remove();
+        for (let styleE of document.getElementsByTagName("style")) {
+            //styleE.remove(); // Throws error parentNode = null. 
+            styleE.innerHTML = "";
         }
 
         book.styles.forEach((stylesheet) => {
