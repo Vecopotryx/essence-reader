@@ -43,7 +43,8 @@
 		input.click();
 	};
 
-	let dark = false;
+	let dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+	window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => dark = !dark);
 
 	const updateTheme = () => {
 		window.document.body.classList.toggle("dark-mode", dark);
