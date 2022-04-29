@@ -7,7 +7,7 @@
 
     let section = 0;
 
-    $: percent = Math.floor(100 * (section / book.contents.length));
+    //$: percent = Math.floor(100 * (section / book.contents.length));
 
     let fontSize = 16;
     let fontFamily = "Verdana";
@@ -16,7 +16,7 @@
     let scrolled = 0;
 
     let currentTitle = book.meta.title;
-    
+
     afterUpdate(() => {
         if (currentTitle != book.meta.title) {
             section = 0;
@@ -28,7 +28,7 @@
     const updateStyles = () => {
         // Doesn't adapt based on which section is loaded, but works for now
         for (let styleE of document.getElementsByTagName("style")) {
-            //styleE.remove(); // Throws error parentNode = null. 
+            //styleE.remove(); // Throws error parentNode = null.
             styleE.innerHTML = "";
         }
 
@@ -56,29 +56,24 @@
 </svelte:head>
 
 <main>
-    <div id="topbar">
+    <div id="topbar" style={scrolled > 100 ? "opacity: 0.5;" : ""}>
         <h4>
             <b>{book !== undefined ? book.meta.title + " - " : ""}</b>
             {book !== undefined ? book.meta.author : ""}
         </h4>
-        <p id="percentage">{percent}%</p>
-    </div>
+        <p id="percentage">{section}/{book.contents.length}</p>
 
-    <div
-        id="sidebar"
-        style={scrolled > 100
-            ? "opacity: 0.5; border: 1px solid transparent;"
-            : ""}
-    >
-        <button on:click={() => (dark = !dark)}>
-            {dark ? "☾" : "☼"}
-        </button>
-        <button on:click={() => (settingsVisible = !settingsVisible)}>
-            ⚙
-        </button>
-        <button on:click={() => updateSection(-2)}>«</button>
+        <div id="settingsbar">
+            <button on:click={() => (dark = !dark)}>
+                {dark ? "☾" : "☼"}
+            </button>
+            <button on:click={() => (settingsVisible = !settingsVisible)}>
+                ⚙
+            </button>
+            <button on:click={() => updateSection(-2)}>«</button>
 
-        <button on:click={() => updateSection(2)}>»</button>
+            <button on:click={() => updateSection(2)}>»</button>
+        </div>
     </div>
 
     <div
@@ -118,8 +113,8 @@
 <style>
     #readerSettings {
         position: fixed;
-        top: calc(10% + 4em);
-        left: calc(20% + 3.5em);
+        top: 2em;
+        right: 10%;
         padding: 0.5em;
         background-color: #414242;
         text-align: center;
@@ -138,41 +133,40 @@
         width: 50%;
     }
 
-    #sidebar {
-        border: 1px solid gray;
-        border-radius: 5px;
+    #settingsbar {
         position: fixed;
-        top: 10%;
-        left: 20%;
-        width: 3.5em;
+        top: 0;
+        right: 10%;
         transition: all 0.3s;
     }
 
-    #sidebar > button {
+    #settingsbar > button {
         margin: auto;
         border: none;
         background-color: transparent;
         cursor: pointer;
         color: inherit;
-        height: 2em;
-        font-size: 2em;
-        display: block;
+        font-size: 1.25em;
+        display: inline-block;
     }
 
-    #sidebar > button:hover {
+    #settingsbar > button:hover {
         filter: invert(0.5);
     }
 
     #topbar {
         text-align: center;
+        line-height: 2em;
+        top: 0;
         height: 2em;
         width: 100%;
+        font-size: 1.25em;
         position: fixed;
     }
 
     @media (max-width: 900px) {
-        #sidebar {
-            left: 2%;
+        #settingsbar {
+            right: 0;
         }
 
         #readerSettings {
