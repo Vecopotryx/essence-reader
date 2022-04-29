@@ -3,6 +3,7 @@
     import type { Book } from "./parse";
 
     export let book: Book;
+    export let dark;
 
     let section = 0;
 
@@ -11,13 +12,6 @@
     let fontSize = 16;
     let fontFamily = "Verdana";
     let settingsVisible = false;
-
-    let dark = false;
-
-    const toggleDark = () => {
-        dark = !dark;
-        window.document.body.classList.toggle("dark-mode");
-    };
 
     let scrolled = 0;
 
@@ -76,7 +70,9 @@
             ? "opacity: 0.5; border: 1px solid transparent;"
             : ""}
     >
-        <button on:click={() => toggleDark()}>{dark ? "☾" : "☼"}</button>
+        <button on:click={() => (dark = !dark)}>
+            {dark ? "☾" : "☼"}
+        </button>
         <button on:click={() => (settingsVisible = !settingsVisible)}>
             ⚙
         </button>
@@ -120,16 +116,6 @@
 <svelte:window bind:scrollY={scrolled} />
 
 <style>
-    :global(body) {
-        background-color: #fff;
-        color: black;
-        transition: background-color 0.3s;
-    }
-    :global(body.dark-mode) {
-        background-color: #1d3040;
-        color: #bfc2c7;
-    }
-
     #readerSettings {
         position: fixed;
         top: calc(10% + 4em);

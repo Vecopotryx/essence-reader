@@ -42,12 +42,23 @@
 
 		input.click();
 	};
+
+	let dark = false;
+
+	const updateTheme = () => {
+		window.document.body.classList.toggle("dark-mode", dark);
+	};
+
+	$: dark, updateTheme();
 </script>
 
 <main>
 	{#if reading}
-		<Reader {book} />
+		<Reader {book} bind:dark />
 	{:else}
+		<button on:click={() => (dark = !dark)} id="drkModeBtn">
+			{dark ? "☾" : "☼"}
+		</button>
 		<h1>Essence Reader</h1>
 		<div
 			on:click={() => clickFile()}
@@ -57,7 +68,7 @@
 				: ""}
 		>
 			<h1>📚</h1>
-			<h2 style="color: {dragging ? 'green' : 'black'}">
+			<h2 style="color: {dragging ? 'green' : 'gray'}">
 				Drop anywhere or click to select a file
 			</h2>
 		</div>
@@ -65,6 +76,26 @@
 </main>
 
 <style>
+	:global(body) {
+		background-color: #fff;
+		color: black;
+		transition: background-color 0.3s;
+	}
+	:global(body.dark-mode) {
+		background-color: #1d3040;
+		color: #bfc2c7;
+	}
+
+	#drkModeBtn {
+		border: none; 
+		background: none; 
+		color: inherit; 
+		font-size: 200%; 
+		position: absolute; 
+		right: 1%; 
+		top: 1%;
+	}
+
 	h1 {
 		text-align: center;
 		font-size: 400%;
