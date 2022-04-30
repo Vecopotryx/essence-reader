@@ -47,6 +47,19 @@
     };
 
     updateStyles();
+
+    const handleKeydown = ({ key }) => {
+        switch (key) {
+            case "ArrowLeft":
+                updateSection(-2);
+                break;
+            case "ArrowRight":
+                updateSection(2);
+                break;
+            default:
+                break;
+        }
+    };
 </script>
 
 <svelte:head>
@@ -108,7 +121,7 @@
     {/if}
 </main>
 
-<svelte:window bind:scrollY={scrolled} />
+<svelte:window bind:scrollY={scrolled} on:keydown={handleKeydown} />
 
 <style>
     #readerSettings {
