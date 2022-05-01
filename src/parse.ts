@@ -121,6 +121,7 @@ const updateHTML = (html: string) => {
         }
         if (index != -1) {
             e.src = images[index].url;
+            e.style.cssText += 'max-height: 100%; max-width: 100%; object-fit: scale-down;';
         } else {
             e.remove();
         }
