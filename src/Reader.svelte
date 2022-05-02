@@ -69,12 +69,14 @@
 </svelte:head>
 
 <main>
-    <div id="topbar" style={scrolled > 100 ? "opacity: 0.5;" : ""}>
-        <h4>
-            <b>{book !== undefined ? book.meta.title + " - " : ""}</b>
-            {book !== undefined ? book.meta.author : ""}
-        </h4>
-        <p id="percentage">{section}/{book.contents.length}</p>
+    <div id="topbar">
+        <div id="toptext" style={scrolled > 100 ? "opacity: 0.5;" : ""}>
+            <h4>
+                <b>{book !== undefined ? book.meta.title + " - " : ""}</b>
+                {book !== undefined ? book.meta.author : ""}
+            </h4>
+            <p id="percentage">{section}/{book.contents.length}</p>
+        </div>
 
         <div id="settingsbar">
             <button on:click={() => (dark = !dark)}>
@@ -175,11 +177,25 @@
         width: 100%;
         font-size: 1.25em;
         position: fixed;
+        background: var(--secondary-bg);
+    }
+
+    #toptext {
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        overflow: hidden;
+        transition: opacity 0.3s;
     }
 
     @media (max-width: 900px) {
         #settingsbar {
             right: 0;
+        }
+
+        #toptext {
+            text-align: left;
+            padding-left: 1%;
+            width: 75%;
         }
 
         #readerSettings {

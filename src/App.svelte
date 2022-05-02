@@ -43,11 +43,17 @@
 		input.click();
 	};
 
-	let dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-	window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => dark = !dark);
+	let dark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+	window
+		.matchMedia("(prefers-color-scheme: dark)")
+		.addEventListener("change", () => (dark = !dark));
 
 	const updateTheme = () => {
-		window.document.body.classList.toggle("dark-mode", dark);
+		if (dark) {
+			document.documentElement.setAttribute("data-theme", "dark");
+		} else {
+			document.documentElement.setAttribute("data-theme", "light");
+		}
 	};
 
 	$: dark, updateTheme();
@@ -77,23 +83,13 @@
 </main>
 
 <style>
-	:global(body) {
-		background-color: #fff;
-		color: black;
-		transition: background-color 0.3s;
-	}
-	:global(body.dark-mode) {
-		background-color: #1d3040;
-		color: #bfc2c7;
-	}
-
 	#drkModeBtn {
-		border: none; 
-		background: none; 
-		color: inherit; 
-		font-size: 200%; 
-		position: absolute; 
-		right: 1%; 
+		border: none;
+		background: none;
+		color: inherit;
+		font-size: 200%;
+		position: absolute;
+		right: 1%;
 		top: 1%;
 	}
 
