@@ -43,28 +43,21 @@
 		input.click();
 	};
 
-	let dark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-	window
-		.matchMedia("(prefers-color-scheme: dark)")
-		.addEventListener("change", () => (dark = !dark));
+	let theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
 
 	const updateTheme = () => {
-		if (dark) {
-			document.documentElement.setAttribute("data-theme", "dark");
-		} else {
-			document.documentElement.setAttribute("data-theme", "light");
-		}
+		document.documentElement.setAttribute("data-theme", theme);
 	};
 
-	$: dark, updateTheme();
+	$: theme, updateTheme();
 </script>
 
 <main>
 	{#if reading}
-		<Reader {book} bind:dark />
+		<Reader {book} bind:theme />
 	{:else}
-		<button on:click={() => (dark = !dark)} id="drkModeBtn">
-			{dark ? "☾" : "☼"}
+		<button on:click={() => (theme = theme === "dark" ? "light" : "dark")} id="drkModeBtn">
+			{theme === "dark" ? "☾" : "☼"}
 		</button>
 		<h1>Essence Reader</h1>
 		<div

@@ -25,3 +25,9 @@ body {
 	--primary-bg: #1d3040;
     --secondary-bg: #21384a;
 }
+
+[data-theme="warm"] {
+	--primary-color: #000;
+	--primary-bg: #f3dba6;
+    --secondary-bg: #958563;
+}

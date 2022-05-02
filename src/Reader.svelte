@@ -3,7 +3,7 @@
     import type { Book } from "./parse";
 
     export let book: Book;
-    export let dark;
+    export let theme: string;
 
     let section = 0;
 
@@ -79,8 +79,8 @@
         </div>
 
         <div id="settingsbar">
-            <button on:click={() => (dark = !dark)}>
-                {dark ? "☾" : "☼"}
+            <button on:click={() => (theme = theme === "dark" ? "light" : "dark")}>
+                {theme === "dark" ? "☾" : "☼"}
             </button>
             <button on:click={() => (settingsVisible = !settingsVisible)}>
                 ⚙
@@ -119,6 +119,9 @@
                 max="40"
                 bind:value={fontSize}
             />
+            <button on:click={() => (theme = "warm")}>
+                warm
+            </button>
         </div>
     {/if}
 </main>
@@ -178,6 +181,7 @@
         font-size: 1.25em;
         position: fixed;
         background: var(--secondary-bg);
+        transition: background-color 0.3s;
     }
 
     #toptext {
