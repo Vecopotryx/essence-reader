@@ -1,7 +1,7 @@
 <script lang="ts">
     import { afterUpdate } from "svelte";
     import type { Book } from "./parse";
-    import ReaderSettings from "./ReaderSettings.svelte";
+    import ReaderSettings from "./components/ReaderSettings.svelte";
 
     export let book: Book;
     export let theme: string;
@@ -108,17 +108,6 @@
 <svelte:window bind:scrollY={scrolled} on:keydown={handleKeydown} />
 
 <style>
-    #readerSettings {
-        position: fixed;
-        top: 2em;
-        right: 10%;
-        padding: 0.5em;
-        background-color: #414242;
-        text-align: center;
-        color: #efefef;
-        border-radius: 0.5em;
-    }
-
     h4,
     #percentage {
         display: inline;
