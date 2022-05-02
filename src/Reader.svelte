@@ -146,7 +146,7 @@
         font-size: 1.25em;
         position: fixed;
         background: var(--secondary-bg);
-        transition: background-color 0.3s;
+        transition: background-color 0.5s;
     }
 
     #toptext {

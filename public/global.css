@@ -9,9 +9,10 @@ body {
 	box-sizing: border-box;
 	background: var(--primary-bg);
 	color: var(--primary-color);
-	transition: background-color 0.3s;
+	transition: background-color 0.5s, color 0.5s;
 	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
 }
+
 
 :root {
 	--primary-color: black;
