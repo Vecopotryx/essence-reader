@@ -78,13 +78,10 @@
                 <b>{book !== undefined ? book.meta.title + " - " : ""}</b>
                 {book !== undefined ? book.meta.author : ""}
             </h4>
-            <p id="percentage">{section}/{book.contents.length}</p>
+            <p id="progress">{section}/{book.contents.length}</p>
         </div>
 
         <div id="settingsbar">
-            <button on:click={() => (theme = theme === "dark" ? "light" : "dark")}>
-                {theme === "dark" ? "☾" : "☼"}
-            </button>
             <button on:click={() => (settingsVisible = !settingsVisible)}>
                 ⚙
             </button>
@@ -109,7 +106,7 @@
 
 <style>
     h4,
-    #percentage {
+    #progress {
         display: inline;
     }
 

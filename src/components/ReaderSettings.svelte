@@ -11,7 +11,9 @@
 
 <main>
     <Popover bind:visible={settingsVisible} top={"3em"} right={"10%"}>
-        <select bind:value={settings.fontFamily}>
+        <label for="fontpicker">Font:</label>
+        <br />
+        <select name="fontpicker" bind:value={settings.fontFamily} style="width: 100%;">
             <option style="font-family:'Verdana'">Verdana</option>
             <option style="font-family:'Arial'">Arial</option>
             <option style="font-family:'Courier New '">Courier New </option>
@@ -22,6 +24,7 @@
         </select>
         <br />
         <label for="fontsize">Font size:</label>
+        <br />
         <input
             name="fontsize"
             type="range"
@@ -29,27 +32,34 @@
             max="40"
             bind:value={settings.fontSize}
         />
-        <div
-            style="background-color: #f3dba6; color: #000"
-            on:click={() => (theme = "warm")}
-        >
-            warm
-        </div>
-        <div
-            style="background-color: #1d3040; color: #bfc2c7"
-            on:click={() => (theme = "dark")}
-        >
-            dark
-        </div>
-        <div
-            style="background-color: #fff; color: #000"
-            on:click={() => (theme = "light")}
-        >
-            light
+
+        <div id="themePicker">
+            <div
+                style="background-color: #f3dba6; color: #000"
+                on:click={() => (theme = "warm")}
+            >
+                warm
+            </div>
+            <div
+                style="background-color: #1d3040; color: #bfc2c7"
+                on:click={() => (theme = "dark")}
+            >
+                dark
+            </div>
+            <div
+                style="background-color: #fff; color: #000"
+                on:click={() => (theme = "light")}
+            >
+                light
+            </div>
         </div>
     </Popover>
 </main>
 
 <style>
-
+    #themePicker > div {
+        border-radius: 0.2em;
+        margin: 0.2em;
+        cursor: pointer;
+    }
 </style>
