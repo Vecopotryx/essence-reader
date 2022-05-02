@@ -1,6 +1,7 @@
 <script lang="ts">
     import { afterUpdate } from "svelte";
     import type { Book } from "./parse";
+    import ReaderSettings from "./ReaderSettings.svelte";
 
     export let book: Book;
     export let theme: string;
@@ -9,9 +10,11 @@
 
     //$: percent = Math.floor(100 * (section / book.contents.length));
 
-    let fontSize = 16;
-    let fontFamily = "Verdana";
     let settingsVisible = false;
+    let settings = {
+        fontSize: 16,
+        fontFamily: "Verdana"
+    }
 
     let scrolled = 0;
 
@@ -93,37 +96,13 @@
 
     <div
         id="container"
-        style="font-size: {fontSize}px; font-family: {fontFamily};"
+        style="font-size: {settings.fontSize}px; font-family: {settings.fontFamily};"
     >
         {@html book.contents[section]}
         {@html book.contents[section + 1]}
     </div>
 
-    {#if settingsVisible}
-        <div id="readerSettings">
-            <select bind:value={fontFamily}>
-                <option style="font-family:'Verdana'">Verdana</option>
-                <option style="font-family:'Arial'">Arial</option>
-                <option style="font-family:'Courier New '">Courier New </option>
-                <option style="font-family:'Helvetica'">Helvetica</option>
-                <option style="font-family:'Times New Roman'"
-                    >Times New Roman</option
-                >
-            </select>
-            <br />
-            <label for="fontsize">Font size:</label>
-            <input
-                name="fontsize"
-                type="range"
-                min="12"
-                max="40"
-                bind:value={fontSize}
-            />
-            <button on:click={() => (theme = "warm")}>
-                warm
-            </button>
-        </div>
-    {/if}
+    <ReaderSettings bind:theme bind:settingsVisible bind:settings></ReaderSettings>
 </main>
 
 <svelte:window bind:scrollY={scrolled} on:keydown={handleKeydown} />
@@ -200,10 +179,6 @@
             text-align: left;
             padding-left: 1%;
             width: 75%;
-        }
-
-        #readerSettings {
-            left: calc(2% + 3.5em);
         }
     }
 </style>
