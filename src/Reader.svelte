@@ -156,9 +156,13 @@
         transition: opacity 0.3s;
     }
 
-    @media (max-width: 900px) {
+    @media (max-width: 1000px) {
         #settingsbar {
             right: 0;
+        }
+
+        #container {
+            width: 90%;
         }
 
         #toptext {
