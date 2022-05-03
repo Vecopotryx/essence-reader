@@ -71,5 +71,6 @@
         border-radius: 0.2em;
         margin: 0.2em;
         cursor: pointer;
+        user-select: none;
     }
 </style>
