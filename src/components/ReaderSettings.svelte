@@ -13,7 +13,11 @@
     <Popover bind:visible={settingsVisible} top={"3em"} right={"10%"}>
         <label for="fontpicker">Font:</label>
         <br />
-        <select name="fontpicker" bind:value={settings.fontFamily} style="width: 100%;">
+        <select
+            name="fontpicker"
+            bind:value={settings.fontFamily}
+            style="width: 100%;"
+        >
             <option style="font-family:'Verdana'">Verdana</option>
             <option style="font-family:'Arial'">Arial</option>
             <option style="font-family:'Courier New '">Courier New </option>
@@ -35,13 +39,19 @@
 
         <div id="themePicker">
             <div
-                style="background-color: #f3dba6; color: #000"
+                style="background-color: #f6e4bd; color: #000"
                 on:click={() => (theme = "warm")}
             >
                 warm
             </div>
             <div
-                style="background-color: #1d3040; color: #bfc2c7"
+                style="background-color: #000; color: #e9e9e9"
+                on:click={() => (theme = "black")}
+            >
+                black
+            </div>
+            <div
+                style="background-color: #032038; color: #e9e9e9"
                 on:click={() => (theme = "dark")}
             >
                 dark

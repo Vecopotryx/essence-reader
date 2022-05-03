@@ -15,19 +15,25 @@ body {
 
 
 :root {
-	--primary-color: black;
+	--primary-color: #000;
 	--primary-bg: #fff;
 	--secondary-bg: #f9f9f9;
 }
 
 [data-theme="dark"] {
-	--primary-color: #bfc2c7;
-	--primary-bg: #1d3040;
-    --secondary-bg: #274256;
+	--primary-color: #e9e9e9;
+	--primary-bg: #032038;
+    --secondary-bg: #07253e;
 }
 
 [data-theme="warm"] {
 	--primary-color: #000;
-	--primary-bg: #f3dba6;
-    --secondary-bg: #958563;
+	--primary-bg: #f6e4bd;
+    --secondary-bg: #fbeed2;
+}
+
+[data-theme="black"] {
+	--primary-color: #e9e9e9;
+	--primary-bg: #000;
+    --secondary-bg: #1c2022;
 }
