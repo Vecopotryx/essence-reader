@@ -110,7 +110,7 @@
 	}
 
 	#dropInfo {
-		margin: 2% auto;
+		margin: 4em auto;
 		border-radius: 10px;
 		border: 1px solid #537065;
 		text-align: center;
@@ -123,7 +123,7 @@
 		background-color: #dfdff0;
 	}
 
-	@media (max-width: 900px) {
+	@media (max-width: 1000px) {
 		#dropInfo {
 			width: 90%;
 		}
