@@ -1,18 +1,16 @@
-<main>
-    <div id="topbar">
-        <div id="toptext">
-            <slot name="toptext" />
-        </div>
-
-        <div class="buttonbar" id="leftbar">
-            <slot name="leftbar" />
-        </div>
-
-        <div class="buttonbar" id="rightbar">
-            <slot name="rightbar" />
-        </div>
+<div id="topbar">
+    <div id="toptext">
+        <slot name="toptext" />
     </div>
-</main>
+
+    <div class="buttonbar" id="leftbar">
+        <slot name="leftbar" />
+    </div>
+
+    <div class="buttonbar" id="rightbar">
+        <slot name="rightbar" />
+    </div>
+</div>
 
 <style>
     #rightbar {

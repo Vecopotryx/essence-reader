@@ -73,51 +73,49 @@
     </title>
 </svelte:head>
 
-<main>
-    <Topbar>
-        <button
-            slot="leftbar"
-            on:click={() => {
-                reading = false;
-                document.title = "Essence Reader";
-            }}
-            style="opacity: 0.5;"
-        >
-            {"<"}
-        </button>
-
-        <div
-            slot="toptext"
-            style="transition: opacity 0.3s; {scrolled > 100
-                ? 'opacity: 0.5;'
-                : ''}"
-        >
-            <h4>
-                <b>{book !== undefined ? book.meta.title + " - " : ""}</b>
-                {book !== undefined ? book.meta.author : ""}
-            </h4>
-            <p id="progress">{section}/{book.contents.length}</p>
-        </div>
-
-        <div slot="rightbar" style="display: inline-block">
-            <button on:click={() => (settingsVisible = !settingsVisible)}>
-                ⚙
-            </button>
-            <button on:click={() => updateSection(-2)}>«</button>
-            <button on:click={() => updateSection(2)}>»</button>
-        </div>
-    </Topbar>
+<Topbar>
+    <button
+        slot="leftbar"
+        on:click={() => {
+            reading = false;
+            document.title = "Essence Reader";
+        }}
+        style="opacity: 0.5;"
+    >
+        {"<"}
+    </button>
 
     <div
-        id="container"
-        style="font-size: {settings.fontSize}px; font-family: {settings.fontFamily};"
+        slot="toptext"
+        style="transition: opacity 0.3s; {scrolled > 100
+            ? 'opacity: 0.5;'
+            : ''}"
     >
-        {@html book.contents[section]}
-        {@html book.contents[section + 1]}
+        <h4>
+            <b>{book !== undefined ? book.meta.title + " - " : ""}</b>
+            {book !== undefined ? book.meta.author : ""}
+        </h4>
+        <p id="progress">{section}/{book.contents.length}</p>
     </div>
 
-    <ReaderSettings bind:theme bind:settingsVisible bind:settings />
-</main>
+    <div slot="rightbar" style="display: inline-block">
+        <button on:click={() => (settingsVisible = !settingsVisible)}>
+            ⚙
+        </button>
+        <button on:click={() => updateSection(-2)}>«</button>
+        <button on:click={() => updateSection(2)}>»</button>
+    </div>
+</Topbar>
+
+<div
+    id="container"
+    style="font-size: {settings.fontSize}px; font-family: {settings.fontFamily};"
+>
+    {@html book.contents[section]}
+    {@html book.contents[section + 1]}
+</div>
+
+<ReaderSettings bind:theme bind:settingsVisible bind:settings />
 
 <svelte:window bind:scrollY={scrolled} on:keydown={handleKeydown} />
 
