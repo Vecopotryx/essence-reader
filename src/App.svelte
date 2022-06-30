@@ -2,6 +2,7 @@
 	import { parser, Book } from "./parse";
 
 	import Reader from "./Reader.svelte";
+	import Topbar from "./components/Topbar.svelte";
 
 	let book: Book;
 
@@ -56,10 +57,12 @@
 	{#if reading}
 		<Reader {book} bind:theme />
 	{:else}
+		<Topbar>
+			<h3 slot="toptext" style="display: inline;">Essence Reader</h3>
+		</Topbar>
 		<button on:click={() => (theme = theme === "dark" ? "light" : "dark")} id="drkModeBtn">
 			{theme === "dark" ? "☾" : "☼"}
 		</button>
-		<h1>Essence Reader</h1>
 		<div
 			on:click={() => clickFile()}
 			id="dropInfo"

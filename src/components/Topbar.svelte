@@ -44,7 +44,7 @@
         transition: background-color 0.5s;
     }
 
-    #toptext {
+    #toptext :global(*) {
         text-overflow: ellipsis;
         white-space: nowrap;
         overflow: hidden;
