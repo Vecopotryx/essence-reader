@@ -3,6 +3,8 @@
 
 	import Reader from "./Reader.svelte";
 	import Topbar from "./components/Topbar.svelte";
+	import Popover from "./components/Popover.svelte";
+	import ThemePicker from "./components/ThemePicker.svelte";
 
 	let book: Book;
 
@@ -44,13 +46,17 @@
 		input.click();
 	};
 
-	let theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+	let theme = window.matchMedia("(prefers-color-scheme: dark)").matches
+		? "dark"
+		: "light";
 
 	const updateTheme = () => {
 		document.documentElement.setAttribute("data-theme", theme);
 	};
 
 	$: theme, updateTheme();
+
+	let settingsVisible = false;
 </script>
 
 <main>
@@ -59,10 +65,21 @@
 	{:else}
 		<Topbar>
 			<h3 slot="toptext" style="display: inline;">Essence Reader</h3>
+			<button
+				slot="buttons"
+				on:click={() => (settingsVisible = !settingsVisible)}
+			>
+				⚙
+			</button>
 		</Topbar>
-		<button on:click={() => (theme = theme === "dark" ? "light" : "dark")} id="drkModeBtn">
-			{theme === "dark" ? "☾" : "☼"}
-		</button>
+
+		<Popover visible={settingsVisible} top={"3.1em"} right={"10%"}>
+			<div style="width: 8em">
+				<p style="display: inline">Select theme</p>
+				<ThemePicker bind:theme />
+			</div>
+		</Popover>
+
 		<div
 			on:click={() => clickFile()}
 			id="dropInfo"
@@ -79,16 +96,6 @@
 </main>
 
 <style>
-	#drkModeBtn {
-		border: none;
-		background: none;
-		color: inherit;
-		font-size: 200%;
-		position: absolute;
-		right: 1%;
-		top: 1%;
-	}
-
 	h1 {
 		text-align: center;
 		font-size: 400%;
@@ -98,7 +105,7 @@
 	#dropInfo {
 		margin: 2% auto;
 		border-radius: 10px;
-		border: 1px solid black;
+		border: 1px solid #537065;
 		text-align: center;
 		user-select: none;
 		width: 50%;
