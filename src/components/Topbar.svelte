@@ -4,21 +4,32 @@
             <slot name="toptext" />
         </div>
 
-        <div id="buttonbar">
-            <slot name="buttons" />
+        <div class="buttonbar" id="leftbar">
+            <slot name="leftbar" />
+        </div>
+
+        <div class="buttonbar" id="rightbar">
+            <slot name="rightbar" />
         </div>
     </div>
 </main>
 
 <style>
-    #buttonbar {
+    #rightbar {
+        right: 10%;
+    }
+
+    #leftbar {
+        left: 1%;
+    }
+
+    .buttonbar {
         position: fixed;
         top: 0;
-        right: 10%;
         transition: all 0.3s;
     }
 
-    #buttonbar :global(button) {
+    .buttonbar :global(button) {
         margin: auto;
         border: none;
         background-color: transparent;
@@ -28,7 +39,7 @@
         display: inline-block;
     }
 
-    #buttonbar :global(button:hover) {
+    .buttonbar :global(button:hover) {
         filter: invert(0.5);
     }
 
@@ -51,13 +62,13 @@
     }
 
     @media (max-width: 1000px) {
-        #buttonbar {
+        #rightbar {
             right: 0;
         }
 
         #toptext {
             text-align: left;
-            padding-left: 1%;
+            padding-left: 5%;
             width: 75%;
         }
     }

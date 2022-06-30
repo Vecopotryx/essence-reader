@@ -68,12 +68,12 @@
 
 <main>
 	{#if reading}
-		<Reader {book} bind:theme />
+		<Reader {book} bind:theme bind:reading/>
 	{:else}
 		<Topbar>
 			<h3 slot="toptext" style="display: inline;">Essence Reader</h3>
 			<button
-				slot="buttons"
+				slot="rightbar"
 				on:click={() => (settingsVisible = !settingsVisible)}
 			>
 				⚙

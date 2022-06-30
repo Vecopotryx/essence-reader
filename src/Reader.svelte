@@ -6,6 +6,7 @@
 
     export let book: Book;
     export let theme: string;
+    export let reading: boolean;
 
     let section = 0;
 
@@ -74,6 +75,17 @@
 
 <main>
     <Topbar>
+        <button
+            slot="leftbar"
+            on:click={() => {
+                reading = false;
+                document.title = "Essence Reader";
+            }}
+            style="opacity: 0.5;"
+        >
+            {"<"}
+        </button>
+
         <div
             slot="toptext"
             style="transition: opacity 0.3s; {scrolled > 100
@@ -87,7 +99,7 @@
             <p id="progress">{section}/{book.contents.length}</p>
         </div>
 
-        <div slot="buttons" style="display: inline-block">
+        <div slot="rightbar" style="display: inline-block">
             <button on:click={() => (settingsVisible = !settingsVisible)}>
                 ⚙
             </button>
