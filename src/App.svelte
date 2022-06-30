@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { parser, Book } from "./parse";
+	import { parser, type Book } from "./parse";
 
 	import Reader from "./Reader.svelte";
 	import Topbar from "./components/Topbar.svelte";
