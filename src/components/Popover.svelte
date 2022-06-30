@@ -14,7 +14,8 @@
     #popover {
         position: fixed;
         padding: 0.5em;
-        background-color: var(--secondary-bg);
+        background: rgba(var(--secondary-bg), 0.8);
+        backdrop-filter: blur(5px);
         text-align: center;
         color: var(--primary-color);
         filter: drop-shadow(0 20px 13px rgb(0 0 0 / 0.03))

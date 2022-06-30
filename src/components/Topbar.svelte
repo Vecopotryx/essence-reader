@@ -49,8 +49,17 @@
         width: 100%;
         font-size: 1.25em;
         position: fixed;
-        background: var(--secondary-bg);
+        background: rgba(var(--secondary-bg), 0.8);
+        backdrop-filter: blur(5px);
         transition: background-color 0.5s;
+        filter: drop-shadow(0 20px 13px rgb(0 0 0 / 0.03))
+            drop-shadow(0 8px 5px rgb(0 0 0 / 0.08));
+    }
+
+    @supports not (backdrop-filter: blur(5px)) {
+        #topbar {
+            background-color: rgb(var(--secondary-bg));
+        }
     }
 
     #toptext :global(*) {
