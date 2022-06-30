@@ -127,6 +127,16 @@ const updateHTML = (html: string) => {
         }
     }
 
+    for (let e of newHTML.getElementsByTagName("image")) {
+        let filename = e.getAttributeNS('http://www.w3.org/1999/xlink', 'href').split('\\').pop().split('/').pop();
+        for (let i = 0; i < images.length; i++) {
+            if (images[i].name.includes(filename)) {
+                e.setAttributeNS('http://www.w3.org/1999/xlink', 'href', images[i].url);
+                break;
+            }
+        }
+    }
+
     for (let linkE of newHTML.querySelectorAll("link")) {
         styles.forEach(stylesheet => {
             if (linkE.href.includes(stylesheet.name.split('\\').pop().split('/').pop())) {
