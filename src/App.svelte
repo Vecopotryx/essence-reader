@@ -46,12 +46,19 @@
 		input.click();
 	};
 
-	let theme = window.matchMedia("(prefers-color-scheme: dark)").matches
-		? "dark"
-		: "light";
+	let theme: string;
+
+	if (localStorage.getItem("theme") !== null) {
+		theme = localStorage.getItem("theme");
+	} else {
+		theme = window.matchMedia("(prefers-color-scheme: dark)").matches
+			? "dark"
+			: "light";
+	}
 
 	const updateTheme = () => {
 		document.documentElement.setAttribute("data-theme", theme);
+		localStorage.setItem("theme", theme);
 	};
 
 	$: theme, updateTheme();
