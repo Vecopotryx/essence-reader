@@ -1,6 +1,7 @@
 <script lang="ts">
     import { afterUpdate } from "svelte";
     import type { Book } from "./parse";
+    import Topbar from "./components/Topbar.svelte";
     import ReaderSettings from "./components/ReaderSettings.svelte";
 
     export let book: Book;
@@ -13,8 +14,8 @@
     let settingsVisible = false;
     let settings = {
         fontSize: 16,
-        fontFamily: "Verdana"
-    }
+        fontFamily: "Verdana",
+    };
 
     let scrolled = 0;
 
@@ -72,8 +73,13 @@
 </svelte:head>
 
 <main>
-    <div id="topbar">
-        <div id="toptext" style={scrolled > 100 ? "opacity: 0.5;" : ""}>
+    <Topbar>
+        <div
+            slot="toptext"
+            style="transition: opacity 0.3s; {scrolled > 100
+                ? 'opacity: 0.5;'
+                : ''}"
+        >
             <h4>
                 <b>{book !== undefined ? book.meta.title + " - " : ""}</b>
                 {book !== undefined ? book.meta.author : ""}
@@ -81,15 +87,14 @@
             <p id="progress">{section}/{book.contents.length}</p>
         </div>
 
-        <div id="settingsbar">
+        <div slot="buttons" style="display: inline-block">
             <button on:click={() => (settingsVisible = !settingsVisible)}>
                 ⚙
             </button>
             <button on:click={() => updateSection(-2)}>«</button>
-
             <button on:click={() => updateSection(2)}>»</button>
         </div>
-    </div>
+    </Topbar>
 
     <div
         id="container"
@@ -99,7 +104,7 @@
         {@html book.contents[section + 1]}
     </div>
 
-    <ReaderSettings bind:theme bind:settingsVisible bind:settings></ReaderSettings>
+    <ReaderSettings bind:theme bind:settingsVisible bind:settings />
 </main>
 
 <svelte:window bind:scrollY={scrolled} on:keydown={handleKeydown} />
@@ -116,59 +121,9 @@
         width: 50%;
     }
 
-    #settingsbar {
-        position: fixed;
-        top: 0;
-        right: 10%;
-        transition: all 0.3s;
-    }
-
-    #settingsbar > button {
-        margin: auto;
-        border: none;
-        background-color: transparent;
-        cursor: pointer;
-        color: inherit;
-        font-size: 1.25em;
-        display: inline-block;
-    }
-
-    #settingsbar > button:hover {
-        filter: invert(0.5);
-    }
-
-    #topbar {
-        text-align: center;
-        line-height: 2em;
-        top: 0;
-        height: 2em;
-        width: 100%;
-        font-size: 1.25em;
-        position: fixed;
-        background: var(--secondary-bg);
-        transition: background-color 0.5s;
-    }
-
-    #toptext {
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        overflow: hidden;
-        transition: opacity 0.3s;
-    }
-
     @media (max-width: 1000px) {
-        #settingsbar {
-            right: 0;
-        }
-
         #container {
             width: 90%;
-        }
-
-        #toptext {
-            text-align: left;
-            padding-left: 1%;
-            width: 75%;
         }
     }
 </style>

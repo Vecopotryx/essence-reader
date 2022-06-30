@@ -10,7 +10,7 @@
 </script>
 
 <main>
-    <Popover bind:visible={settingsVisible} top={"3em"} right={"10%"}>
+    <Popover bind:visible={settingsVisible} top={"3.1em"} right={"10%"}>
         <label for="fontpicker">Font:</label>
         <br />
         <select
