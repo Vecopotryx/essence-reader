@@ -42,7 +42,6 @@ export const parser = async (epub: any) => {
     parseOpf(await extract(epub));
     assembleContent();
     return { meta, contents, styles }
-
 }
 
 
@@ -55,6 +54,7 @@ const extract = async (file: any) => {
             case ".opf":
                 opf = await entry.text();
                 break;
+            case ".png":
             case ".jpg":
             case ".jpeg":
             case ".gif":
@@ -110,7 +110,40 @@ const parseSpine = (spine: object, manifestSec: any) => {
 const updateHTML = (html: string) => {
     let newHTML = document.createElement('newHTML');
     newHTML.innerHTML = html.trim();
-    for (let e of newHTML.getElementsByTagName("img")) {
+
+
+    for (let e of newHTML.querySelectorAll<HTMLElement>('[src],[href]')) {
+        switch (e.tagName) {
+            case "IMG":
+                let index = -1;
+                let filename = e.getAttribute("src").split('\\').pop().split('/').pop();
+                if (e.getAttribute("src").includes("png")) {
+                    console.log(e);
+                }
+                for (let i = 0; i < images.length; i++) {
+                    if (images[i].name.includes(filename)) {
+                        index = i;
+                        break;
+                    }
+                }
+                if (index != -1) {
+                    e.setAttribute("src", images[index].url);
+                    e.style.cssText += 'max-height: 100%; max-width: 100%; object-fit: scale-down;';
+                } else {
+                    e.remove();
+                }
+                break;
+            case "A":
+                if (!e.getAttribute("href").includes("http")) {
+                    e.removeAttribute("href");
+                }
+                break;
+            default: break;
+
+
+        }
+    }
+    /*for (let e of newHTML.getElementsByTagName("img")) {
         let index = -1;
         let filename = e.src.split('\\').pop().split('/').pop();
         for (let i = 0; i < images.length; i++) {
@@ -125,7 +158,7 @@ const updateHTML = (html: string) => {
         } else {
             e.remove();
         }
-    }
+    }*/
 
     for (let e of newHTML.getElementsByTagName("image")) {
         let filename = e.getAttributeNS('http://www.w3.org/1999/xlink', 'href').split('\\').pop().split('/').pop();
@@ -145,10 +178,10 @@ const updateHTML = (html: string) => {
         });
     }
 
-    for (let aE of newHTML.getElementsByTagName("a")) {
+    /*for (let aE of newHTML.getElementsByTagName("a")) {
         aE.removeAttribute("href");
         // TODO: Don't remove proper links to other websites.
-    }
+    }*/
 
     return newHTML.innerHTML;
 }
