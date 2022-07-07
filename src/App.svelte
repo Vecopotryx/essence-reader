@@ -73,6 +73,7 @@
 		<Topbar>
 			<h3 slot="toptext" style="display: inline;">Essence Reader</h3>
 			<button
+				class="settingsBtn"
 				slot="rightbar"
 				on:click={() => (settingsVisible = !settingsVisible)}
 			>
@@ -80,7 +81,7 @@
 			</button>
 		</Topbar>
 
-		<Popover visible={settingsVisible} top={"3.1em"} right={"10%"}>
+		<Popover bind:visible={settingsVisible} top={"3.1em"} right={"10%"}>
 			<div style="width: 8em">
 				<p style="display: inline">Select theme</p>
 				<ThemePicker bind:theme />

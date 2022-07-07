@@ -2,10 +2,36 @@
     export let visible: boolean;
     export let top: string;
     export let right: string;
+
+    function clickOutside(node: Node) {
+        const handleClick = (event: Event) => {
+            if (event.target instanceof Element) {
+                if (
+                    !node.contains(event.target) &&
+                    event.target.className !== "settingsBtn"
+                ) {
+                    node.dispatchEvent(new CustomEvent("outclick"));
+                }
+            }
+        };
+
+        document.addEventListener("click", handleClick, true);
+
+        return {
+            destroy() {
+                document.removeEventListener("click", handleClick, true);
+            },
+        };
+    }
 </script>
 
 {#if visible}
-    <div id="popover" style="top: {top}; right: {right}">
+    <div
+        id="popover"
+        style="top: {top}; right: {right}"
+        use:clickOutside
+        on:outclick={() => (visible = false)}
+    >
         <slot />
     </div>
 {/if}

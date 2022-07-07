@@ -99,7 +99,10 @@
     </div>
 
     <div slot="rightbar" style="display: inline-block">
-        <button on:click={() => (settingsVisible = !settingsVisible)}>
+        <button
+            class="settingsBtn"
+            on:click={() => (settingsVisible = !settingsVisible)}
+        >
             ⚙
         </button>
         <button on:click={() => updateSection(-2)}>«</button>
