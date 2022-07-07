@@ -11,7 +11,7 @@
     export let settingsVisible = false;
 </script>
 
-<Popover bind:visible={settingsVisible} top={"3.1em"} right={"10%"}>
+<Popover bind:visible={settingsVisible} top={"3.1em"} right={"1%"}>
     <label for="fontpicker">Font:</label>
     <br />
     <select

@@ -1,10 +1,10 @@
 <div id="topbar">
-    <div id="toptext">
-        <slot name="toptext" />
-    </div>
-
     <div class="buttonbar" id="leftbar">
         <slot name="leftbar" />
+    </div>
+
+    <div id="toptext">
+        <slot name="toptext" />
     </div>
 
     <div class="buttonbar" id="rightbar">
@@ -14,17 +14,15 @@
 
 <style>
     #rightbar {
-        right: 10%;
+        margin-right: 1%;
+        text-align: right;
+        min-width: max-content;
     }
 
     #leftbar {
-        left: 1%;
-    }
-
-    .buttonbar {
-        position: fixed;
-        top: 0;
-        transition: all 0.3s;
+        margin-left: 1%;
+        text-align: left;
+        min-width: max-content;
     }
 
     .buttonbar :global(button) {
@@ -42,6 +40,9 @@
     }
 
     #topbar {
+        display: grid;
+        gap: 1%;
+        grid-template-columns: 1fr auto 1fr;
         text-align: center;
         line-height: 2em;
         top: 0;
@@ -62,21 +63,13 @@
         }
     }
 
+    #toptext {
+        min-width: 0;
+    }
+
     #toptext :global(*) {
         text-overflow: ellipsis;
         white-space: nowrap;
         overflow: hidden;
-    }
-
-    @media (max-width: 1000px) {
-        #rightbar {
-            right: 0;
-        }
-
-        #toptext {
-            text-align: left;
-            padding-left: 5%;
-            width: 75%;
-        }
     }
 </style>
