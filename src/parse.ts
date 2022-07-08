@@ -53,6 +53,28 @@ const cssNester = (css: string, nestWith: string) => {
     return css.replace(/__keyframes__/g, x => kframes.shift());
 }
 
+const updateCSS = (css: string) => {
+    let newCss = cssNester(css, "#container");
+
+    newCss = newCss.replace(/url\((?!['"]?(?:data):)['"]?([^'"\)]*)['"]?\)/g, function (match, source) {
+
+        let filename = source.split('\\').pop().split('/').pop();
+        let imageTypes = [".png", ".jpg", "jpeg", ".gif"];
+
+        if (imageTypes.some(s => filename.endsWith(s))) {
+            for (let { name, url } of images) {
+                if (name.includes(filename)) {
+                    return "url(" + url + ")";
+                }
+            }
+        }
+
+        return "";
+    });
+
+    return newCss;
+}
+
 const extract = async (file: any) => {
     const { entries } = await unzip(file);
 
@@ -72,7 +94,7 @@ const extract = async (file: any) => {
                 break;
             case ".css": {
                 const text = await entry.text();
-                const css = cssNester(text, "#container")
+                const css = updateCSS(text);
                 styles.push({ name, css });
                 break;
             }
