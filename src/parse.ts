@@ -45,6 +45,14 @@ export const parser = async (epub: any) => {
 }
 
 
+const cssNester = (css: string, nestWith: string) => {
+    // Found on Stackoverflow and works great: https://stackoverflow.com/a/67517828
+    let kframes = [];
+    css = css.replace(/@(-moz-|-webkit-|-ms-)*keyframes\s(.*?){([0-9%a-zA-Z,\s.]*{(.*?)})*[\s\n]*}/g, x => kframes.push(x) && '__keyframes__');
+    css = css.replace(/([^\r\n,{}]+)(,(?=[^}]*{)|\s*{)/g, x => x.trim()[0] === '@' ? x : x.replace(/(\s*)/, '$1' + nestWith + ' '));
+    return css.replace(/__keyframes__/g, x => kframes.shift());
+}
+
 const extract = async (file: any) => {
     const { entries } = await unzip(file);
 
@@ -62,10 +70,12 @@ const extract = async (file: any) => {
                 const url = URL.createObjectURL(blob);
                 images.push({ name, url });
                 break;
-            case ".css":
-                const css = await entry.text();
+            case ".css": {
+                const text = await entry.text();
+                const css = cssNester(text, "#container")
                 styles.push({ name, css });
                 break;
+            }
             case ".htm":
             case ".xml":
             case ".html":
