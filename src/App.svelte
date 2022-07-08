@@ -18,7 +18,7 @@
 				shouldSave = false;
 			}
 		}
-		if (shouldSave) {
+		if (shouldSave && saveBooksOn) {
 			addBook(book.meta, file);
 		}
 		reading = true;
@@ -27,6 +27,18 @@
 	let reading = false;
 
 	let dragging = false;
+
+	let saveBooksOn: boolean;
+
+	if(localStorage.getItem("saveBooksOn") !== null){
+		saveBooksOn = JSON.parse(localStorage.getItem("saveBooksOn"));
+	}
+
+	const updateSaving = () => {
+		localStorage.setItem("saveBooksOn", JSON.stringify(saveBooksOn));
+	}
+
+	$: saveBooksOn, updateSaving()
 
 	window.addEventListener("dragenter", (e) => {
 		if (e.dataTransfer.types.includes("Files")) {
@@ -114,7 +126,13 @@
 
 		<Popover bind:visible={settingsVisible} top={"3.1em"} right={"1%"}>
 			<div style="width: 8em">
+				<label style="user-select: none">
+					<input type="checkbox" bind:checked={saveBooksOn} />
+					Save books
+				</label><br />
+				<hr />
 				<p style="display: inline">Select theme</p>
+
 				<ThemePicker bind:theme />
 			</div>
 		</Popover>
