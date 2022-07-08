@@ -6,7 +6,7 @@
 	import Topbar from "./components/Topbar.svelte";
 	import Popover from "./components/Popover.svelte";
 	import ThemePicker from "./components/ThemePicker.svelte";
-import StoredBooks from "./components/StoredBooks.svelte";
+	import StoredBooks from "./components/StoredBooks.svelte";
 
 	let book: Book;
 
@@ -111,7 +111,6 @@ import StoredBooks from "./components/StoredBooks.svelte";
 				⚙
 			</button>
 		</Topbar>
-		
 
 		<Popover bind:visible={settingsVisible} top={"3.1em"} right={"1%"}>
 			<div style="width: 8em">
@@ -120,21 +119,20 @@ import StoredBooks from "./components/StoredBooks.svelte";
 			</div>
 		</Popover>
 
-		<div
-			on:click={() => clickFile()}
-			id="dropInfo"
-			style={dragging
-				? "border: 1px solid green; background-color: #dfffdf"
-				: ""}
-		>
-			<h1>📚</h1>
-			<h2 style="color: {dragging ? 'green' : 'gray'}">
-				Drop anywhere or click to select a file
-			</h2>
-		</div>
-
-		<StoredBooks readFiles={readFiles}/>
-
+		<StoredBooks {readFiles}>
+			<div
+				on:click={() => clickFile()}
+				id="dropInfo"
+				style={dragging
+					? "border: 1px solid green; background-color: #dfffdf"
+					: ""}
+			>
+				<h1>📚</h1>
+				<h2 style="color: {dragging ? 'green' : 'gray'}">
+					Drop anywhere or click to select a file
+				</h2>
+			</div>
+		</StoredBooks>
 	{/if}
 </main>
 
@@ -146,13 +144,19 @@ import StoredBooks from "./components/StoredBooks.svelte";
 	}
 
 	#dropInfo {
-		margin: 4em auto;
 		border-radius: 10px;
 		border: 1px solid #537065;
 		text-align: center;
 		user-select: none;
-		width: 50%;
+		vertical-align: middle;
+		flex-basis: 0;
+		flex-grow: 1;
+		max-height: 15em;
+		margin: 0 auto;
+		max-width: 90vw;
+		min-width: 20vw;
 		transition: all 0.3s ease;
+		cursor: pointer;
 	}
 
 	#dropInfo:hover {

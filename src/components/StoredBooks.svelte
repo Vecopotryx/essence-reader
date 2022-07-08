@@ -12,7 +12,7 @@
 </script>
 
 {#if $books}
-    <div id="parent" style="padding-top: 3.1em">
+    <div id="parent">
         {#each $books as book (book.id)}
             <div id="book" on:click={() => readFiles(book.file)}>
                 <button
@@ -26,17 +26,19 @@
                     src={book.cover !== undefined
                         ? URL.createObjectURL(book.cover)
                         : ""}
-                    height="300em"
                     alt="cover"
                 />
                 <p>{book.author + " - " + book.title}</p>
             </div>
         {/each}
+        <slot />
     </div>
 {/if}
 
 <style>
     #parent {
+        padding: 1em;
+        padding-top: 3.5em;
         text-align: center;
         display: flex;
         flex-wrap: wrap;
@@ -44,13 +46,15 @@
     }
 
     #book {
-        flex-basis:0;
+        flex-basis: 0;
         flex-grow: 1;
         max-width: 25em;
-        transition: transform 0.25s;
+        filter: drop-shadow(0 15px 15px rgb(0 0 0 / 0.15));
+        transition: transform 0.25s, filter 0.25s;
     }
 
     #book > img {
+        height: 15em;
         border-radius: 0.5em;
         margin: auto;
     }
@@ -58,12 +62,12 @@
     #book:hover {
         transform: scale(1.1);
         cursor: pointer;
+        filter: drop-shadow(0 55px 55px rgb(0 0 0 / 0.15));
     }
 
     #deleteBtn {
         display: none;
         position: absolute;
-        left: 50;
     }
 
     #book:hover #deleteBtn {
