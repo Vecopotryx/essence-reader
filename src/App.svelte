@@ -32,6 +32,8 @@
 
 	if(localStorage.getItem("saveBooksOn") !== null){
 		saveBooksOn = JSON.parse(localStorage.getItem("saveBooksOn"));
+	} else {
+		saveBooksOn = true;
 	}
 
 	const updateSaving = () => {
