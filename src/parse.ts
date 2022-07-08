@@ -18,6 +18,7 @@ let contents = [];
 let images = [];
 let htmls = [];
 let styles = [];
+let fonts = [];
 
 let meta: Metadata;
 
@@ -39,6 +40,7 @@ export const parser = async (epub: any) => {
     images = [];
     sections = [];
     htmls = [];
+    fonts = [];
     parseOpf(await extract(epub));
     assembleContent();
     return { meta, contents, styles }
@@ -60,12 +62,18 @@ const updateCSS = (css: string) => {
 
         let filename = source.split('\\').pop().split('/').pop();
         let imageTypes = [".png", ".jpg", "jpeg", ".gif"];
+        let fontTypes = [".ttf", ".opf", "otf", ".woff"];
+        let array = [];
 
         if (imageTypes.some(s => filename.endsWith(s))) {
-            for (let { name, url } of images) {
-                if (name.includes(filename)) {
-                    return "url(" + url + ")";
-                }
+            array = images;
+        } else if (fontTypes.some(s => filename.endsWith(s))) {
+            array = fonts;
+        }
+
+        for (let { name, url } of array) {
+            if (name.includes(filename)) {
+                return "url(" + url + ")";
             }
         }
 
@@ -93,8 +101,7 @@ const extract = async (file: any) => {
                 images.push({ name, url });
                 break;
             case ".css": {
-                const text = await entry.text();
-                const css = updateCSS(text);
+                const css = await entry.text();
                 styles.push({ name, css });
                 break;
             }
@@ -105,6 +112,14 @@ const extract = async (file: any) => {
                 const text = await entry.text();
                 htmls.push([name, text]);
                 break;
+            case ".otf":
+            case ".ttf":
+            case ".opf":
+            case ".woff": {
+                const blob = await entry.blob();
+                const url = URL.createObjectURL(blob);
+                fonts.push({ name, url });
+            }
             default: break;
         }
     }
@@ -190,5 +205,9 @@ const assembleContent = () => {
                 break;
             }
         }
+    }
+
+    for (let i = 0; i < styles.length; i++) {
+        styles[i].css = updateCSS(styles[i].css);
     }
 }
