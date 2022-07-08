@@ -90,17 +90,10 @@
 
 	async function addBook(meta: any, file: any) {
 		try {
-			let blob = await fetch(
-				"https://c.tenor.com/yheo1GGu3FwAAAAC/rick-roll-rick-ashley.gif"
-			).then((r) => r.blob());
-
-			if (meta.cover !== undefined) {
-				blob = await fetch(meta.cover).then((r) => r.blob());
-			}
 			const id = await db.books.add({
 				author: meta.author,
 				title: meta.title,
-				cover: blob,
+				cover: await fetch(meta.cover).then((r) => r.blob()),
 				file: file,
 			});
 		} catch (error) {

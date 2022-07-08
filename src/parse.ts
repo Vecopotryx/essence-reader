@@ -23,14 +23,13 @@ let fonts: { name: string, url: string }[] = [];
 let meta: Metadata;
 
 const parseOpf = (xml: string) => {
+    const parsedAtt = new XMLParser({ ignoreAttributes: false }).parse(xml)["package"];
+
+    const manifestSections = parseManifest(parsedAtt["manifest"]);
 
     const parsed = new XMLParser().parse(xml)["package"];
 
     meta = parseMeta(parsed["metadata"] === undefined ? parsed["opf:metadata"] : parsed["metadata"]);
-
-    const parsedAtt = new XMLParser({ ignoreAttributes: false }).parse(xml)["package"];
-
-    const manifestSections = parseManifest(parsedAtt["manifest"]);
 
     parseSpine(parsedAtt["spine"], manifestSections);
 }
@@ -127,13 +126,17 @@ const extract = async (file: any) => {
     return opf;
 }
 
+let coverFilename = "";
+
 const parseMeta = (meta: object) => {
     const title = meta["dc:title"];
     const author = meta["dc:creator"];
-    let cover = undefined;
-    for(let { name, url } of images){
-        if(name.includes("cover")){
-            // Not all books have cover in the name of the image
+    let cover = images[0].url;
+    for (let { name, url } of images) {
+        if (name.includes(coverFilename)) {
+            cover = url;
+            break;
+        } else if (name.includes("cover")) {
             cover = url;
         }
     }
@@ -147,6 +150,8 @@ const parseManifest = (manifest: object) => {
     manifest["item"].forEach(element => {
         if (element["@_media-type"] === "application/xhtml+xml" || element["@_media-type"] === "text/html") {
             tempSections.push({ id: element["@_id"], href: element["@_href"] });
+        } else if (element["@_media-type"].includes("image") && element["@_id"].includes("cover")) {
+            coverFilename = element["@_href"];
         }
     });
 

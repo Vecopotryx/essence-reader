@@ -57,6 +57,8 @@
         height: 15em;
         border-radius: 0.5em;
         margin: auto;
+        max-width: 10em;
+        object-fit: cover;
     }
 
     #book:hover {
