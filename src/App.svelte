@@ -1,12 +1,12 @@
 <script lang="ts">
 	import { parser, type Book } from "./parse";
 	import { db } from "./db";
-	import { liveQuery } from "dexie";
 
 	import Reader from "./Reader.svelte";
 	import Topbar from "./components/Topbar.svelte";
 	import Popover from "./components/Popover.svelte";
 	import ThemePicker from "./components/ThemePicker.svelte";
+import StoredBooks from "./components/StoredBooks.svelte";
 
 	let book: Book;
 
@@ -14,7 +14,7 @@
 		book = await parser(file);
 		let shouldSave = file.size < 30000000;
 		for (let storedBook of await db.books.toArray()) {
-			if (storedBook.name === book.meta.title) {
+			if (storedBook.title === book.meta.title) {
 				shouldSave = false;
 			}
 		}
@@ -86,7 +86,8 @@
 				blob = await fetch(meta.cover).then((r) => r.blob());
 			}
 			const id = await db.books.add({
-				name: meta.title,
+				author: meta.author,
+				title: meta.title,
 				cover: blob,
 				file: file,
 			});
@@ -94,12 +95,6 @@
 			console.log(error);
 		}
 	}
-
-	async function deleteBook(id: number) {
-		await db.books.delete(id);
-	}
-
-	let books = liveQuery(() => db.books.toArray());
 </script>
 
 <main>
@@ -116,28 +111,7 @@
 				⚙
 			</button>
 		</Topbar>
-
-		<div style="padding-top: 3.1em">
-			<h2>Books:</h2>
-			{#if $books}
-				{#each $books as book (book.id)}
-					<h4>{book.name}</h4>
-					<img
-						src={book.cover !== undefined
-							? URL.createObjectURL(book.cover)
-							: ""}
-						width="100vw"
-						alt="cover"
-					/>
-					<button on:click={() => deleteBook(book.id)}
-						>Delete book</button
-					>
-					<button on:click={() => readFiles(book.file)}
-						>Open this book</button
-					>
-				{/each}
-			{/if}
-		</div>
+		
 
 		<Popover bind:visible={settingsVisible} top={"3.1em"} right={"1%"}>
 			<div style="width: 8em">
@@ -158,6 +132,9 @@
 				Drop anywhere or click to select a file
 			</h2>
 		</div>
+
+		<StoredBooks readFiles={readFiles}/>
+
 	{/if}
 </main>
 

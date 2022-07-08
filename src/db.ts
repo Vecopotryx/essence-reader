@@ -2,7 +2,8 @@ import Dexie, { type Table } from 'dexie';
 
 export interface Book {
   id?: number;
-  name: string;
+  author: string;
+  title: string;
   cover: any;
   file: any;
 }
@@ -13,7 +14,7 @@ export class MySubClassedDexie extends Dexie {
   constructor() {
     super('bookDB');
     this.version(1).stores({
-      books: '++id, name, cover, file'
+      books: '++id, author, title, cover, file'
     });
   }
 }
