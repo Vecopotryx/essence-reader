@@ -1,5 +1,7 @@
 <script lang="ts">
 	import { parser, type Book } from "./parse";
+	import { db } from "./db";
+	import { liveQuery } from "dexie";
 
 	import Reader from "./Reader.svelte";
 	import Topbar from "./components/Topbar.svelte";
@@ -10,6 +12,15 @@
 
 	async function readFiles(file: object) {
 		book = await parser(file);
+		let shouldSave = file.size < 30000000;
+		for (let storedBook of await db.books.toArray()) {
+			if (storedBook.name === book.meta.title) {
+				shouldSave = false;
+			}
+		}
+		if (shouldSave) {
+			addBook(book.meta, file);
+		}
 		reading = true;
 	}
 
@@ -64,11 +75,36 @@
 	$: theme, updateTheme();
 
 	let settingsVisible = false;
+
+	async function addBook(meta: any, file: any) {
+		try {
+			let blob = await fetch(
+				"https://c.tenor.com/yheo1GGu3FwAAAAC/rick-roll-rick-ashley.gif"
+			).then((r) => r.blob());
+
+			if (meta.cover !== undefined) {
+				blob = await fetch(meta.cover).then((r) => r.blob());
+			}
+			const id = await db.books.add({
+				name: meta.title,
+				cover: blob,
+				file: file,
+			});
+		} catch (error) {
+			console.log(error);
+		}
+	}
+
+	async function deleteBook(id: number) {
+		await db.books.delete(id);
+	}
+
+	let books = liveQuery(() => db.books.toArray());
 </script>
 
 <main>
 	{#if reading}
-		<Reader {book} bind:theme bind:reading/>
+		<Reader {book} bind:theme bind:reading />
 	{:else}
 		<Topbar>
 			<h3 slot="toptext" style="display: inline;">Essence Reader</h3>
@@ -80,6 +116,28 @@
 				⚙
 			</button>
 		</Topbar>
+
+		<div style="padding-top: 3.1em">
+			<h2>Books:</h2>
+			{#if $books}
+				{#each $books as book (book.id)}
+					<h4>{book.name}</h4>
+					<img
+						src={book.cover !== undefined
+							? URL.createObjectURL(book.cover)
+							: ""}
+						width="100vw"
+						alt="cover"
+					/>
+					<button on:click={() => deleteBook(book.id)}
+						>Delete book</button
+					>
+					<button on:click={() => readFiles(book.file)}
+						>Open this book</button
+					>
+				{/each}
+			{/if}
+		</div>
 
 		<Popover bind:visible={settingsVisible} top={"3.1em"} right={"1%"}>
 			<div style="width: 8em">

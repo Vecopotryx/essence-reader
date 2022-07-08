@@ -4,6 +4,7 @@ import { unzip } from "unzipit";
 interface Metadata {
     title: string;
     author: string[];
+    cover: any;
 }
 
 export type Book = {
@@ -129,7 +130,14 @@ const extract = async (file: any) => {
 const parseMeta = (meta: object) => {
     const title = meta["dc:title"];
     const author = meta["dc:creator"];
-    return { title, author };
+    let cover = undefined;
+    for(let { name, url } of images){
+        if(name.includes("cover")){
+            // Not all books have cover in the name of the image
+            cover = url;
+        }
+    }
+    return { title, author, cover };
 }
 
 
