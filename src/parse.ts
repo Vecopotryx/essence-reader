@@ -12,13 +12,12 @@ export type Book = {
     styles: { name: string, css: string }[]
 }
 
-
-let sections = [];
-let contents = [];
-let images = [];
-let htmls = [];
-let styles = [];
-let fonts = [];
+let contents: string[] = [];
+let sections: { id: string, href: string }[] = [];
+let images: { name: string, url: string }[] = [];
+let htmls: { name: string, html: string }[] = [];
+let styles: { name: string, css: string }[] = [];
+let fonts: { name: string, url: string }[] = [];
 
 let meta: Metadata;
 
@@ -62,7 +61,7 @@ const updateCSS = (css: string) => {
 
         let filename = source.split('\\').pop().split('/').pop();
         let imageTypes = [".png", ".jpg", "jpeg", ".gif"];
-        let fontTypes = [".ttf", ".opf", "otf", ".woff"];
+        let fontTypes = [".otf", "ttf", ".woff"];
         let array = [];
 
         if (imageTypes.some(s => filename.endsWith(s))) {
@@ -95,11 +94,12 @@ const extract = async (file: any) => {
             case ".png":
             case ".jpg":
             case ".jpeg":
-            case ".gif":
+            case ".gif": {
                 const blob = await entry.blob();
                 const url = URL.createObjectURL(blob);
                 images.push({ name, url });
                 break;
+            }
             case ".css": {
                 const css = await entry.text();
                 styles.push({ name, css });
@@ -108,13 +108,13 @@ const extract = async (file: any) => {
             case ".htm":
             case ".xml":
             case ".html":
-            case ".xhtml":
-                const text = await entry.text();
-                htmls.push([name, text]);
+            case ".xhtml": {
+                const html = await entry.text();
+                htmls.push({ name, html });
                 break;
+            }
             case ".otf":
             case ".ttf":
-            case ".opf":
             case ".woff": {
                 const blob = await entry.blob();
                 const url = URL.createObjectURL(blob);
@@ -134,15 +134,15 @@ const parseMeta = (meta: object) => {
 
 
 const parseManifest = (manifest: object) => {
-    let tempSection = [];
+    let tempSections: { id: string, href: string }[] = [];
 
     manifest["item"].forEach(element => {
         if (element["@_media-type"] === "application/xhtml+xml" || element["@_media-type"] === "text/html") {
-            tempSection.push({ id: element["@_id"], href: element["@_href"] });
+            tempSections.push({ id: element["@_id"], href: element["@_href"] });
         }
     });
 
-    return tempSection;
+    return tempSections;
 }
 
 const parseSpine = (spine: object, manifestSec: any) => {
@@ -199,7 +199,7 @@ const updateHTML = (html: string) => {
 
 const assembleContent = () => {
     for (let i = 0; i < sections.length; i++) {
-        for (const [name, text] of htmls) {
+        for (const { name, html: text } of htmls) {
             if (name.includes(sections[i].href)) {
                 contents.push(updateHTML(text));
                 break;
