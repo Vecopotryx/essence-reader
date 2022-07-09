@@ -1,16 +1,18 @@
 <script lang="ts">
     import { db } from "../db";
     import { liveQuery } from "dexie";
+    import Topbar from "./Topbar.svelte";
+    import Popover from "./Popover.svelte";
+    import ThemePicker from "./ThemePicker.svelte";
 
     export let readFiles = (file: File) => {};
+    export let dragging: boolean;
+    export let saveBooksOn: boolean;
+    export let theme: boolean;
 
     let books = liveQuery(() => db.books.toArray());
-
-    async function deleteBook(id: number) {
-        await db.books.delete(id);
-    }
-
-    export let dragging: boolean;
+    let hasStored: boolean = false;
+    let settingsVisible: boolean = false;
 
     const clickFile = () => {
         let input = document.createElement("input");
@@ -22,7 +24,9 @@
         input.click();
     };
 
-    let hasStored: boolean = false;
+    async function deleteBook(id: number) {
+        await db.books.delete(id);
+    }
 
     async function updateCount() {
         const count = await db.books.count();
@@ -31,6 +35,30 @@
 
     updateCount();
 </script>
+
+<Topbar>
+    <h3 slot="toptext" style="display: inline;">Essence Reader</h3>
+    <button
+        class="settingsBtn"
+        slot="rightbar"
+        on:click={() => (settingsVisible = !settingsVisible)}
+    >
+        ⚙
+    </button>
+</Topbar>
+
+<Popover bind:visible={settingsVisible} top={"3.1em"} right={"1%"}>
+    <div style="width: 8em">
+        <label style="user-select: none">
+            <input type="checkbox" bind:checked={saveBooksOn} />
+            Save books
+        </label><br />
+        <hr />
+        <p style="display: inline">Select theme</p>
+
+        <ThemePicker bind:theme />
+    </div>
+</Popover>
 
 <div id="parent" style={!hasStored ? "justify-content: center" : ""}>
     {#if $books}
@@ -58,9 +86,9 @@
         <div
             on:click={() => clickFile()}
             id="dropInfo"
-            style="max-width: {!hasStored ? '100% ' : ''}; background-color: {dragging
-                ? ' #87CEFA'
-                : ''}"
+            style="max-width: {!hasStored
+                ? '100% '
+                : ''}; background-color: {dragging ? ' #87CEFA' : ''}"
         >
             <h1>📚</h1>
             <h2>

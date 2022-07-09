@@ -3,9 +3,6 @@
 	import { db } from "./db";
 
 	import Reader from "./Reader.svelte";
-	import Topbar from "./components/Topbar.svelte";
-	import Popover from "./components/Popover.svelte";
-	import ThemePicker from "./components/ThemePicker.svelte";
 	import BookSelector from "./components/BookSelector.svelte";
 
 	let book: Book;
@@ -81,8 +78,6 @@
 
 	$: theme, updateTheme();
 
-	let settingsVisible = false;
-
 	async function addBook(meta: any, file: any) {
 		try {
 			const id = await db.books.add({
@@ -101,30 +96,6 @@
 	{#if reading}
 		<Reader {book} bind:theme bind:reading />
 	{:else}
-		<Topbar>
-			<h3 slot="toptext" style="display: inline;">Essence Reader</h3>
-			<button
-				class="settingsBtn"
-				slot="rightbar"
-				on:click={() => (settingsVisible = !settingsVisible)}
-			>
-				⚙
-			</button>
-		</Topbar>
-
-		<Popover bind:visible={settingsVisible} top={"3.1em"} right={"1%"}>
-			<div style="width: 8em">
-				<label style="user-select: none">
-					<input type="checkbox" bind:checked={saveBooksOn} />
-					Save books
-				</label><br />
-				<hr />
-				<p style="display: inline">Select theme</p>
-
-				<ThemePicker bind:theme />
-			</div>
-		</Popover>
-
-		<BookSelector {dragging} {readFiles} />
+		<BookSelector {readFiles} {dragging} bind:saveBooksOn bind:theme />
 	{/if}
 </main>
