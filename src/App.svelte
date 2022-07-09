@@ -6,21 +6,24 @@
 	import Topbar from "./components/Topbar.svelte";
 	import Popover from "./components/Popover.svelte";
 	import ThemePicker from "./components/ThemePicker.svelte";
-	import StoredBooks from "./components/StoredBooks.svelte";
+	import BookSelector from "./components/BookSelector.svelte";
 
 	let book: Book;
 
 	async function readFiles(file: object) {
 		book = await parser(file);
-		let shouldSave = file.size < 30000000;
-		for (let storedBook of await db.books.toArray()) {
-			if (storedBook.title === book.meta.title) {
-				shouldSave = false;
+		if (saveBooksOn) {
+			let shouldSave = file.size < 30000000;
+			for (let storedBook of await db.books.toArray()) {
+				if (storedBook.title === book.meta.title) {
+					shouldSave = false;
+				}
+			}
+			if (shouldSave) {
+				addBook(book.meta, file);
 			}
 		}
-		if (shouldSave && saveBooksOn) {
-			addBook(book.meta, file);
-		}
+
 		reading = true;
 	}
 
@@ -30,7 +33,7 @@
 
 	let saveBooksOn: boolean;
 
-	if(localStorage.getItem("saveBooksOn") !== null){
+	if (localStorage.getItem("saveBooksOn") !== null) {
 		saveBooksOn = JSON.parse(localStorage.getItem("saveBooksOn"));
 	} else {
 		saveBooksOn = true;
@@ -38,9 +41,9 @@
 
 	const updateSaving = () => {
 		localStorage.setItem("saveBooksOn", JSON.stringify(saveBooksOn));
-	}
+	};
 
-	$: saveBooksOn, updateSaving()
+	$: saveBooksOn, updateSaving();
 
 	window.addEventListener("dragenter", (e) => {
 		if (e.dataTransfer.types.includes("Files")) {
@@ -60,16 +63,6 @@
 		dragging = false;
 		readFiles(e.dataTransfer.files[0]);
 	});
-
-	const clickFile = () => {
-		let input = document.createElement("input");
-		input.type = "file";
-		input.onchange = (e) => {
-			readFiles((e.target as HTMLInputElement).files[0]);
-		};
-
-		input.click();
-	};
 
 	let theme: string;
 
@@ -132,53 +125,6 @@
 			</div>
 		</Popover>
 
-		<StoredBooks {readFiles}>
-			<div
-				on:click={() => clickFile()}
-				id="dropInfo"
-				style={dragging
-					? "border: 1px solid green; background-color: #dfffdf"
-					: ""}
-			>
-				<h1>📚</h1>
-				<h2 style="color: {dragging ? 'green' : 'gray'}">
-					Drop anywhere or click to select a file
-				</h2>
-			</div>
-		</StoredBooks>
+		<BookSelector {dragging} {readFiles} />
 	{/if}
 </main>
-
-<style>
-	h1 {
-		text-align: center;
-		font-size: 400%;
-		margin-bottom: 0;
-	}
-
-	#dropInfo {
-		border-radius: 10px;
-		border: 1px solid #537065;
-		text-align: center;
-		user-select: none;
-		vertical-align: middle;
-		flex-basis: 0;
-		flex-grow: 1;
-		max-height: 15em;
-		margin: 0 auto;
-		max-width: 90vw;
-		min-width: 20vw;
-		transition: all 0.3s ease;
-		cursor: pointer;
-	}
-
-	#dropInfo:hover {
-		background-color: #dfdff0;
-	}
-
-	@media (max-width: 1000px) {
-		#dropInfo {
-			width: 90%;
-		}
-	}
-</style>
