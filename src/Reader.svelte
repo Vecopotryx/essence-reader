@@ -5,7 +5,6 @@
     import ReaderSettings from "./components/ReaderSettings.svelte";
 
     export let book: Book;
-    export let theme: string;
     export let reading: boolean;
 
     let section = 0;
@@ -118,7 +117,7 @@
     {@html book.contents[section + 1]}
 </div>
 
-<ReaderSettings bind:theme bind:settingsVisible bind:settings />
+<ReaderSettings bind:settingsVisible bind:settings />
 
 <svelte:window bind:scrollY={scrolled} on:keydown={handleKeydown} />
 

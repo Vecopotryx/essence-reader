@@ -61,23 +61,6 @@
 		readFiles(e.dataTransfer.files[0]);
 	});
 
-	let theme: string;
-
-	if (localStorage.getItem("theme") !== null) {
-		theme = localStorage.getItem("theme");
-	} else {
-		theme = window.matchMedia("(prefers-color-scheme: dark)").matches
-			? "dark"
-			: "light";
-	}
-
-	const updateTheme = () => {
-		document.documentElement.setAttribute("data-theme", theme);
-		localStorage.setItem("theme", theme);
-	};
-
-	$: theme, updateTheme();
-
 	async function addBook(meta: any, file: any) {
 		try {
 			const id = await db.books.add({
@@ -94,8 +77,8 @@
 
 <main>
 	{#if reading}
-		<Reader {book} bind:theme bind:reading />
+		<Reader {book} bind:reading />
 	{:else}
-		<BookSelector {readFiles} {dragging} bind:saveBooksOn bind:theme />
+		<BookSelector {readFiles} {dragging} bind:saveBooksOn />
 	{/if}
 </main>

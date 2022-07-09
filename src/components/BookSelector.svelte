@@ -8,7 +8,6 @@
     export let readFiles = (file: File) => {};
     export let dragging: boolean;
     export let saveBooksOn: boolean;
-    export let theme: boolean;
 
     let books = liveQuery(() => db.books.toArray());
     let hasStored: boolean = false;
@@ -56,7 +55,7 @@
         <hr />
         <p style="display: inline">Select theme</p>
 
-        <ThemePicker bind:theme />
+        <ThemePicker />
     </div>
 </Popover>
 

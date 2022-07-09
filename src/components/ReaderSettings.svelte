@@ -2,8 +2,6 @@
     import Popover from "./Popover.svelte";
     import ThemePicker from "./ThemePicker.svelte";
 
-    export let theme: string;
-
     export let settings = {
         fontSize: 16,
         fontFamily: "Verdana",
@@ -36,7 +34,7 @@
         bind:value={settings.fontSize}
     />
 
-    <ThemePicker bind:theme />
+    <ThemePicker />
 </Popover>
 
 <style>

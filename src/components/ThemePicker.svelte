@@ -1,28 +1,31 @@
 <script lang="ts">
-    export let theme: string;
+    const setTheme = (theme: string) => {
+        document.documentElement.setAttribute("data-theme", theme);
+        localStorage.setItem("theme", theme);
+    };
 </script>
 
 <div
     style="background-color: #f6e4bd; color: #000"
-    on:click={() => (theme = "warm")}
+    on:click={() => setTheme("warm")}
 >
     warm
 </div>
 <div
     style="background-color: #000; color: #e9e9e9"
-    on:click={() => (theme = "black")}
+    on:click={() => setTheme("black")}
 >
     black
 </div>
 <div
     style="background-color: #032038; color: #e9e9e9"
-    on:click={() => (theme = "dark")}
+    on:click={() => setTheme("dark")}
 >
     dark
 </div>
 <div
     style="background-color: #fff; color: #000"
-    on:click={() => (theme = "light")}
+    on:click={() => setTheme("light")}
 >
     light
 </div>
