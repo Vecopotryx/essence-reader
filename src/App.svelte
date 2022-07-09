@@ -1,32 +1,22 @@
 <script lang="ts">
 	import { parser, type Book } from "./parse";
-	import { db } from "./db";
+	import { storeBook } from "./db";
 
 	import Reader from "./Reader.svelte";
 	import BookSelector from "./components/BookSelector.svelte";
 
 	let book: Book;
+	let reading = false;
+	let dragging = false;
 
-	async function readFiles(file: object) {
+	async function readFiles(file: File) {
 		book = await parser(file);
 		if (saveBooksOn) {
-			let shouldSave = file.size < 30000000;
-			for (let storedBook of await db.books.toArray()) {
-				if (storedBook.title === book.meta.title) {
-					shouldSave = false;
-				}
-			}
-			if (shouldSave) {
-				addBook(book.meta, file);
-			}
+			storeBook(book.meta, file);
 		}
 
 		reading = true;
 	}
-
-	let reading = false;
-
-	let dragging = false;
 
 	let saveBooksOn: boolean;
 
@@ -60,19 +50,6 @@
 		dragging = false;
 		readFiles(e.dataTransfer.files[0]);
 	});
-
-	async function addBook(meta: any, file: any) {
-		try {
-			const id = await db.books.add({
-				author: meta.author,
-				title: meta.title,
-				cover: await fetch(meta.cover).then((r) => r.blob()),
-				file: file,
-			});
-		} catch (error) {
-			console.log(error);
-		}
-	}
 </script>
 
 <main>
