@@ -1,17 +1,22 @@
 <script lang="ts">
-	import { parser, type Book } from "./parse";
+	import { onMount } from "svelte";
 	import { db, storeBook } from "./db";
+
+	import { parser } from "./services/parse";
+	import { assembleBook } from "./services/assemble";
+	import type { Book } from "./services/types";
 
 	import Reader from "./Reader.svelte";
 	import BookSelector from "./components/BookSelector.svelte";
-	import { onMount } from "svelte";
 
 	let book: Book;
 	let reading = false;
 	let dragging = false;
 
 	async function readFiles(file: File) {
-		book = await parser(file);
+		let parsed = await parser(file);
+		book = assembleBook(parsed.meta, parsed.extracted);
+
 		if (saveBooksOn) {
 			const id = await storeBook(book.meta, file);
 			location.hash = id.toString();
@@ -59,13 +64,13 @@
 	});
 
 	window.onhashchange = () => {
-		if(saveBooksOn && reading && location.hash === ""){
+		if (saveBooksOn && reading && location.hash === "") {
 			document.title = "Essence Reader";
 			reading = false;
-		} else if(saveBooksOn && !reading) {
+		} else if (saveBooksOn && !reading) {
 			openExisting();
 		}
-	}
+	};
 
 	window.addEventListener("dragover", (e) => e.preventDefault());
 

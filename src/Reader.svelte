@@ -1,6 +1,6 @@
 <script lang="ts">
     import { afterUpdate } from "svelte";
-    import type { Book } from "./parse";
+    import type { Book } from "./services/types";
     import Topbar from "./components/Topbar.svelte";
     import ReaderSettings from "./components/ReaderSettings.svelte";
 
