@@ -78,6 +78,7 @@
         on:click={() => {
             reading = false;
             document.title = "Essence Reader";
+            location.hash = "";
         }}
         style="opacity: 0.5;"
     >

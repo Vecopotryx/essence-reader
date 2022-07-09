@@ -81,9 +81,12 @@
         {/each}
     {/if}
 
-    <div class="book" style={!hasStored ? "max-width: 80em   " : ""}>
+    <div
+        class="book"
+        on:click={() => clickFile()}
+        style={!hasStored ? "max-width: 80em   " : ""}
+    >
         <div
-            on:click={() => clickFile()}
             id="dropInfo"
             style="max-width: {!hasStored
                 ? '100% '

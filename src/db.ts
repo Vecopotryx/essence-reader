@@ -5,7 +5,7 @@ interface Book {
   author: string[];
   title: string;
   cover: Blob;
-  file: Blob;
+  file: File;
 }
 
 class BookDB extends Dexie {
@@ -26,17 +26,19 @@ export async function storeBook(meta: { title: string, author: string[], cover: 
   for (let storedBook of await db.books.toArray()) {
     if (storedBook.title === meta.title) {
       shouldSave = false;
+      return storedBook.id;
     }
   }
 
   if (shouldSave) {
     try {
-      await db.books.add({
+      const id = await db.books.add({
         author: meta.author,
         title: meta.title,
         cover: await fetch(meta.cover).then((r) => r.blob()),
         file: file,
       });
+      return id;
     } catch (error) {
       console.log(error);
     }
