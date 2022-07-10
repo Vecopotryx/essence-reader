@@ -38,13 +38,13 @@ const updateCSS = (css: string, images, fonts) => {
 
 
 const parser = new DOMParser();
-    
+
 const updateHTML = (html: string, images: { name: string, blob: Blob }[]) => {
-    let newHTML = parser.parseFromString(html, "text/html")
+    const newHTML = parser.parseFromString(html, "application/xhtml+xml")
 
     for (let e of newHTML.querySelectorAll<HTMLElement>('[src],[href]')) {
         switch (e.tagName) {
-            case "IMG": {
+            case "img": {
                 let filename = e.getAttribute("src").split('\\').pop().split('/').pop();
                 for (let i = 0; i < images.length; i++) {
                     if (images[i].name.includes(filename)) {
