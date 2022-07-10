@@ -37,9 +37,10 @@ const updateCSS = (css: string, images, fonts) => {
 }
 
 
+const parser = new DOMParser();
+    
 const updateHTML = (html: string, images: { name: string, blob: Blob }[]) => {
-    let newHTML = document.createElement('newHTML');
-    newHTML.innerHTML = html.trim();
+    let newHTML = parser.parseFromString(html, "text/html")
 
     for (let e of newHTML.querySelectorAll<HTMLElement>('[src],[href]')) {
         switch (e.tagName) {
@@ -77,7 +78,7 @@ const updateHTML = (html: string, images: { name: string, blob: Blob }[]) => {
         }
     }
 
-    return newHTML.innerHTML;
+    return newHTML.body.innerHTML;
 }
 
 export const assembleBook = (meta: Metadata, { sections, htmls, images, fonts, styles }: Extracted) => {
