@@ -3,10 +3,10 @@ import { unzip } from "unzipit";
 import type { Metadata } from "./types";
 
 let sections: { id: string, href: string }[] = [];
-let images: { name: string, url: string }[] = [];
+let images: { name: string, blob: Blob }[] = [];
 let htmls: { name: string, html: string }[] = [];
 let styles: { name: string, css: string }[] = [];
-let fonts: { name: string, url: string }[] = [];
+let fonts: { name: string, blob: Blob }[] = [];
 let coverFilename: string = "";
 
 let meta: Metadata;
@@ -48,8 +48,7 @@ const extract = async (file: any) => {
             case ".jpeg":
             case ".gif": {
                 const blob = await entry.blob();
-                const url = URL.createObjectURL(blob);
-                images.push({ name, url });
+                images.push({ name, blob });
                 break;
             }
             case ".css": {
@@ -69,8 +68,7 @@ const extract = async (file: any) => {
             case ".ttf":
             case ".woff": {
                 const blob = await entry.blob();
-                const url = URL.createObjectURL(blob);
-                fonts.push({ name, url });
+                fonts.push({ name, blob });
             }
             default: break;
         }
@@ -82,13 +80,13 @@ const extract = async (file: any) => {
 const parseMeta = (meta: object) => {
     const title = meta["dc:title"];
     const author = meta["dc:creator"];
-    let cover = images[0].url;
-    for (let { name, url } of images) {
+    let cover = images[0].blob;
+    for (let { name, blob } of images) {
         if (name.includes(coverFilename)) {
-            cover = url;
+            cover = blob;
             break;
         } else if (name.includes("cover")) {
-            cover = url;
+            cover = blob;
         }
     }
     return { title, author, cover };

@@ -4,7 +4,7 @@
 
 	import { parser } from "./services/parse";
 	import { assembleBook } from "./services/assemble";
-	import type { Book } from "./services/types";
+	import type { Book, Extracted, Metadata } from "./services/types";
 
 	import Reader from "./Reader.svelte";
 	import BookSelector from "./components/BookSelector.svelte";
@@ -13,15 +13,18 @@
 	let reading = false;
 	let dragging = false;
 
-	async function readFiles(file: File) {
+	const readFiles = async (file: File) => {
 		let parsed = await parser(file);
-		book = assembleBook(parsed.meta, parsed.extracted);
 
-		if (saveBooksOn) {
-			const id = await storeBook(book.meta, file);
-			location.hash = id.toString();
+		if (saveBooksOn && file.size < 30000000) {
+			const id = (await storeBook(
+				parsed.meta,
+				parsed.extracted
+			)) as number;
+			openBook(parsed.meta, parsed.extracted, id);
+		} else {
+			openBook(parsed.meta, parsed.extracted);
 		}
-		reading = true;
 	}
 
 	let saveBooksOn: boolean;
@@ -49,26 +52,33 @@
 		e.preventDefault();
 	});
 
-	const openExisting = async () => {
-		if (location.hash !== "#") {
-			for (let storedBook of await db.books.toArray()) {
-				if (storedBook.id.toString() === location.hash.substring(1)) {
-					readFiles(storedBook.file);
-				}
-			}
+	const openBook = (meta: Metadata, extracted: Extracted, id?: number) => {
+		//let startTime = performance.now();
+		book = assembleBook(meta, extracted);
+		location.hash = id ? id.toString() : "";
+		reading = true;
+		//console.log(performance.now() - startTime);
+	};
+
+	const openExisting = async (id: number) => {
+		let stored = await db.books.get(id);
+		if(stored){
+			openBook(stored.meta, stored.extracted, stored.id);
 		}
 	};
 
 	onMount(() => {
-		openExisting();
+		if (location.hash !== "") {
+			openExisting(parseInt(location.hash.substring(1)));
+		}
 	});
 
 	window.onhashchange = () => {
 		if (saveBooksOn && reading && location.hash === "") {
 			document.title = "Essence Reader";
 			reading = false;
-		} else if (saveBooksOn && !reading) {
-			openExisting();
+		} else if (saveBooksOn && !reading && location.hash !== "") {
+			openExisting(parseInt(location.hash.substring(1)));
 		}
 	};
 
@@ -85,6 +95,6 @@
 	{#if reading}
 		<Reader {book} bind:reading />
 	{:else}
-		<BookSelector {readFiles} {dragging} bind:saveBooksOn />
+		<BookSelector {readFiles} {openExisting} {dragging} bind:saveBooksOn />
 	{/if}
 </main>

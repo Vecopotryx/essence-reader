@@ -1,4 +1,4 @@
-import type { Metadata } from "./types";
+import type { Extracted, Metadata } from "./types";
 
 const cssNester = (css: string, nestWith: string) => {
     // Found on Stackoverflow and works great: https://stackoverflow.com/a/67517828
@@ -24,9 +24,9 @@ const updateCSS = (css: string, images, fonts) => {
             array = fonts;
         }
 
-        for (let { name, url } of array) {
+        for (let { name, blob } of array) {
             if (name.includes(filename)) {
-                return "url(" + url + ")";
+                return "url(" + URL.createObjectURL(blob) + ")";
             }
         }
 
@@ -37,7 +37,7 @@ const updateCSS = (css: string, images, fonts) => {
 }
 
 
-const updateHTML = (html: string, images) => {
+const updateHTML = (html: string, images: { name: string, blob: Blob }[]) => {
     let newHTML = document.createElement('newHTML');
     newHTML.innerHTML = html.trim();
 
@@ -47,7 +47,7 @@ const updateHTML = (html: string, images) => {
                 let filename = e.getAttribute("src").split('\\').pop().split('/').pop();
                 for (let i = 0; i < images.length; i++) {
                     if (images[i].name.includes(filename)) {
-                        e.setAttribute("src", images[i].url);
+                        e.setAttribute("src", URL.createObjectURL(images[i].blob));
                         break;
                     }
                 }
@@ -71,7 +71,7 @@ const updateHTML = (html: string, images) => {
         let filename = e.getAttributeNS('http://www.w3.org/1999/xlink', 'href').split('\\').pop().split('/').pop();
         for (let i = 0; i < images.length; i++) {
             if (images[i].name.includes(filename)) {
-                e.setAttributeNS('http://www.w3.org/1999/xlink', 'href', images[i].url);
+                e.setAttributeNS('http://www.w3.org/1999/xlink', 'href', URL.createObjectURL(images[i].blob));
                 break;
             }
         }
@@ -80,8 +80,8 @@ const updateHTML = (html: string, images) => {
     return newHTML.innerHTML;
 }
 
-export const assembleBook = (meta: Metadata, {sections, htmls, images, fonts, styles}) => {
-    let contents = [];
+export const assembleBook = (meta: Metadata, { sections, htmls, images, fonts, styles }: Extracted) => {
+    let contents: string[] = [];
     for (let i = 0; i < sections.length; i++) {
         for (const { name, html } of htmls) {
             if (name.includes(sections[i].href)) {
@@ -95,5 +95,5 @@ export const assembleBook = (meta: Metadata, {sections, htmls, images, fonts, st
         styles[i].css = updateCSS(styles[i].css, images, fonts);
     }
 
-    return {meta, contents, styles};
+    return { meta, contents, styles };
 }

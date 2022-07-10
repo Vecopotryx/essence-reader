@@ -6,6 +6,7 @@
     import ThemePicker from "./ThemePicker.svelte";
 
     export let readFiles = (file: File) => {};
+    export let openExisting = (id: number) => {};
     export let dragging: boolean;
     export let saveBooksOn: boolean;
 
@@ -62,7 +63,7 @@
 <div id="parent" style={!hasStored ? "justify-content: center" : ""}>
     {#if $books}
         {#each $books as book (book.id)}
-            <div class="book" on:click={() => readFiles(book.file)}>
+            <div class="book" on:click={() => openExisting(book.id)}>
                 <button
                     class="deleteBtn"
                     on:click={(e) => {
@@ -71,12 +72,12 @@
                     }}>Delete book</button
                 >
                 <img
-                    src={book.cover !== undefined
-                        ? URL.createObjectURL(book.cover)
+                    src={book.meta.cover !== undefined
+                        ? URL.createObjectURL(book.meta.cover)
                         : ""}
                     alt="cover"
                 />
-                <p>{book.author + " - " + book.title}</p>
+                <p>{book.meta.author + " - " + book.meta.title}</p>
             </div>
         {/each}
     {/if}

@@ -1,11 +1,10 @@
 import Dexie, { type Table } from 'dexie';
+import type { Extracted, Metadata } from './services/types';
 
 interface Book {
   id?: number;
-  author: string[];
-  title: string;
-  cover: Blob;
-  file: File;
+  meta: Metadata;
+  extracted: Extracted;
 }
 
 class BookDB extends Dexie {
@@ -14,33 +13,24 @@ class BookDB extends Dexie {
   constructor() {
     super('bookDB');
     this.version(1).stores({
-      books: '++id, author, title, cover, file'
+      books: '++id, meta, extracted'
     });
   }
 }
 
 export const db = new BookDB();
 
-export async function storeBook(meta: { title: string, author: string[], cover: string }, file: File) {
-  let shouldSave = file.size < 30000000;
+export const storeBook = async (meta: Metadata, extracted: Extracted) => {
   for (let storedBook of await db.books.toArray()) {
-    if (storedBook.title === meta.title) {
-      shouldSave = false;
+    if (storedBook.meta.title === meta.title) {
       return storedBook.id;
     }
   }
 
-  if (shouldSave) {
-    try {
-      const id = await db.books.add({
-        author: meta.author,
-        title: meta.title,
-        cover: await fetch(meta.cover).then((r) => r.blob()),
-        file: file,
-      });
-      return id;
-    } catch (error) {
-      console.log(error);
-    }
+  try {
+    const id = await db.books.add({ meta, extracted });
+    return id;
+  } catch (error) {
+    console.log(error);
   }
 }
