@@ -13,8 +13,8 @@ const updateCSS = (css: string, images, fonts) => {
 
     newCss = newCss.replace(/url\((?!['"]?(?:data):)['"]?([^'"\)]*)['"]?\)/g, function (match, source) {
 
-        let filename = source.split('\\').pop().split('/').pop();
-        let imageTypes = [".png", ".jpg", "jpeg", ".gif"];
+        const filename = removePath(source);
+        let imageTypes = [".png", ".jpg", ".jpeg", ".gif"];
         let fontTypes = [".otf", ".ttf", ".woff"];
         let array = [];
 
@@ -24,55 +24,52 @@ const updateCSS = (css: string, images, fonts) => {
             array = fonts;
         }
 
-        for (let { name, blob } of array) {
-            if (name.includes(filename)) {
-                return "url(" + URL.createObjectURL(blob) + ")";
-            }
-        }
-
-        return "";
+        return "url(" + getBlobUrl(filename, array) + ")";
     });
 
     return newCss;
 }
 
+const removePath = (filename: string) => {
+    return filename.split('\\').pop().split('/').pop();
+}
+
+const getBlobUrl = (filename: string, array: { name: string, blob: Blob }[]) => {
+    for (const { name, blob } of array) {
+        if (name.includes(filename)) {
+            return URL.createObjectURL(blob);
+        }
+    }
+
+    return "";
+}
 
 const parser = new DOMParser();
 
 const updateHTML = (html: string, images: { name: string, blob: Blob }[]) => {
-    const newHTML = parser.parseFromString(html, "application/xhtml+xml")
+    const newHTML = parser.parseFromString(html, "application/xhtml+xml");
 
-    for (let e of newHTML.querySelectorAll<HTMLElement>('[src],[href]')) {
+    for (const e of newHTML.querySelectorAll<HTMLElement>('[src],[href], image')) {
         switch (e.tagName) {
             case "img": {
-                let filename = e.getAttribute("src").split('\\').pop().split('/').pop();
-                for (let i = 0; i < images.length; i++) {
-                    if (images[i].name.includes(filename)) {
-                        e.setAttribute("src", URL.createObjectURL(images[i].blob));
-                        break;
-                    }
-                }
+                const filename = removePath(e.getAttribute("src"));
+                e.setAttribute("src", getBlobUrl(filename, images));
                 e.style.cssText += 'max-height: 100%; max-width: 100%; object-fit: scale-down;';
+                break;
+            }
+
+            case "image": {
+                const filename = removePath(e.getAttributeNS('http://www.w3.org/1999/xlink', 'href'));
+                e.setAttributeNS('http://www.w3.org/1999/xlink', 'href', getBlobUrl(filename, images));
                 break;
             }
 
             default: {
                 if (e.getAttribute("href") !== null && !e.getAttribute("href").includes("http")) {
                     e.removeAttribute("href");
-                }
-                if (e.getAttribute("src") !== null && !e.getAttribute("src").includes("http")) {
+                } else if (e.getAttribute("src") !== null && !e.getAttribute("src").includes("http")) {
                     e.removeAttribute("src");
                 }
-                break;
-            }
-        }
-    }
-
-    for (let e of newHTML.getElementsByTagName("image")) {
-        let filename = e.getAttributeNS('http://www.w3.org/1999/xlink', 'href').split('\\').pop().split('/').pop();
-        for (let i = 0; i < images.length; i++) {
-            if (images[i].name.includes(filename)) {
-                e.setAttributeNS('http://www.w3.org/1999/xlink', 'href', URL.createObjectURL(images[i].blob));
                 break;
             }
         }

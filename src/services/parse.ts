@@ -24,7 +24,7 @@ const parseOpf = (xml: string) => {
 
 }
 
-export const parser = async (epub: any) => {
+export const parser = async (epub: File) => {
     images = [];
     sections = [];
     htmls = [];
@@ -34,7 +34,7 @@ export const parser = async (epub: any) => {
     return { meta, extracted: { sections, htmls, images, fonts, styles } };
 }
 
-const extract = async (file: any) => {
+const extract = async (file: File) => {
     const { entries } = await unzip(file);
 
     let opf = "";
@@ -95,22 +95,20 @@ const parseMeta = (meta: object) => {
 const parseManifest = (manifest: object) => {
     let tempSections: { id: string, href: string }[] = [];
 
-    manifest["item"].forEach(element => {
-        if (element["@_media-type"] === "application/xhtml+xml" || element["@_media-type"] === "text/html") {
-            tempSections.push({ id: element["@_id"], href: element["@_href"] });
-        } else if (element["@_media-type"].includes("image") && element["@_id"].includes("cover")) {
-            coverFilename = element["@_href"];
+    for(const item of manifest["item"]){
+        if (item["@_media-type"] === "application/xhtml+xml") {
+            tempSections.push({ id: item["@_id"], href: item["@_href"] });
+        } else if (item["@_media-type"].includes("image") && item["@_id"].includes("cover")) {
+            coverFilename = item["@_href"];
         }
-    });
+    }
 
     return tempSections;
 }
 
-const parseSpine = (spine: object, manifestSec: any) => {
+const parseSpine = (spine: object, manifestSec: { id: string, href: string }[]) => {
     let sortArr = [];
-    spine["itemref"].forEach(obj => {
-        sortArr.push(obj["@_idref"]);
-    });
+    spine["itemref"].forEach(obj => sortArr.push(obj["@_idref"]));
 
     sections = sortArr.map((i) => manifestSec.find((j) => j.id === i));
 }
