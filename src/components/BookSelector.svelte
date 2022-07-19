@@ -29,8 +29,12 @@
     }
 
     async function updateCount() {
-        const count = await db.books.count();
-        hasStored = count > 0;
+        if (saveBooksOn) {
+            const count = await db.books
+                .count()
+                .catch(() => (saveBooksOn = false));
+            hasStored = count > 0;
+        }
     }
 
     updateCount();
