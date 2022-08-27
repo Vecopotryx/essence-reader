@@ -14,18 +14,22 @@
 	let dragging = false;
 
 	const readFiles = async (file: File) => {
-		let parsed = await parser(file);
+		try {
+			let parsed = await parser(file);
 
-		if (saveBooksOn && file.size < 30000000) {
-			const id = (await storeBook(
-				parsed.meta,
-				parsed.extracted
-			)) as number;
-			openBook(parsed.meta, parsed.extracted, id);
-		} else {
-			openBook(parsed.meta, parsed.extracted);
+			if (saveBooksOn && file.size < 30000000) {
+				const id = (await storeBook(
+					parsed.meta,
+					parsed.extracted
+				)) as number;
+				openBook(parsed.meta, parsed.extracted, id);
+			} else {
+				openBook(parsed.meta, parsed.extracted);
+			}
+		} catch (e) {
+			alert(e);
 		}
-	}
+	};
 
 	let saveBooksOn: boolean;
 
@@ -62,7 +66,7 @@
 
 	const openExisting = async (id: number) => {
 		let stored = await db.books.get(id);
-		if(stored){
+		if (stored) {
 			openBook(stored.meta, stored.extracted, stored.id);
 		}
 	};

@@ -29,7 +29,11 @@ export const parser = async (epub: File) => {
     sections = [];
     htmls = [];
     fonts = [];
-    parseOpf(await extract(epub));
+    try {
+        parseOpf(await extract(epub));
+    } catch(e) {
+        throw new Error(epub.name + " does not appear to be a valid EPUB file");
+    }
 
     return { meta, extracted: { sections, htmls, images, fonts, styles } };
 }
