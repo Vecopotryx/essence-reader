@@ -75,7 +75,7 @@
                     on:click={(e) => {
                         e.stopPropagation();
                         deleteBook(book.id);
-                    }}>Delete book</button
+                    }}>✕</button
                 >
                 <img
                     src={book.meta.cover !== undefined
@@ -224,6 +224,18 @@
     .deleteBtn {
         display: none;
         position: absolute;
+        background-color: transparent;
+        right: 0;
+        font-size: 1.5em;
+        border-bottom-left-radius: 0.2em;
+        color: inherit;
+        cursor: pointer;
+        border: none;
+        transition: background-color 0.2s;
+    }
+
+    .deleteBtn:hover {
+        background-color: rgba(255,10,50,1);
     }
 
     .book:hover .deleteBtn {
