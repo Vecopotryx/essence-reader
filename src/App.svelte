@@ -25,10 +25,10 @@
 			} else {
 				openBook(book);
 			}
-			loading = false;
 		} catch (e) {
 			alert(e);
 		}
+		loading = false;
 	};
 
 	let saveBooksOn: boolean;
