@@ -61,11 +61,13 @@
 		//console.log(performance.now() - startTime);
 	};
 
-	const openExisting = async (id: number) => {
-		let stored = await db.books.get(id);
-		if (stored) {
-			openBook(stored, stored.id);
-		}
+	const openExisting = (id: number) => {
+		db.transaction("r", db.books, async () => {
+			let stored = await db.books.get(id);
+			if (stored) {
+				openBook(stored, stored.id);
+			}
+		})
 	};
 
 	onMount(() => {
