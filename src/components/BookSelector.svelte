@@ -66,14 +66,10 @@
     </div>
 </Popover>
 
-<div id="parent" style={!hasStored ? "justify-content: center" : ""}>
+<div id="parent">
     {#if $books}
         {#each $books as book (book.id)}
-            <button
-                class="book"
-                tabindex="0"
-                on:click={() => openExisting(book.id)}
-            >
+            <button class="book" on:click={() => openExisting(book.id)}>
                 <button
                     class="deleteBtn"
                     on:click={(e) => {
@@ -87,7 +83,10 @@
                         : ""}
                     alt="cover"
                 />
-                <p>{book.meta.author + " - " + book.meta.title}</p>
+                <div class="bookInfo">
+                    <h4>{book.meta.author}</h4>
+                    <h3>{book.meta.title}</h3>
+                </div>
             </button>
         {/each}
     {/if}
@@ -95,8 +94,7 @@
     <button
         class="book"
         on:click={() => clickFile()}
-        style={!hasStored ? "max-width: 80em   " : ""}
-        tabindex="0"
+        style={!hasStored ? "max-width: 50vw" : ""}
     >
         <div
             id="dropInfo"
@@ -118,11 +116,12 @@
             {/if}
         </div>
         {#if hasStored}
-            <p style="color: {dragging ? '#87CEFA' : 'inherit'}">
-                {loading
-                    ? "Loading"
-                    : "Drop anywhere or click to select a file"}
-            </p>
+        <div class="bookInfo">
+            <h4>Load new book</h4>
+            <h3 style="color: {dragging ? '#87CEFA' : ''}">{loading
+                ? "Loading"
+                : "Drop anywhere or click to select a file"}</h3>
+        </div>
         {/if}
     </button>
 </div>
@@ -156,15 +155,16 @@
         text-align: center;
         display: flex;
         flex-wrap: wrap;
-        gap: 10px;
+        justify-content: center;
+        gap: 1em;
     }
 
-    h1 {
+    #dropInfo > h1 {
         font-size: 400%;
         margin-bottom: 0;
     }
 
-    h2 {
+    .bookInfo > h3 {
         font-weight: 500;
         color: gray;
     }
@@ -174,33 +174,41 @@
         text-align: center;
         user-select: none;
         min-width: 10em;
+        width: 50vw;
         vertical-align: middle;
         transition: background-color 0.3s ease;
         cursor: pointer;
         overflow: hidden;
+        margin: auto;
+        color: gray;
+    }
+
+    .bookInfo {
+        min-width: 100%;
     }
 
     .book {
-        flex-basis: 0;
-        flex-grow: 1;
-        max-width: 25em;
-        min-width: 10em;
+        max-width: 30vw;
+        min-width: 20em;
         filter: drop-shadow(0 15px 15px rgb(0 0 0 / 0.15));
         transition: transform 0.25s, filter 0.25s;
-        background-color: transparent;
+        background-color: rgb(var(--secondary-bg));
+        border-radius: 0.5em;
         box-shadow: none;
         border: none;
         display: grid;
-        grid-template-rows: auto 1fr;
+        padding: 0;
+        flex: 1 1 100%;
+        grid-template-columns: auto 1fr;
         color: inherit;
         font-family: inherit;
         font-size: inherit;
+        overflow: hidden;
     }
 
     .book > img,
     .book > div {
         height: 15em;
-        border-radius: 0.5em;
         margin: auto;
         max-width: 10em;
         object-fit: cover;
