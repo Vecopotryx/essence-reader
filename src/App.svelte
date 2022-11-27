@@ -3,28 +3,27 @@
 	import { db, storeBook } from "./db";
 
 	import { parser } from "./services/parse";
-	import { assembleBook } from "./services/assemble";
+	import { assembleBook, openBookThing } from "./services/assemble";
 	import type { Book, Extracted, Metadata } from "./services/types";
 
 	import Reader from "./Reader.svelte";
 	import BookSelector from "./components/BookSelector.svelte";
 
-	let book: Book;
+	let currentBook: Book;
 	let reading = false;
 	let dragging = false;
 
 	const readFiles = async (file: File) => {
 		try {
 			let parsed = await parser(file);
+			let assembled = assembleBook(parsed.extracted);
 
+			let bookBook: Book = {meta: parsed.meta, contents: assembled.contents, files: {images: parsed.extracted.images, fonts: parsed.extracted.fonts, styles: parsed.extracted.styles}}
 			if (saveBooksOn && file.size < 30000000) {
-				const id = (await storeBook(
-					parsed.meta,
-					parsed.extracted
-				)) as number;
-				openBook(parsed.meta, parsed.extracted, id);
+				const id = (await storeBook(bookBook)) as number;
+				openBook(bookBook, id);
 			} else {
-				openBook(parsed.meta, parsed.extracted);
+				openBook(bookBook);
 			}
 		} catch (e) {
 			alert(e);
@@ -56,18 +55,18 @@
 		e.preventDefault();
 	});
 
-	const openBook = (meta: Metadata, extracted: Extracted, id?: number) => {
+	const openBook = (book: Book, id?: number) => {
 		//let startTime = performance.now();
-		book = assembleBook(meta, extracted);
-		location.hash = id ? id.toString() : "";
+		currentBook = openBookThing(book);
 		reading = true;
+		location.hash = id ? id.toString() : "";
 		//console.log(performance.now() - startTime);
 	};
 
 	const openExisting = async (id: number) => {
 		let stored = await db.books.get(id);
 		if (stored) {
-			openBook(stored.meta, stored.extracted, stored.id);
+			openBook(stored, stored.id);
 		}
 	};
 
@@ -97,7 +96,7 @@
 
 <main>
 	{#if reading}
-		<Reader {book} bind:reading />
+		<Reader {currentBook} bind:reading />
 	{:else}
 		<BookSelector {readFiles} {openExisting} {dragging} bind:saveBooksOn />
 	{/if}

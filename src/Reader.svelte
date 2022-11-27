@@ -4,12 +4,12 @@
     import Topbar from "./components/Topbar.svelte";
     import ReaderSettings from "./components/ReaderSettings.svelte";
 
-    export let book: Book;
+    export let currentBook: Book;
     export let reading: boolean;
 
     let section = 0;
 
-    //$: percent = Math.floor(100 * (section / book.contents.length));
+    //$: percent = Math.floor(100 * (section / currentBook.contents.length));
 
     let settingsVisible = false;
     let settings = {
@@ -19,12 +19,12 @@
 
     let scrolled = 0;
 
-    let currentTitle = book.meta.title;
+    let currentTitle = currentBook.meta.title;
 
     afterUpdate(() => {
-        if (currentTitle != book.meta.title) {
+        if (currentTitle != currentBook.meta.title) {
             section = 0;
-            currentTitle = book.meta.title;
+            currentTitle = currentBook.meta.title;
             updateStyles();
         }
     });
@@ -36,7 +36,7 @@
             styleE.innerHTML = "";
         }
 
-        book.styles.forEach((stylesheet) => {
+        currentBook.files.styles.forEach((stylesheet) => {
             const styleE = document.createElement("style");
             styleE.innerText = stylesheet.css;
             document.head.appendChild(styleE);
@@ -44,7 +44,7 @@
     };
 
     const updateSection = (inc) => {
-        if (0 <= section + inc && section + inc <= book.contents.length) {
+        if (0 <= section + inc && section + inc <= currentBook.contents.length) {
             section += inc;
             scrolled = 0;
         }
@@ -68,7 +68,7 @@
 
 <svelte:head>
     <title>
-        {book.meta.title + " - " + book.meta.author}
+        {currentBook.meta.title + " - " + currentBook.meta.author}
     </title>
 </svelte:head>
 
@@ -92,10 +92,10 @@
             : ''}"
     >
         <h4>
-            <b>{book !== undefined ? book.meta.title + " - " : ""}</b>
-            {book !== undefined ? book.meta.author : ""}
+            <b>{currentBook !== undefined ? currentBook.meta.title + " - " : ""}</b>
+            {currentBook !== undefined ? currentBook.meta.author : ""}
         </h4>
-        <p id="progress">{section}/{book.contents.length}</p>
+        <p id="progress">{section}/{currentBook.contents.length}</p>
     </div>
 
     <div slot="rightbar" style="display: inline-block">
@@ -114,8 +114,8 @@
     id="container"
     style="font-size: {settings.fontSize}px; font-family: {settings.fontFamily};"
 >
-    {@html book.contents[section]}
-    {@html book.contents[section + 1]}
+    {@html currentBook.contents[section]}
+    {@html currentBook.contents[section + 1]}
 </div>
 
 <ReaderSettings bind:settingsVisible bind:settings />

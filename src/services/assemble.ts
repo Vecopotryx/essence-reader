@@ -1,4 +1,4 @@
-import type { Extracted, Metadata } from "./types";
+import type { Extracted, Book } from "./types";
 
 const cssNester = (css: string, nestWith: string) => {
     // Found on Stackoverflow and works great: https://stackoverflow.com/a/67517828
@@ -9,10 +9,7 @@ const cssNester = (css: string, nestWith: string) => {
 }
 
 const updateCSS = (css: string, images, fonts) => {
-    let newCss = cssNester(css, "#container");
-
-    newCss = newCss.replace(/url\((?!['"]?(?:data):)['"]?([^'"\)]*)['"]?\)/g, function (match, source) {
-
+    let newCss = css.replace(/url\((?!['"]?(?:data):)['"]?([^'"\)]*)['"]?\)/g, function (match, source) {
         const filename = removePath(source);
         let imageTypes = [".png", ".jpg", ".jpeg", ".gif"];
         let fontTypes = [".otf", ".ttf", ".woff"];
@@ -44,6 +41,26 @@ const getBlobUrl = (filename: string, array: { name: string, blob: Blob }[]) => 
     return "";
 }
 
+const getFileIndex = (filename: string, array: { name: string, blob: Blob }[]) => {
+    for (const [i, { name }] of array.entries()) {
+         if (name.includes(filename)) {
+            return i
+        }
+    }
+    
+    return -1;
+}
+
+const getBlobUrlFromIndex = (index: number, array: { name: string, blob: Blob }[]) => {
+    return URL.createObjectURL(array[index].blob);
+}
+
+const replaceNumbersWithBlobs = (html: string, images: { name: string, blob: Blob }[]) => {
+    return html.replace(/ESSENCE-READER-IMAGE-(\d*)/g, function(matched, index){
+        return getBlobUrlFromIndex(index,images)
+    })
+}
+
 const parser = new DOMParser();
 
 const updateHTML = (html: string, images: { name: string, blob: Blob }[]) => {
@@ -53,14 +70,14 @@ const updateHTML = (html: string, images: { name: string, blob: Blob }[]) => {
         switch (e.tagName) {
             case "img": {
                 const filename = removePath(e.getAttribute("src"));
-                e.setAttribute("src", getBlobUrl(filename, images));
+                e.setAttribute("src", "ESSENCE-READER-IMAGE-" + getFileIndex(filename, images));
                 e.style.cssText += 'max-height: 100%; max-width: 100%; object-fit: scale-down;';
                 break;
             }
 
             case "image": {
                 const filename = removePath(e.getAttributeNS('http://www.w3.org/1999/xlink', 'href'));
-                e.setAttributeNS('http://www.w3.org/1999/xlink', 'href', getBlobUrl(filename, images));
+                e.setAttributeNS('http://www.w3.org/1999/xlink', 'href', "ESSENCE-READER-IMAGE-" + getFileIndex(filename, images));
                 break;
             }
 
@@ -78,7 +95,7 @@ const updateHTML = (html: string, images: { name: string, blob: Blob }[]) => {
     return newHTML.body.innerHTML;
 }
 
-export const assembleBook = (meta: Metadata, { sections, htmls, images, fonts, styles }: Extracted) => {
+export const assembleBook = ({ sections, htmls, images, fonts, styles }: Extracted) => {
     let contents: string[] = [];
     for (let i = 0; i < sections.length; i++) {
         for (const { name, html } of htmls) {
@@ -90,8 +107,26 @@ export const assembleBook = (meta: Metadata, { sections, htmls, images, fonts, s
     }
 
     for (let i = 0; i < styles.length; i++) {
-        styles[i].css = updateCSS(styles[i].css, images, fonts);
+        styles[i].css = cssNester(styles[i].css, "#container");
+    }
+    
+    return { contents, files: {images, fonts, styles} };
+}
+
+
+export const openBookThing = (book: Book) => {
+    let chapters: string[] = []
+    for (const content of book.contents) {
+        chapters.push(replaceNumbersWithBlobs(content, book.files.images));
     }
 
-    return { meta, contents, styles };
+    let cssStuff: { name: string, css: string}[] = book.files.styles;
+
+    for (let i = 0; i < cssStuff.length; i++) {
+        cssStuff[i].css = updateCSS(cssStuff[i].css, book.files.images, book.files.fonts);
+    }
+
+    let returnBook: Book = {meta: book.meta, contents: chapters, files: book.files}
+
+    return returnBook
 }
