@@ -120,8 +120,14 @@ const getNameWithIndex = (filename: string, array: { name: string, blob: Blob }[
 const domParser = new DOMParser();
 
 const updateHTML = (html: string, images: { name: string, blob: Blob }[]) => {
-    const newHTML = domParser.parseFromString(html, "application/xhtml+xml");
+    let newHTML = domParser.parseFromString(html, "application/xhtml+xml");
 
+    const errorNode = newHTML.querySelector('parsererror');
+    if (errorNode) {
+        // Try parsing as HTML if error when parsing as XHTML.
+        // Can solve issues with mismatched tags
+        newHTML = domParser.parseFromString(html, "text/html");
+    }
     for (const e of newHTML.querySelectorAll<HTMLElement>('[src],[href], image')) {
         switch (e.tagName) {
             case "img": {
