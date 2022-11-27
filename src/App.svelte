@@ -12,9 +12,11 @@
 	let currentBook: Book;
 	let reading = false;
 	let dragging = false;
+	let loading = false;
 
 	const readFiles = async (file: File) => {
 		try {
+			loading = true;
 			const book = await parser(file);
 
 			if (saveBooksOn && file.size < 30000000) {
@@ -23,6 +25,7 @@
 			} else {
 				openBook(book);
 			}
+			loading = false;
 		} catch (e) {
 			alert(e);
 		}
@@ -98,6 +101,6 @@
 	{#if reading}
 		<Reader {currentBook} bind:reading />
 	{:else}
-		<BookSelector {readFiles} {openExisting} {dragging} bind:saveBooksOn />
+		<BookSelector {readFiles} {openExisting} {dragging} bind:saveBooksOn  bind:loading />
 	{/if}
 </main>

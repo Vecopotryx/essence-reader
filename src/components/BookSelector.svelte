@@ -1,16 +1,18 @@
 <script lang="ts">
     import { db } from "../db";
-    import { liveQuery } from "dexie";
+    import { liveQuery, type Observable } from "dexie";
     import Topbar from "./Topbar.svelte";
     import Popover from "./Popover.svelte";
     import ThemePicker from "./ThemePicker.svelte";
+    import type { Book } from "../services/types";
 
     export let readFiles = (file: File) => {};
     export let openExisting = (id: number) => {};
     export let dragging: boolean;
     export let saveBooksOn: boolean;
+    export let loading: boolean;
 
-    let books = liveQuery(() => db.books.toArray());
+    let books: Observable<Book[]> = liveQuery(() => db.books.toArray());
     let hasStored: boolean = false;
     let settingsVisible: boolean = false;
 
@@ -93,24 +95,56 @@
     >
         <div
             id="dropInfo"
+            class={loading ? "loading" : ""}
             style="max-width: {!hasStored
                 ? '100% '
                 : ''}; background-color: {dragging ? ' #87CEFA' : ''}"
         >
-            <h1>📚</h1>
-            <h2>
-                {!hasStored ? "Drop anywhere or click to select a file" : "+"}
-            </h2>
+            {#if loading}
+                <h1>📚</h1>
+                <h2>...</h2>
+            {:else}
+                <h1>📚</h1>
+                <h2>
+                    {!hasStored
+                        ? "Drop anywhere or click to select a file"
+                        : "+"}
+                </h2>
+            {/if}
         </div>
         {#if hasStored}
             <p style="color: {dragging ? '#87CEFA' : 'inherit'}">
-                Drop anywhere or click to select a file
+                {loading
+                    ? "Loading"
+                    : "Drop anywhere or click to select a file"}
             </p>
         {/if}
     </div>
 </div>
 
 <style>
+    @keyframes gradient {
+        0% {
+            background-position: 0% 0%;
+        }
+        50% {
+            background-position: 0% 100%;
+        }
+        100% {
+            background-position: 0% 0%;
+        }
+    }
+
+    .loading {
+        background: linear-gradient(
+            rgb(var(--secondary-bg)),
+            #0a1223,
+            rgb(var(--secondary-bg))
+        );
+        background-size: 400% 400%;
+        animation: gradient 5s ease infinite;
+    }
+
     #parent {
         padding: 1em;
         padding-top: 3.5em;
