@@ -3,8 +3,8 @@
 	import { db, storeBook } from "./db";
 
 	import { parser } from "./services/parse";
-	import { assembleBook, openBookThing } from "./services/assemble";
-	import type { Book, Extracted, Metadata } from "./services/types";
+	import { openBookThing } from "./services/assemble";
+	import type { Book } from "./services/types";
 
 	import Reader from "./Reader.svelte";
 	import BookSelector from "./components/BookSelector.svelte";
@@ -15,15 +15,13 @@
 
 	const readFiles = async (file: File) => {
 		try {
-			let parsed = await parser(file);
-			let assembled = assembleBook(parsed.extracted);
+			const book = await parser(file);
 
-			let bookBook: Book = {meta: parsed.meta, contents: assembled.contents, files: {images: parsed.extracted.images, fonts: parsed.extracted.fonts, styles: parsed.extracted.styles}}
 			if (saveBooksOn && file.size < 30000000) {
-				const id = (await storeBook(bookBook)) as number;
-				openBook(bookBook, id);
+				const id = (await storeBook(book)) as number;
+				openBook(book, id);
 			} else {
-				openBook(bookBook);
+				openBook(book);
 			}
 		} catch (e) {
 			alert(e);
