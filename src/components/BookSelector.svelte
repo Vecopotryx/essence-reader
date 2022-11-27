@@ -69,7 +69,11 @@
 <div id="parent" style={!hasStored ? "justify-content: center" : ""}>
     {#if $books}
         {#each $books as book (book.id)}
-            <div class="book" on:click={() => openExisting(book.id)}>
+            <button
+                class="book"
+                tabindex="0"
+                on:click={() => openExisting(book.id)}
+            >
                 <button
                     class="deleteBtn"
                     on:click={(e) => {
@@ -84,14 +88,15 @@
                     alt="cover"
                 />
                 <p>{book.meta.author + " - " + book.meta.title}</p>
-            </div>
+            </button>
         {/each}
     {/if}
 
-    <div
+    <button
         class="book"
         on:click={() => clickFile()}
         style={!hasStored ? "max-width: 80em   " : ""}
+        tabindex="0"
     >
         <div
             id="dropInfo"
@@ -119,7 +124,7 @@
                     : "Drop anywhere or click to select a file"}
             </p>
         {/if}
-    </div>
+    </button>
 </div>
 
 <style>
@@ -168,6 +173,7 @@
         background-color: rgb(var(--secondary-bg));
         text-align: center;
         user-select: none;
+        min-width: 10em;
         vertical-align: middle;
         transition: background-color 0.3s ease;
         cursor: pointer;
@@ -181,15 +187,18 @@
         min-width: 10em;
         filter: drop-shadow(0 15px 15px rgb(0 0 0 / 0.15));
         transition: transform 0.25s, filter 0.25s;
-    }
-
-    .book > p {
-        vertical-align: bottom;
+        background-color: transparent;
+        box-shadow: none;
+        border: none;
+        display: grid;
+        grid-template-rows: auto 1fr;
+        color: inherit;
+        font-family: inherit;
+        font-size: inherit;
     }
 
     .book > img,
     .book > div {
-        display: block;
         height: 15em;
         border-radius: 0.5em;
         margin: auto;
@@ -197,7 +206,8 @@
         object-fit: cover;
     }
 
-    .book:hover {
+    .book:hover,
+    .book:focus {
         transform: translateY(-0.5em);
         cursor: pointer;
         filter: drop-shadow(0 55px 55px rgb(0 0 0 / 0.15));
