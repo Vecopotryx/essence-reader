@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { flip } from 'svelte/animate';
     import { db } from "../db";
     import { liveQuery, type Observable } from "dexie";
     import Topbar from "./Topbar.svelte";
@@ -69,7 +70,7 @@
 <div id="parent">
     {#if $books}
         {#each $books as book (book.id)}
-            <button class="book" on:click={() => openExisting(book.id)}>
+            <button animate:flip="{{duration: 200}}" class="book" on:click={() => openExisting(book.id)}  >
                 <button
                     class="deleteBtn"
                     on:click={(e) => {
@@ -218,7 +219,6 @@
     .book:focus {
         transform: translateY(-0.5em);
         cursor: pointer;
-        filter: drop-shadow(0 55px 55px rgb(0 0 0 / 0.15));
     }
 
     .deleteBtn {
