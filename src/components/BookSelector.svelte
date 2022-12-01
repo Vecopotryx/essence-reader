@@ -31,6 +31,12 @@
         await db.books.delete(id);
     }
 
+    const removeAllBooks = async () => {
+        if(confirm("Are you sure you want to remove all saved books?")) {
+            await db.books.clear();
+        }
+    }
+
     async function updateCount() {
         if (saveBooksOn) {
             const count = await db.books
@@ -60,6 +66,7 @@
             <input type="checkbox" bind:checked={saveBooksOn} />
             Save books
         </label><br />
+        <button on:click={removeAllBooks}>Remove all</button>
         <hr />
         <p style="display: inline">Select theme</p>
 
