@@ -31,10 +31,14 @@
 
     const updateStyles = () => {
         // Doesn't adapt based on which section is loaded, but works for now
-        for (let styleE of document.getElementsByTagName("style")) {
+
+        // Removing old styles in this way is problematic when running dev
+        // mode in Vite as it accidentally ends up removing component styling
+        // as well
+        /*for (let styleE of document.getElementsByTagName("style")) {
             //styleE.remove(); // Throws error parentNode = null.
             styleE.innerHTML = "";
-        }
+        }*/
 
         currentBook.files.styles.forEach((stylesheet) => {
             const styleE = document.createElement("style");
