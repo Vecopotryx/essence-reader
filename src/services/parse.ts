@@ -1,4 +1,3 @@
-import { XMLParser } from "fast-xml-parser";
 import { unzip } from "unzipit";
 import type { Metadata, Book } from "./types";
 
@@ -11,17 +10,15 @@ let coverFilename: string = "";
 
 let meta: Metadata;
 
+const domParser = new DOMParser();
+
 const parseOpf = (xml: string) => {
-    const parsedAtt = new XMLParser({ ignoreAttributes: false }).parse(xml)["package"];
+    const parsed = domParser.parseFromString(xml, "text/xml");
 
-    const manifestSections = parseManifest(parsedAtt["manifest"]);
+    const manifestSections = parseManifest(parsed.querySelector("manifest").children)
+    meta = parseMeta(parsed.querySelector("metadata"))
 
-    const parsed = new XMLParser().parse(xml)["package"];
-
-    meta = parseMeta(parsed["metadata"] === undefined ? parsed["opf:metadata"] : parsed["metadata"]);
-
-    parseSpine(parsedAtt["spine"], manifestSections);
-
+    parseSpine(parsed.querySelector("spine"), manifestSections);
 }
 
 const extract = async (file: File) => {
@@ -67,9 +64,12 @@ const extract = async (file: File) => {
     return opf;
 }
 
-const parseMeta = (meta: object) => {
-    const title = meta["dc:title"];
-    const author = meta["dc:creator"];
+const parseMeta = (meta: Element) => {
+    const title = meta.querySelector("title").textContent;
+    let author = [];
+    for (let author2 of meta.querySelectorAll("creator")) {
+        author.push(author2.textContent);
+    }
     let cover = images[0].blob;
     for (let { name, blob } of images) {
         if (name.includes(coverFilename)) {
@@ -82,23 +82,23 @@ const parseMeta = (meta: object) => {
     return { title, author, cover };
 }
 
-const parseManifest = (manifest: object) => {
+const parseManifest = (manifest: HTMLCollection) => {
     let tempSections: { id: string, href: string }[] = [];
 
-    for(const item of manifest["item"]){
-        if (item["@_media-type"] === "application/xhtml+xml") {
-            tempSections.push({ id: item["@_id"], href: item["@_href"] });
-        } else if (item["@_media-type"].includes("image") && item["@_id"].includes("cover")) {
-            coverFilename = item["@_href"];
+    for (const item of manifest) {
+        if (item.attributes["media-type"].value === "application/xhtml+xml") {
+            tempSections.push({ id: item.attributes["id"].value, href: item.attributes["href"].value });
+        } else if (item.attributes["media-type"].value.includes("image") && item.attributes["id"].value.includes("cover")) {
+            coverFilename = item.attributes["href"].value;
         }
     }
 
     return tempSections;
 }
 
-const parseSpine = (spine: object, manifestSec: { id: string, href: string }[]) => {
+const parseSpine = (spine: Element, manifestSec: { id: string, href: string }[]) => {
     let sortArr = [];
-    spine["itemref"].forEach(obj => sortArr.push(obj["@_idref"]));
+    spine.querySelectorAll("itemref").forEach(obj => sortArr.push(obj.attributes["idref"].value));
 
     sections = sortArr.map((i) => manifestSec.find((j) => j.id === i));
 }
@@ -109,15 +109,13 @@ const removePath = (filename: string) => {
 
 const getNameWithIndex = (filename: string, array: { name: string, blob: Blob }[]) => {
     for (const [i, { name }] of array.entries()) {
-         if (name.includes(filename)) {
+        if (name.includes(filename)) {
             return "ESSENCE-READER-IMAGE-" + i;
         }
     }
-    
+
     return "";
 }
-
-const domParser = new DOMParser();
 
 const updateHTML = (html: string, images: { name: string, blob: Blob }[]) => {
     let newHTML = domParser.parseFromString(html, "application/xhtml+xml");
@@ -172,7 +170,7 @@ export const parser = async (epub: File): Promise<Book> => {
     fonts = [];
     try {
         parseOpf(await extract(epub));
-    } catch(e) {
+    } catch (e) {
         throw new Error(epub.name + " does not appear to be a valid EPUB file");
     }
 
@@ -190,5 +188,5 @@ export const parser = async (epub: File): Promise<Book> => {
         styles[i].css = cssNester(styles[i].css, "#container");
     }
 
-    return {meta, contents, files: {images, fonts, styles}};
+    return { meta, contents, files: { images, fonts, styles } };
 }
