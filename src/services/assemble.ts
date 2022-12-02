@@ -35,10 +35,9 @@ const replaceNumbersWithBlobs = (html: string, images: { name: string, blob: Blo
     })
 }
 
-export const openBookThing = (book: Book) => {
-    let chapters: string[] = []
-    for (const content of book.contents) {
-        chapters.push(replaceNumbersWithBlobs(content, book.files.images));
+export const openBookThing = (book: Book): Book => {
+    for (let i = 0; i < book.contents.length; i++) {
+        book.contents[i] = (replaceNumbersWithBlobs(book.contents[i], book.files.images));
     }
 
     let cssStuff: { name: string, css: string}[] = book.files.styles;
@@ -47,7 +46,5 @@ export const openBookThing = (book: Book) => {
         cssStuff[i].css = updateCSS(cssStuff[i].css, book.files.images, book.files.fonts);
     }
 
-    let returnBook: Book = {meta: book.meta, contents: chapters, files: book.files}
-
-    return returnBook
+    return {meta: book.meta, contents: book.contents, toc: book.toc, files: book.files}
 }
