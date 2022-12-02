@@ -85,6 +85,7 @@
 		if (saveBooksOn && location.hash === "") {
 			document.title = "Essence Reader";
 			reading = false;
+			history.replaceState(null, "", ' '); // Remove empty hash from URL
 		} else if (saveBooksOn && location.hash !== "") {
 			openExisting(parseInt(location.hash.substring(1)));
 		}
