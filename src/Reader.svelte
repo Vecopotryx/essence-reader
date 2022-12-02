@@ -3,6 +3,7 @@
     import type { Book } from "./services/types";
     import Topbar from "./components/Topbar.svelte";
     import ReaderSettings from "./components/ReaderSettings.svelte";
+    import Popover from "./components/Popover.svelte";
 
     export let currentBook: Book;
     export let reading: boolean;
@@ -48,7 +49,10 @@
     };
 
     const updateSection = (inc) => {
-        if (0 <= section + inc && section + inc <= currentBook.contents.length) {
+        if (
+            0 <= section + inc &&
+            section + inc <= currentBook.contents.length
+        ) {
             section += inc;
             scrolled = 0;
         }
@@ -68,6 +72,8 @@
                 break;
         }
     };
+
+    let tocVisible = false;
 </script>
 
 <svelte:head>
@@ -96,13 +102,20 @@
             : ''}"
     >
         <h4>
-            <b>{currentBook !== undefined ? currentBook.meta.title + " - " : ""}</b>
+            <b
+                >{currentBook !== undefined
+                    ? currentBook.meta.title + " - "
+                    : ""}</b
+            >
             {currentBook !== undefined ? currentBook.meta.author : ""}
         </h4>
         <p id="progress">{section}/{currentBook.contents.length}</p>
     </div>
 
     <div slot="rightbar" style="display: inline-block">
+        <button class="settingsBtn" on:click={() => (tocVisible = !tocVisible)}>
+            ☰
+        </button>
         <button
             class="settingsBtn"
             on:click={() => (settingsVisible = !settingsVisible)}
@@ -114,15 +127,23 @@
     </div>
 </Topbar>
 
+<Popover bind:visible={tocVisible} top={"3em"} right={"1em"}>
+    {#each currentBook.toc as tocitem}
+        <button
+            class="tocButton"
+            style="{section === tocitem.index
+                ? 'border: 1px solid lightblue; font-weight: bold;'
+                : ''}  {tocitem.isChild ? 'padding-left: 2em;' : ''}"
+            on:click={() => (section = tocitem.index)}
+            >{tocitem.isChild ? "" : ""} {tocitem.name}</button
+        >
+    {/each}
+</Popover>
+
 <div
     id="container"
     style="font-size: {settings.fontSize}px; font-family: {settings.fontFamily};"
 >
-    {#each (currentBook.toc) as tocitem}
-        <br>
-        <button on:click={() => section = tocitem.index}>{tocitem.isChild ? ">>>" : ""} {tocitem.name}</button>
-    {/each}
-
     {@html currentBook.contents[section]}
     {@html currentBook.contents[section + 1]}
 </div>
@@ -132,6 +153,25 @@
 <svelte:window bind:scrollY={scrolled} on:keydown={handleKeydown} />
 
 <style>
+    .tocButton {
+        display: block;
+        border: none;
+        font-size: inherit;
+        font-family: inherit;
+        background-color: transparent;
+        color: inherit;
+        width: 95%;
+        margin: auto;
+        text-align: left;
+        border-radius: 0.2em;
+        border: 1px solid transparent;
+    }
+
+    .tocButton:hover {
+        cursor: pointer;
+        border: 1px solid var(--primary-color);
+    }
+
     h4,
     #progress {
         display: inline;
