@@ -113,11 +113,11 @@
     </div>
 
     <div slot="rightbar" style="display: inline-block">
-        <button class="settingsBtn" on:click={() => (tocVisible = !tocVisible)}>
+        <button id="settingsBtn" on:click={() => (tocVisible = !tocVisible)}>
             ☰
         </button>
         <button
-            class="settingsBtn"
+            id="settingsBtn"
             on:click={() => (settingsVisible = !settingsVisible)}
         >
             ⚙

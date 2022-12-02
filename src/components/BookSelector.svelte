@@ -52,7 +52,7 @@
 <Topbar>
     <h3 slot="toptext" style="display: inline;">Essence Reader</h3>
     <button
-        class="settingsBtn"
+        id="settingsBtn"
         slot="rightbar"
         on:click={() => (settingsVisible = !settingsVisible)}
     >

@@ -8,7 +8,7 @@
             if (event.target instanceof Element) {
                 if (
                     !node.contains(event.target) &&
-                    event.target.className !== "settingsBtn"
+                    event.target.id !== "settingsBtn"
                 ) {
                     node.dispatchEvent(new CustomEvent("outclick"));
                 }
