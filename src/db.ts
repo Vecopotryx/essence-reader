@@ -1,10 +1,11 @@
 import Dexie, { type Table } from 'dexie';
-import type { Metadata, Files } from './services/types';
+import type { Metadata, Files, TOC } from './services/types';
 
 interface Book {
   id?: number;
   meta: Metadata;
   contents: string[];
+  toc: TOC[];
   files: Files;
 }
 
@@ -13,8 +14,8 @@ class BookDB extends Dexie {
 
   constructor() {
     super('bookDB');
-    this.version(2).stores({
-      books: '++id, meta, contents, files'
+    this.version(3).stores({
+      books: '++id, meta, contents, toc, files'
     });
   }
 }

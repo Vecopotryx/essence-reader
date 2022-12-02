@@ -118,6 +118,11 @@
     id="container"
     style="font-size: {settings.fontSize}px; font-family: {settings.fontFamily};"
 >
+    {#each (currentBook.toc) as tocitem}
+        <br>
+        <button on:click={() => section = tocitem.index}>{tocitem.isChild ? ">>>" : ""} {tocitem.name}</button>
+    {/each}
+
     {@html currentBook.contents[section]}
     {@html currentBook.contents[section + 1]}
 </div>

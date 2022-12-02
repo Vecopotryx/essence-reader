@@ -1,15 +1,16 @@
+import { children } from "svelte/internal";
 import { unzip } from "unzipit";
-import type { Metadata, Book } from "./types";
+import type { Metadata, Book, TOC } from "./types";
 
 let sections: { id: string, href: string }[] = [];
 let images: { name: string, blob: Blob }[] = [];
-let htmls: { name: string, html: string }[] = [];
+let htmls: { href: string, html: string }[] = [];
 let styles: { name: string, css: string }[] = [];
 let fonts: { name: string, blob: Blob }[] = [];
 let coverFilename: string = "";
 
 let meta: Metadata;
-
+let tocNcx: string;
 const domParser = new DOMParser();
 
 const parseOpf = (xml: string) => {
@@ -48,7 +49,7 @@ const extract = async (file: File) => {
             case ".html":
             case ".xhtml": {
                 const html = await entry.text();
-                htmls.push({ name, html });
+                htmls.push({ href: name, html });
                 break;
             }
             case ".otf":
@@ -56,6 +57,11 @@ const extract = async (file: File) => {
             case ".woff": {
                 const blob = await entry.blob();
                 fonts.push({ name, blob });
+                break;
+            }
+            case ".ncx": {
+                tocNcx = await entry.text();
+                break;
             }
             default: break;
         }
@@ -66,7 +72,7 @@ const extract = async (file: File) => {
 
 const parseMeta = (meta: Element) => {
     const title = meta.querySelector("title").textContent;
-    let author = [];
+    const author = [];
     for (let author2 of meta.querySelectorAll("creator")) {
         author.push(author2.textContent);
     }
@@ -83,7 +89,7 @@ const parseMeta = (meta: Element) => {
 }
 
 const parseManifest = (manifest: HTMLCollection) => {
-    let tempSections: { id: string, href: string }[] = [];
+    const tempSections: { id: string, href: string }[] = [];
 
     for (const item of manifest) {
         if (item.attributes["media-type"].value === "application/xhtml+xml") {
@@ -97,7 +103,7 @@ const parseManifest = (manifest: HTMLCollection) => {
 }
 
 const parseSpine = (spine: Element, manifestSec: { id: string, href: string }[]) => {
-    let sortArr = [];
+    const sortArr = [];
     spine.querySelectorAll("itemref").forEach(obj => sortArr.push(obj.attributes["idref"].value));
 
     sections = sortArr.map((i) => manifestSec.find((j) => j.id === i));
@@ -163,6 +169,24 @@ const cssNester = (css: string, nestWith: string) => {
     return css.replace(/__keyframes__/g, x => kframes.shift());
 }
 
+type TOCType = {
+    name: string,
+    href: string,
+    isChild: boolean
+}
+
+const parseToc = (): TOCType[] => {
+    const array = []
+    const navmap = domParser.parseFromString(tocNcx, "application/xml").querySelectorAll("navPoint");
+    for (const navpoint of navmap) {
+        let name = navpoint.querySelector("text").textContent;
+        let href = decodeURI(navpoint.querySelector("content").attributes["src"].value);
+        const isChild = navpoint.parentElement.nodeName === "navPoint"
+        array.push({ name, href, isChild })
+    }
+    return array;
+}
+
 export const parser = async (epub: File): Promise<Book> => {
     images = [];
     sections = [];
@@ -174,12 +198,24 @@ export const parser = async (epub: File): Promise<Book> => {
         throw new Error(epub.name + " does not appear to be a valid EPUB file");
     }
 
-    let contents: string[] = [];
+    const contentIndexes: { href: string, index: number }[] = [];
+    const contents: string[] = [];
     for (let i = 0; i < sections.length; i++) {
-        for (const { name, html } of htmls) {
-            if (name.includes(sections[i].href)) {
-                contents.push(updateHTML(html, images));
+        for (const { href, html } of htmls) {
+            if (href.includes(sections[i].href)) {
+                const index = contents.push(updateHTML(html, images)) - 1;
+                contentIndexes.push({ href, index });
                 break;
+            }
+        }
+    }
+
+
+    const toc: TOC[] = [];
+    for (const { name, href: tocHref, isChild } of parseToc()) {
+        for (const { href, index } of contentIndexes) {
+            if (tocHref.includes(removePath(href))) {
+                toc.push({ name, index, isChild })
             }
         }
     }
@@ -188,5 +224,6 @@ export const parser = async (epub: File): Promise<Book> => {
         styles[i].css = cssNester(styles[i].css, "#container");
     }
 
-    return { meta, contents, files: { images, fonts, styles } };
+
+    return { meta, contents, toc, files: { images, fonts, styles } };
 }
