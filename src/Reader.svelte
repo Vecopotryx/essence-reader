@@ -49,7 +49,7 @@
     const updateSection = (inc: number) => {
         if (
             0 <= section + inc &&
-            section + inc <= currentBook.contents.length
+            section + inc < currentBook.contents.length
         ) {
             section += inc;
             scrolled = 0;
@@ -107,7 +107,7 @@
             >
             {currentBook !== undefined ? currentBook.meta.author : ""}
         </h4>
-        <p id="progress">{section}/{currentBook.contents.length}</p>
+        <p id="progress">{section}/{currentBook.contents.length - 1}</p>
     </div>
 
     <div slot="rightbar" style="display: inline-block">
