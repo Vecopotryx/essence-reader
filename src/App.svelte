@@ -69,6 +69,8 @@
 			let stored = await db.books.get(id);
 			if (stored) {
 				openBook(stored, stored.id);
+			} else {
+				location.hash = ""
 			}
 		})
 	};
@@ -80,10 +82,10 @@
 	});
 
 	window.onhashchange = () => {
-		if (saveBooksOn && reading && location.hash === "") {
+		if (saveBooksOn && location.hash === "") {
 			document.title = "Essence Reader";
 			reading = false;
-		} else if (saveBooksOn && !reading && location.hash !== "") {
+		} else if (saveBooksOn && location.hash !== "") {
 			openExisting(parseInt(location.hash.substring(1)));
 		}
 	};
