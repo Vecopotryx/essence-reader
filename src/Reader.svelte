@@ -32,23 +32,21 @@
 
     const updateStyles = () => {
         // Doesn't adapt based on which section is loaded, but works for now
-
-        // Removing old styles in this way is problematic when running dev
-        // mode in Vite as it accidentally ends up removing component styling
-        // as well
-        /*for (let styleE of document.getElementsByTagName("style")) {
-            //styleE.remove(); // Throws error parentNode = null.
-            styleE.innerHTML = "";
-        }*/
+        for (const styleE of document.getElementsByTagName("style")) {
+            if(styleE.getAttribute("from") === "essence-reader") {
+                styleE.remove();
+            }
+        }
 
         currentBook.files.styles.forEach((stylesheet) => {
             const styleE = document.createElement("style");
             styleE.innerText = stylesheet.css;
+            styleE.setAttribute("from", "essence-reader"); 
             document.head.appendChild(styleE);
         });
     };
 
-    const updateSection = (inc) => {
+    const updateSection = (inc: number) => {
         if (
             0 <= section + inc &&
             section + inc <= currentBook.contents.length
@@ -63,10 +61,10 @@
     const handleKeydown = ({ key }) => {
         switch (key) {
             case "ArrowLeft":
-                updateSection(-2);
+                updateSection(-1);
                 break;
             case "ArrowRight":
-                updateSection(2);
+                updateSection(1);
                 break;
             default:
                 break;
@@ -122,8 +120,8 @@
         >
             ⚙
         </button>
-        <button on:click={() => updateSection(-2)}>«</button>
-        <button on:click={() => updateSection(2)}>»</button>
+        <button on:click={() => updateSection(-1)}>«</button>
+        <button on:click={() => updateSection(1)}>»</button>
     </div>
 </Topbar>
 
@@ -145,7 +143,6 @@
     style="font-size: {settings.fontSize}px; font-family: {settings.fontFamily};"
 >
     {@html currentBook.contents[section]}
-    {@html currentBook.contents[section + 1]}
 </div>
 
 <ReaderSettings bind:settingsVisible bind:settings />
