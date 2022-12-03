@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { fly } from "svelte/transition";
     export let visible: boolean;
     export let top: string;
     export let right: string;
@@ -27,6 +28,7 @@
 
 {#if visible}
     <div
+        transition:fly={{ x: 50, duration: 200 }}
         id="popover"
         style="top: {top}; right: {right}"
         use:clickOutside
@@ -49,6 +51,6 @@
         border-radius: 0.5em;
         z-index: 10;
         overflow: scroll;
-        max-height: 90vh;
+        max-height: 80vh;
     }
 </style>
