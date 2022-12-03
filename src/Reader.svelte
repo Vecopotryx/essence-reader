@@ -12,34 +12,35 @@
 
     let section = 0;
 
-    //$: percent = Math.floor(100 * (section / currentBook.contents.length));
-
     let settingsVisible = false;
     let settings = {
         scale: 10,
         fontFamily: "Default",
     };
 
-    $: settings, updateSettings();
+    $: settings, applySettings();
 
-    let settingsString = "width: 50%";
+    const applySettings = () => {
+        let styleE = document.getElementById("user-settings");
+        if (!styleE) {
+            styleE = document.createElement("style");
+            styleE.id = "user-settings";
+            document.head.appendChild(styleE);
+        }
 
-    const updateSettings = () => {
-        let width = 50;
-        if (settings.scale > 20) {
-            width = 60;
-        }
-        if (window.matchMedia("(max-width: 1500px)").matches) {
-            width = 90;
-        }
-        settingsString =
-            "transform: scale(" +
+        styleE.innerText =
+            "#container { transform: scale(" +
             settings.scale / 10 +
             "); width: " +
-            width / (settings.scale / 10) +
-            "%;" +
+            50 / (settings.scale / 10) +
+            "%; }" +
+            " @media (max-width: 1500px) {#container { width: " +
+            90 / (settings.scale / 10) +
+            "%}}" +
             (settings.fontFamily !== "Default"
-                ? "font-family: " + settings.fontFamily + ";"
+                ? " #container p, #container a, #container span { font-family: " +
+                  settings.fontFamily +
+                  " !important;}"
                 : "");
     };
 
@@ -113,10 +114,6 @@
     };
 
     let tocVisible = false;
-
-    addEventListener("resize", (event) => {
-        updateSettings();
-    });
 </script>
 
 <svelte:head>
@@ -183,7 +180,7 @@
     {/each}
 </Popover>
 
-<div id="container" style={settingsString}>
+<div id="container">
     {@html currentBook.contents[section]}
 </div>
 
@@ -221,5 +218,6 @@
         padding-top: 3em;
         padding-bottom: 2em;
         transform-origin: top;
+        font-family: Verdana;
     }
 </style>
