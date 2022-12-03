@@ -17,7 +17,7 @@
     let settingsVisible = false;
     let settings = {
         scale: 10,
-        fontFamily: "Verdana",
+        fontFamily: "Default",
     };
 
     $: settings, updateSettings();
@@ -37,7 +37,10 @@
             settings.scale / 10 +
             "); width: " +
             width / (settings.scale / 10) +
-            "%;";
+            "%;" +
+            (settings.fontFamily !== "Default"
+                ? "font-family: " + settings.fontFamily + ";"
+                : "");
     };
 
     let scrolled = 0;

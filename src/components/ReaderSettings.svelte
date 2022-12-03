@@ -19,6 +19,7 @@
         bind:value={settings.fontFamily}
         style="width: 100%;"
     >
+        <option>Default</option>
         <option style="font-family:'Verdana'">Verdana</option>
         <option style="font-family:'Arial'">Arial</option>
         <option style="font-family:'Courier New '">Courier New </option>
