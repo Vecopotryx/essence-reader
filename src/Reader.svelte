@@ -16,8 +16,28 @@
 
     let settingsVisible = false;
     let settings = {
-        fontSize: 16,
+        scale: 10,
         fontFamily: "Verdana",
+    };
+
+    $: settings, updateSettings();
+
+    let settingsString = "width: 50%";
+
+    const updateSettings = () => {
+        let width = 50;
+        if (settings.scale > 20) {
+            width = 60;
+        }
+        if (window.matchMedia("(max-width: 1500px)").matches) {
+            width = 90;
+        }
+        settingsString =
+            "transform: scale(" +
+            settings.scale / 10 +
+            "); width: " +
+            width / (settings.scale / 10) +
+            "%;";
     };
 
     let scrolled = 0;
@@ -71,8 +91,8 @@
     };
 
     const incrementSection = (inc: number) => {
-        updateSection(section+inc);
-    }
+        updateSection(section + inc);
+    };
 
     updateStyles();
 
@@ -90,6 +110,10 @@
     };
 
     let tocVisible = false;
+
+    addEventListener("resize", (event) => {
+        updateSettings();
+    });
 </script>
 
 <svelte:head>
@@ -150,16 +174,13 @@
             style="{section === tocitem.index
                 ? 'border: 1px solid lightblue; font-weight: bold;'
                 : ''}  {tocitem.isChild ? 'padding-left: 2em;' : ''}"
-            on:click={() => (updateSection(tocitem.index))}
+            on:click={() => updateSection(tocitem.index)}
             >{tocitem.isChild ? "" : ""} {tocitem.name}</button
         >
     {/each}
 </Popover>
 
-<div
-    id="container"
-    style="font-size: {settings.fontSize}px; font-family: {settings.fontFamily};"
->
+<div id="container" style={settingsString}>
     {@html currentBook.contents[section]}
 </div>
 
@@ -195,12 +216,7 @@
     #container {
         margin: auto;
         padding-top: 3em;
-        width: 50%;
-    }
-
-    @media (max-width: 1000px) {
-        #container {
-            width: 90%;
-        }
+        padding-bottom: 2em;
+        transform-origin: top;
     }
 </style>

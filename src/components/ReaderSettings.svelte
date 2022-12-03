@@ -2,10 +2,12 @@
     import Popover from "./Popover.svelte";
     import ThemePicker from "./ThemePicker.svelte";
 
-    export let settings = {
-        fontSize: 16,
-        fontFamily: "Verdana",
-    };
+    interface settingsInterface {
+        scale: Number,
+        fontFamily: string
+    }
+
+    export let settings: settingsInterface;
     export let settingsVisible = false;
 </script>
 
@@ -24,14 +26,14 @@
         <option style="font-family:'Times New Roman'">Times New Roman</option>
     </select>
     <br />
-    <label for="fontsize">Font size:</label>
+    <label for="scale">Scale:</label>
     <br />
     <input
-        name="fontsize"
+        name="scale"
         type="range"
-        min="12"
-        max="40"
-        bind:value={settings.fontSize}
+        min="5"
+        max="30"
+        bind:value={settings.scale}
     />
 
     <ThemePicker />
