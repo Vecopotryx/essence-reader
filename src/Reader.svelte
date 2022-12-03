@@ -13,7 +13,7 @@
     let section = 0;
 
     let settingsVisible = false;
-    let settings = {
+    let settings = JSON.parse(localStorage.getItem("settings")) || {
         scale: 10,
         fontFamily: "Default",
     };
@@ -42,6 +42,7 @@
                   settings.fontFamily +
                   " !important;}"
                 : "");
+        localStorage.setItem("settings", JSON.stringify(settings));
     };
 
     let scrolled = 0;
