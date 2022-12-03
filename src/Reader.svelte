@@ -62,23 +62,27 @@
         }
     };
 
-    const updateSection = (inc: number) => {
-        if (0 <= section + inc && section + inc < currentBook.contents.length) {
-            section += inc;
+    const updateSection = (index: number) => {
+        if (0 <= index && index < currentBook.contents.length) {
+            section = index;
             scrolled = 0;
             saveProgress(section);
         }
     };
+
+    const incrementSection = (inc: number) => {
+        updateSection(section+inc);
+    }
 
     updateStyles();
 
     const handleKeydown = ({ key }) => {
         switch (key) {
             case "ArrowLeft":
-                updateSection(-1);
+                incrementSection(-1);
                 break;
             case "ArrowRight":
-                updateSection(1);
+                incrementSection(1);
                 break;
             default:
                 break;
@@ -134,8 +138,8 @@
         >
             ⚙
         </button>
-        <button on:click={() => updateSection(-1)}>«</button>
-        <button on:click={() => updateSection(1)}>»</button>
+        <button on:click={() => incrementSection(-1)}>«</button>
+        <button on:click={() => incrementSection(1)}>»</button>
     </div>
 </Topbar>
 
@@ -146,7 +150,7 @@
             style="{section === tocitem.index
                 ? 'border: 1px solid lightblue; font-weight: bold;'
                 : ''}  {tocitem.isChild ? 'padding-left: 2em;' : ''}"
-            on:click={() => (section = tocitem.index)}
+            on:click={() => (updateSection(tocitem.index))}
             >{tocitem.isChild ? "" : ""} {tocitem.name}</button
         >
     {/each}
