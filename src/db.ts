@@ -7,6 +7,7 @@ interface Book {
   contents: string[];
   toc: TOC[];
   files: Files;
+  progress: number;
 }
 
 class BookDB extends Dexie {
@@ -14,8 +15,8 @@ class BookDB extends Dexie {
 
   constructor() {
     super('bookDB');
-    this.version(3).stores({
-      books: '++id, meta, contents, toc, files'
+    this.version(4).stores({
+      books: '++id, meta, contents, toc, files, progress'
     });
   }
 }

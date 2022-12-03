@@ -1,12 +1,14 @@
 <script lang="ts">
-    import { afterUpdate } from "svelte";
+    import { afterUpdate, onMount } from "svelte";
     import type { Book } from "./services/types";
     import Topbar from "./components/Topbar.svelte";
     import ReaderSettings from "./components/ReaderSettings.svelte";
     import Popover from "./components/Popover.svelte";
+    import { db } from "./db";
 
     export let currentBook: Book;
     export let reading: boolean;
+    export let currentId: number;
 
     let section = 0;
 
@@ -23,7 +25,7 @@
     let currentTitle = currentBook.meta.title;
 
     afterUpdate(() => {
-        if (currentTitle != currentBook.meta.title) {
+        if (currentTitle !== currentBook.meta.title) {
             section = 0;
             currentTitle = currentBook.meta.title;
             updateStyles();
@@ -33,7 +35,7 @@
     const updateStyles = () => {
         // Doesn't adapt based on which section is loaded, but works for now
         for (const styleE of document.getElementsByTagName("style")) {
-            if(styleE.getAttribute("from") === "essence-reader") {
+            if (styleE.getAttribute("from") === "essence-reader") {
                 styleE.remove();
             }
         }
@@ -41,18 +43,30 @@
         currentBook.files.styles.forEach((stylesheet) => {
             const styleE = document.createElement("style");
             styleE.innerText = stylesheet.css;
-            styleE.setAttribute("from", "essence-reader"); 
+            styleE.setAttribute("from", "essence-reader");
             document.head.appendChild(styleE);
         });
     };
 
+    onMount(() => {
+        if (!isNaN(currentBook.progress)) {
+            section = Math.floor(currentBook.progress);
+        }
+    });
+
+    const saveProgress = (progress: number) => {
+        if (currentId !== -1) {
+            db.books.update(currentId, {
+                progress: progress,
+            });
+        }
+    };
+
     const updateSection = (inc: number) => {
-        if (
-            0 <= section + inc &&
-            section + inc < currentBook.contents.length
-        ) {
+        if (0 <= section + inc && section + inc < currentBook.contents.length) {
             section += inc;
             scrolled = 0;
+            saveProgress(section);
         }
     };
 

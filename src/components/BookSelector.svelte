@@ -94,6 +94,7 @@
                 <div class="bookInfo">
                     <h4>{book.meta.author}</h4>
                     <h3>{book.meta.title}</h3>
+                    <p>{book.progress} / {book.contents.length - 1}</p>
                 </div>
             </button>
         {/each}

@@ -2,7 +2,8 @@ export type Book = {
     meta: Metadata,
     contents: string[],
     toc: TOC[],
-    files: Files
+    files: Files,
+    progress: number
 }
 
 export type Metadata = {

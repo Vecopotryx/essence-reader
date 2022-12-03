@@ -61,6 +61,7 @@
 		currentBook = openBookThing(book);
 		reading = true;
 		location.hash = id ? id.toString() : "";
+		currentId = id ? id : -1;
 		//console.log(performance.now() - startTime);
 	};
 
@@ -70,9 +71,9 @@
 			if (stored) {
 				openBook(stored, stored.id);
 			} else {
-				location.hash = ""
+				location.hash = "";
 			}
-		})
+		});
 	};
 
 	onMount(() => {
@@ -85,7 +86,7 @@
 		if (saveBooksOn && location.hash === "") {
 			document.title = "Essence Reader";
 			reading = false;
-			history.replaceState(null, "", ' '); // Remove empty hash from URL
+			history.replaceState(null, "", " "); // Remove empty hash from URL
 		} else if (saveBooksOn && location.hash !== "") {
 			openExisting(parseInt(location.hash.substring(1)));
 		}
@@ -98,12 +99,20 @@
 		dragging = false;
 		readFiles(e.dataTransfer.files[0]);
 	});
+
+	let currentId: number = -1;
 </script>
 
 <main>
 	{#if reading}
-		<Reader {currentBook} bind:reading />
+		<Reader {currentBook} bind:reading bind:currentId />
 	{:else}
-		<BookSelector {readFiles} {openExisting} {dragging} bind:saveBooksOn  bind:loading />
+		<BookSelector
+			{readFiles}
+			{openExisting}
+			{dragging}
+			bind:saveBooksOn
+			bind:loading
+		/>
 	{/if}
 </main>

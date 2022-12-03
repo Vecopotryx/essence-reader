@@ -46,5 +46,5 @@ export const openBookThing = (book: Book): Book => {
         cssStuff[i].css = updateCSS(cssStuff[i].css, book.files.images, book.files.fonts);
     }
 
-    return {meta: book.meta, contents: book.contents, toc: book.toc, files: book.files}
+    return {meta: book.meta, contents: book.contents, toc: book.toc, files: book.files, progress: book.progress}
 }

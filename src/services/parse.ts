@@ -225,5 +225,5 @@ export const parser = async (epub: File): Promise<Book> => {
     }
 
 
-    return { meta, contents, toc, files: { images, fonts, styles } };
+    return { meta, contents, toc, files: { images, fonts, styles }, progress: 0 };
 }
