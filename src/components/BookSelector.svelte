@@ -1,11 +1,12 @@
 <script lang="ts">
-	import { flip } from 'svelte/animate';
+    import { flip } from "svelte/animate";
     import { db } from "../db";
     import { liveQuery, type Observable } from "dexie";
     import Topbar from "./Topbar.svelte";
     import Popover from "./Popover.svelte";
     import ThemePicker from "./ThemePicker.svelte";
     import type { Book } from "../services/types";
+    import { fade } from "svelte/transition";
 
     export let readFiles = (file: File) => {};
     export let openExisting = (id: number) => {};
@@ -32,10 +33,10 @@
     }
 
     const removeAllBooks = async () => {
-        if(confirm("Are you sure you want to remove all saved books?")) {
+        if (confirm("Are you sure you want to remove all saved books?")) {
             await db.books.clear();
         }
-    }
+    };
 
     async function updateCount() {
         if (saveBooksOn) {
@@ -49,90 +50,99 @@
     updateCount();
 </script>
 
-<Topbar>
-    <h3 slot="toptext" style="display: inline;">Essence Reader</h3>
-    <button
-        id="settingsBtn"
-        slot="rightbar"
-        on:click={() => (settingsVisible = !settingsVisible)}
-    >
-        ⚙
-    </button>
-</Topbar>
-
-<Popover bind:visible={settingsVisible} top={"3.1em"} right={"1%"}>
-    <div style="width: 8em">
-        <label style="user-select: none">
-            <input type="checkbox" bind:checked={saveBooksOn} />
-            Save books
-        </label><br />
-        <button on:click={removeAllBooks}>Remove all</button>
-        <hr />
-        <p style="display: inline">Select theme</p>
-
-        <ThemePicker />
-    </div>
-</Popover>
-
-<div id="parent">
-    {#if $books}
-        {#each $books as book (book.id)}
-            <button animate:flip="{{duration: 200}}" class="book" on:click={() => openExisting(book.id)}  >
-                <button
-                    class="deleteBtn"
-                    on:click={(e) => {
-                        e.stopPropagation();
-                        deleteBook(book.id);
-                    }}>✕</button
-                >
-                <img
-                    src={book.meta.cover !== undefined
-                        ? URL.createObjectURL(book.meta.cover)
-                        : ""}
-                    alt="cover"
-                />
-                <div class="bookInfo">
-                    <h4>{book.meta.author}</h4>
-                    <h3>{book.meta.title}</h3>
-                    <p>{book.progress} / {book.contents.length - 1}</p>
-                </div>
-            </button>
-        {/each}
-    {/if}
-
-    <button
-        class="book"
-        on:click={() => clickFile()}
-        style={!hasStored ? "max-width: 50vw" : ""}
-    >
-        <div
-            id="dropInfo"
-            class={loading ? "loading" : ""}
-            style="max-width: {!hasStored
-                ? '100% '
-                : ''}; background-color: {dragging ? ' #87CEFA' : ''}"
+<div in:fade={{ duration: 200 }}>
+    <Topbar>
+        <h3 slot="toptext" style="display: inline;">Essence Reader</h3>
+        <button
+            id="settingsBtn"
+            slot="rightbar"
+            on:click={() => (settingsVisible = !settingsVisible)}
         >
-            {#if loading}
-                <h1>📚</h1>
-                <h2>...</h2>
-            {:else}
-                <h1>📚</h1>
-                <h2>
-                    {!hasStored
-                        ? "Drop anywhere or click to select a file"
-                        : "+"}
-                </h2>
-            {/if}
+            ⚙
+        </button>
+    </Topbar>
+
+    <Popover bind:visible={settingsVisible} top={"3.1em"} right={"1%"}>
+        <div style="width: 8em">
+            <label style="user-select: none">
+                <input type="checkbox" bind:checked={saveBooksOn} />
+                Save books
+            </label><br />
+            <button on:click={removeAllBooks}>Remove all</button>
+            <hr />
+            <p style="display: inline">Select theme</p>
+
+            <ThemePicker />
         </div>
-        {#if hasStored}
-        <div class="bookInfo">
-            <h4>Load new book</h4>
-            <h3 style="color: {dragging ? '#87CEFA' : ''}">{loading
-                ? "Loading"
-                : "Drop anywhere or click to select a file"}</h3>
-        </div>
+    </Popover>
+
+    <div id="parent">
+        {#if $books}
+            {#each $books as book (book.id)}
+                <button
+                    animate:flip={{ duration: 200 }}
+                    class="book"
+                    on:click={() => openExisting(book.id)}
+                >
+                    <button
+                        class="deleteBtn"
+                        on:click={(e) => {
+                            e.stopPropagation();
+                            deleteBook(book.id);
+                        }}>✕</button
+                    >
+                    <img
+                        in:fade={{ duration: 200 }}
+                        src={book.meta.cover !== undefined
+                            ? URL.createObjectURL(book.meta.cover)
+                            : ""}
+                        alt="cover"
+                    />
+                    <div class="bookInfo" in:fade={{ duration: 200 }}>
+                        <h4>{book.meta.author}</h4>
+                        <h3>{book.meta.title}</h3>
+                        <p>{book.progress} / {book.contents.length - 1}</p>
+                    </div>
+                </button>
+            {/each}
         {/if}
-    </button>
+
+        <button
+            class="book"
+            on:click={() => clickFile()}
+            style={!hasStored ? "max-width: 50vw" : ""}
+        >
+            <div
+                id="dropInfo"
+                class={loading ? "loading" : ""}
+                style="max-width: {!hasStored
+                    ? '100% '
+                    : ''}; background-color: {dragging ? ' #87CEFA' : ''}"
+            >
+                {#if loading}
+                    <h1>📚</h1>
+                    <h2>...</h2>
+                {:else}
+                    <h1>📚</h1>
+                    <h2>
+                        {!hasStored
+                            ? "Drop anywhere or click to select a file"
+                            : "+"}
+                    </h2>
+                {/if}
+            </div>
+            {#if hasStored}
+                <div class="bookInfo">
+                    <h4>Load new book</h4>
+                    <h3 style="color: {dragging ? '#87CEFA' : ''}">
+                        {loading
+                            ? "Loading"
+                            : "Drop anywhere or click to select a file"}
+                    </h3>
+                </div>
+            {/if}
+        </button>
+    </div>
 </div>
 
 <style>
@@ -243,7 +253,7 @@
     }
 
     .deleteBtn:hover {
-        background-color: rgba(255,10,50,1);
+        background-color: rgba(255, 10, 50, 1);
     }
 
     .book:hover .deleteBtn {

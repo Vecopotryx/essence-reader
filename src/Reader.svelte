@@ -1,5 +1,6 @@
 <script lang="ts">
     import { afterUpdate, onMount } from "svelte";
+    import { fade } from "svelte/transition";
     import type { Book } from "./services/types";
     import Topbar from "./components/Topbar.svelte";
     import ReaderSettings from "./components/ReaderSettings.svelte";
@@ -123,66 +124,71 @@
     </title>
 </svelte:head>
 
-<Topbar>
-    <button
-        slot="leftbar"
-        on:click={() => {
-            reading = false;
-            document.title = "Essence Reader";
-            location.hash = "";
-        }}
-        style="opacity: 0.5;"
-    >
-        {"<"}
-    </button>
+<div in:fade={{ duration: 200 }}>
+    <Topbar>
+        <button
+            slot="leftbar"
+            on:click={() => {
+                reading = false;
+                document.title = "Essence Reader";
+                location.hash = "";
+            }}
+            style="opacity: 0.5;"
+        >
+            {"<"}
+        </button>
 
-    <div
-        slot="toptext"
-        style="transition: opacity 0.3s; {scrolled > 100
-            ? 'opacity: 0.5;'
-            : ''}"
-    >
-        <h4>
-            <b
-                >{currentBook !== undefined
-                    ? currentBook.meta.title + " - "
-                    : ""}</b
+        <div
+            slot="toptext"
+            style="transition: opacity 0.3s; {scrolled > 100
+                ? 'opacity: 0.5;'
+                : ''}"
+        >
+            <h4>
+                <b
+                    >{currentBook !== undefined
+                        ? currentBook.meta.title + " - "
+                        : ""}</b
+                >
+                {currentBook !== undefined ? currentBook.meta.author : ""}
+            </h4>
+            <p id="progress">{section}/{currentBook.contents.length - 1}</p>
+        </div>
+
+        <div slot="rightbar" style="display: inline-block">
+            <button
+                id="settingsBtn"
+                on:click={() => (tocVisible = !tocVisible)}
             >
-            {currentBook !== undefined ? currentBook.meta.author : ""}
-        </h4>
-        <p id="progress">{section}/{currentBook.contents.length - 1}</p>
+                ☰
+            </button>
+            <button
+                id="settingsBtn"
+                on:click={() => (settingsVisible = !settingsVisible)}
+            >
+                ⚙
+            </button>
+            <button on:click={() => incrementSection(-1)}>«</button>
+            <button on:click={() => incrementSection(1)}>»</button>
+        </div>
+    </Topbar>
+
+    <Popover bind:visible={tocVisible} top={"3em"} right={"1em"}>
+        {#each currentBook.toc as tocitem}
+            <button
+                class="tocButton"
+                style="{section === tocitem.index
+                    ? 'border: 1px solid lightblue; font-weight: bold;'
+                    : ''}  {tocitem.isChild ? 'padding-left: 2em;' : ''}"
+                on:click={() => updateSection(tocitem.index)}
+                >{tocitem.isChild ? "" : ""} {tocitem.name}</button
+            >
+        {/each}
+    </Popover>
+
+    <div id="container">
+        {@html currentBook.contents[section]}
     </div>
-
-    <div slot="rightbar" style="display: inline-block">
-        <button id="settingsBtn" on:click={() => (tocVisible = !tocVisible)}>
-            ☰
-        </button>
-        <button
-            id="settingsBtn"
-            on:click={() => (settingsVisible = !settingsVisible)}
-        >
-            ⚙
-        </button>
-        <button on:click={() => incrementSection(-1)}>«</button>
-        <button on:click={() => incrementSection(1)}>»</button>
-    </div>
-</Topbar>
-
-<Popover bind:visible={tocVisible} top={"3em"} right={"1em"}>
-    {#each currentBook.toc as tocitem}
-        <button
-            class="tocButton"
-            style="{section === tocitem.index
-                ? 'border: 1px solid lightblue; font-weight: bold;'
-                : ''}  {tocitem.isChild ? 'padding-left: 2em;' : ''}"
-            on:click={() => updateSection(tocitem.index)}
-            >{tocitem.isChild ? "" : ""} {tocitem.name}</button
-        >
-    {/each}
-</Popover>
-
-<div id="container">
-    {@html currentBook.contents[section]}
 </div>
 
 <ReaderSettings bind:settingsVisible bind:settings />
