@@ -1,5 +1,4 @@
 <script lang="ts">
-    import Popover from "./Popover.svelte";
     import ThemePicker from "./ThemePicker.svelte";
 
     interface settingsInterface {
@@ -8,10 +7,8 @@
     }
 
     export let settings: settingsInterface;
-    export let settingsVisible = false;
 </script>
 
-<Popover bind:visible={settingsVisible} top={"3.1em"} right={"1%"}>
     <label for="fontpicker">Font:</label>
     <br />
     <select
@@ -38,7 +35,6 @@
     />
 
     <ThemePicker />
-</Popover>
 
 <style>
 </style>

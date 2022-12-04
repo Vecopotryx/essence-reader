@@ -1,17 +1,15 @@
 <script lang="ts">
     import { fly } from "svelte/transition";
-    export let visible: boolean;
-    export let top: string;
-    export let right: string;
+    let visible: boolean;
+    export let text: string;
+
+    let button: Element;
 
     function clickOutside(node: Node) {
         const handleClick = (event: Event) => {
             if (event.target instanceof Element) {
-                if (
-                    !node.contains(event.target) &&
-                    event.target.id !== "settingsBtn"
-                ) {
-                    node.dispatchEvent(new CustomEvent("outclick"));
+                if (!node.contains(event.target) && event.target !== button) {
+                    visible = false;
                 }
             }
         };
@@ -26,20 +24,22 @@
     }
 </script>
 
+<button bind:this={button} on:click={() => (visible = !visible)}>
+    {text}
+</button>
+
 {#if visible}
     <div
         transition:fly={{ x: 50, duration: 200 }}
-        id="popover"
-        style="top: {top}; right: {right}"
+        class="popover"
         use:clickOutside
-        on:outclick={() => (visible = false)}
     >
         <slot />
     </div>
 {/if}
 
 <style>
-    #popover {
+    .popover {
         position: fixed;
         padding: 0.5em;
         background: rgba(var(--secondary-bg), 0.8);
@@ -53,12 +53,15 @@
         z-index: 10;
         overflow: auto;
         max-height: 80vh;
+        right: 0;
+        top: 3em;
+        max-width: 50%;
     }
 
     @supports not (
         (-webkit-backdrop-filter: blur(5px)) or (backdrop-filter: blur(5px))
     ) {
-        #popover {
+        .popover {
             background-color: rgb(var(--secondary-bg));
         }
     }

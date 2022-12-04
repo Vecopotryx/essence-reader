@@ -13,7 +13,6 @@
 
     let section = 0;
 
-    let settingsVisible = false;
     let settings = JSON.parse(localStorage.getItem("settings")) || {
         scale: 10,
         fontFamily: "Default",
@@ -114,8 +113,6 @@
                 break;
         }
     };
-
-    let tocVisible = false;
 </script>
 
 <svelte:head>
@@ -156,42 +153,32 @@
         </div>
 
         <div slot="rightbar" style="display: inline-block">
-            <button
-                id="settingsBtn"
-                on:click={() => (tocVisible = !tocVisible)}
-            >
-                ☰
-            </button>
-            <button
-                id="settingsBtn"
-                on:click={() => (settingsVisible = !settingsVisible)}
-            >
-                ⚙
-            </button>
+            <Popover text="☰">
+                {#each currentBook.toc as tocitem}
+                    <button
+                        class="tocButton"
+                        style="{section === tocitem.index
+                            ? 'border: 1px solid lightblue; font-weight: bold;'
+                            : ''}  {tocitem.isChild
+                            ? 'padding-left: 2em;'
+                            : ''}"
+                        on:click={() => updateSection(tocitem.index)}
+                        >{tocitem.isChild ? "" : ""} {tocitem.name}</button
+                    >
+                {/each}
+            </Popover>
+            <Popover text="⚙">
+                <ReaderSettings bind:settings />
+            </Popover>
             <button on:click={() => incrementSection(-1)}>«</button>
             <button on:click={() => incrementSection(1)}>»</button>
         </div>
     </Topbar>
 
-    <Popover bind:visible={tocVisible} top={"3em"} right={"1em"}>
-        {#each currentBook.toc as tocitem}
-            <button
-                class="tocButton"
-                style="{section === tocitem.index
-                    ? 'border: 1px solid lightblue; font-weight: bold;'
-                    : ''}  {tocitem.isChild ? 'padding-left: 2em;' : ''}"
-                on:click={() => updateSection(tocitem.index)}
-                >{tocitem.isChild ? "" : ""} {tocitem.name}</button
-            >
-        {/each}
-    </Popover>
-
     <div id="container">
         {@html currentBook.contents[section]}
     </div>
 </div>
-
-<ReaderSettings bind:settingsVisible bind:settings />
 
 <svelte:window bind:scrollY={scrolled} on:keydown={handleKeydown} />
 

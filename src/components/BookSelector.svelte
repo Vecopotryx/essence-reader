@@ -16,7 +16,6 @@
 
     let books: Observable<Book[]> = liveQuery(() => db.books.toArray());
     let hasStored: boolean = false;
-    let settingsVisible: boolean = false;
 
     const clickFile = () => {
         let input = document.createElement("input");
@@ -53,28 +52,22 @@
 <div in:fade={{ duration: 200 }}>
     <Topbar>
         <h3 slot="toptext" style="display: inline;">Essence Reader</h3>
-        <button
-            id="settingsBtn"
-            slot="rightbar"
-            on:click={() => (settingsVisible = !settingsVisible)}
-        >
-            ⚙
-        </button>
+        <Popover slot="rightbar" text="⚙">
+            <div style="width: 8em">
+                <label style="user-select: none">
+                    <input type="checkbox" bind:checked={saveBooksOn} />
+                    Save books
+                </label><br />
+                <button on:click={removeAllBooks}>Remove all</button>
+                <hr />
+                <p style="display: inline">Select theme</p>
+    
+                <ThemePicker />
+            </div>
+        </Popover>
     </Topbar>
 
-    <Popover bind:visible={settingsVisible} top={"3.1em"} right={"1%"}>
-        <div style="width: 8em">
-            <label style="user-select: none">
-                <input type="checkbox" bind:checked={saveBooksOn} />
-                Save books
-            </label><br />
-            <button on:click={removeAllBooks}>Remove all</button>
-            <hr />
-            <p style="display: inline">Select theme</p>
 
-            <ThemePicker />
-        </div>
-    </Popover>
 
     <div id="parent">
         {#if $books}
