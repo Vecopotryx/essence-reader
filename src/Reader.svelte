@@ -60,16 +60,16 @@
 
     const updateStyles = () => {
         // Doesn't adapt based on which section is loaded, but works for now
-        for (const styleE of document.getElementsByTagName("style")) {
-            if (styleE.getAttribute("from") === "essence-reader") {
-                styleE.remove();
-            }
+        for (const styleE of document.getElementsByClassName(
+            "essence-reader"
+        )) {
+            styleE.remove();
         }
 
         currentBook.files.styles.forEach((stylesheet) => {
             const styleE = document.createElement("style");
             styleE.innerText = stylesheet.css;
-            styleE.setAttribute("from", "essence-reader");
+            styleE.className = "essence-reader";
             document.head.appendChild(styleE);
         });
     };
