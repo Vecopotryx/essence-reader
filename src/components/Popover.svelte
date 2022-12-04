@@ -43,7 +43,8 @@
         position: fixed;
         padding: 0.5em;
         background: rgba(var(--secondary-bg), 0.8);
-        backdrop-filter: blur(5px);
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
         text-align: center;
         color: var(--primary-color);
         filter: drop-shadow(0 20px 13px rgb(0 0 0 / 0.03))
@@ -52,5 +53,13 @@
         z-index: 10;
         overflow: auto;
         max-height: 80vh;
+    }
+
+    @supports not (
+        (-webkit-backdrop-filter: blur(5px)) or (backdrop-filter: blur(5px))
+    ) {
+        #popover {
+            background-color: rgb(var(--secondary-bg));
+        }
     }
 </style>

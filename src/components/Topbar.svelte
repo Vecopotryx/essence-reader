@@ -51,14 +51,17 @@
         font-size: 1.25em;
         position: fixed;
         background: rgba(var(--secondary-bg), 0.8);
-        backdrop-filter: blur(5px);
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
         transition: background-color 0.5s;
         filter: drop-shadow(0 20px 13px rgb(0 0 0 / 0.03))
             drop-shadow(0 8px 5px rgb(0 0 0 / 0.08));
         z-index: 100;
     }
 
-    @supports not (backdrop-filter: blur(5px)) {
+    @supports not (
+        (-webkit-backdrop-filter: blur(5px)) or (backdrop-filter: blur(5px))
+    ) {
         #topbar {
             background-color: rgb(var(--secondary-bg));
         }
