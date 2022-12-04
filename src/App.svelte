@@ -8,6 +8,7 @@
 
 	import Reader from "./Reader.svelte";
 	import BookSelector from "./components/BookSelector.svelte";
+    import { fade } from "svelte/transition";
 
 	let currentBook: Book;
 	let reading = false;
@@ -66,18 +67,21 @@
 	};
 
 	const openExisting = (id: number) => {
+		loadingSaved = true;
 		db.transaction("r", db.books, async () => {
 			let stored = await db.books.get(id);
 			if (stored) {
 				openBook(stored, stored.id);
 			} else {
 				location.hash = "";
+				loadingSaved = false;
 			}
 		});
 	};
 
 	onMount(() => {
 		if (location.hash !== "") {
+			loadingSaved = true;
 			openExisting(parseInt(location.hash.substring(1)));
 		}
 	});
@@ -87,6 +91,7 @@
 			document.title = "Essence Reader";
 			reading = false;
 			history.replaceState(null, "", " "); // Remove empty hash from URL
+			loadingSaved = false;
 		} else if (saveBooksOn && location.hash !== "") {
 			openExisting(parseInt(location.hash.substring(1)));
 		}
@@ -101,11 +106,14 @@
 	});
 
 	let currentId: number = -1;
+	let loadingSaved = false;
 </script>
 
 <main>
 	{#if reading}
 		<Reader {currentBook} bind:reading bind:currentId />
+	{:else if loadingSaved}
+		<p style="text-align: center;" in:fade>Loading</p>
 	{:else}
 		<BookSelector
 			{readFiles}
