@@ -1,9 +1,8 @@
-import { children } from "svelte/internal";
 import { unzip } from "unzipit";
 import type { Metadata, Book, TOC } from "./types";
 
 let sections: { id: string, href: string }[] = [];
-let images: { name: string, blob: Blob }[] = [];
+let images: Map<string, Blob> = new Map();
 let htmls: { href: string, html: string }[] = [];
 let styles: { name: string, css: string }[] = [];
 let fonts: { name: string, blob: Blob }[] = [];
@@ -36,7 +35,7 @@ const extract = async (file: File) => {
             case ".jpeg":
             case ".gif": {
                 const blob = await entry.blob();
-                images.push({ name, blob });
+                images.set(removePath(name), blob);
                 break;
             }
             case ".css": {
@@ -76,13 +75,14 @@ const parseMeta = (meta: Element) => {
     for (let author2 of meta.querySelectorAll("creator")) {
         author.push(author2.textContent);
     }
-    let cover = images[0].blob;
-    for (let { name, blob } of images) {
-        if (name.includes(coverFilename)) {
-            cover = blob;
+    let keys = Array.from(images.keys());
+    let cover: Blob = images.get(keys[0]);
+    for (let key of keys) {
+        if (key === coverFilename) {
+            cover = images.get(key);
             break;
-        } else if (name.includes("cover")) {
-            cover = blob;
+        } else if (key.includes("cover")) {
+            cover = images.get(key);
         }
     }
     return { title, author, cover };
@@ -95,7 +95,7 @@ const parseManifest = (manifest: HTMLCollection) => {
         if (item.attributes["media-type"].value === "application/xhtml+xml") {
             tempSections.push({ id: item.attributes["id"].value, href: item.attributes["href"].value });
         } else if (item.attributes["media-type"].value.includes("image") && item.attributes["id"].value.includes("cover")) {
-            coverFilename = item.attributes["href"].value;
+            coverFilename = removePath(item.attributes["href"].value);
         }
     }
 
@@ -113,17 +113,7 @@ const removePath = (filename: string) => {
     return filename.split('\\').pop().split('/').pop();
 }
 
-const getNameWithIndex = (filename: string, array: { name: string, blob: Blob }[]) => {
-    for (const [i, { name }] of array.entries()) {
-        if (name.includes(filename)) {
-            return "ESSENCE-READER-IMAGE-" + i;
-        }
-    }
-
-    return "";
-}
-
-const updateHTML = (html: string, images: { name: string, blob: Blob }[]) => {
+const updateHTML = (html: string) => {
     let newHTML = domParser.parseFromString(html, "application/xhtml+xml");
 
     const errorNode = newHTML.querySelector('parsererror');
@@ -136,14 +126,14 @@ const updateHTML = (html: string, images: { name: string, blob: Blob }[]) => {
         switch (e.tagName) {
             case "img": {
                 const filename = removePath(e.getAttribute("src"));
-                e.setAttribute("src", getNameWithIndex(filename, images));
+                e.setAttribute("src", "ESSENCE-READER-IMAGE-" + filename);
                 e.style.cssText += 'max-height: 100%; max-width: 100%; object-fit: scale-down;';
                 break;
             }
 
             case "image": {
                 const filename = removePath(e.getAttributeNS('http://www.w3.org/1999/xlink', 'href'));
-                e.setAttributeNS('http://www.w3.org/1999/xlink', 'href', getNameWithIndex(filename, images));
+                e.setAttributeNS('http://www.w3.org/1999/xlink', 'href', "ESSENCE-READER-IMAGE-" + filename);
                 break;
             }
 
@@ -188,7 +178,7 @@ const parseToc = (): TOCType[] => {
 }
 
 export const parser = async (epub: File): Promise<Book> => {
-    images = [];
+    images = new Map;
     sections = [];
     htmls = [];
     fonts = [];
@@ -203,7 +193,7 @@ export const parser = async (epub: File): Promise<Book> => {
     for (let i = 0; i < sections.length; i++) {
         for (const { href, html } of htmls) {
             if (href.includes(sections[i].href)) {
-                const index = contents.push(updateHTML(html, images)) - 1;
+                const index = contents.push(updateHTML(html)) - 1;
                 contentIndexes.push({ href, index });
                 break;
             }

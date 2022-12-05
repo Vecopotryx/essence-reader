@@ -8,7 +8,7 @@ const updateCSS = (css: string, images, fonts) => {
         let array = [];
 
         if (imageTypes.some(s => filename.endsWith(s))) {
-            array = images;
+            return URL.createObjectURL(images.get(filename));
         } else if (fontTypes.some(s => filename.endsWith(s))) {
             array = fonts;
         }
@@ -29,15 +29,15 @@ const getBlobUrl = (filename: string, array: { name: string, blob: Blob }[]) => 
     return "";
 }
 
-const replaceNumbersWithBlobs = (html: string, images: { name: string, blob: Blob }[]) => {
-    return html.replace(/ESSENCE-READER-IMAGE-(\d*)/g, function(matched, index){
-        return URL.createObjectURL(images[index].blob);
+const replaceNamesWithBlobs = (html: string, images: Map<string, Blob>) => {
+    return html.replace(/ESSENCE-READER-IMAGE-([^?#"']*)/g, function (matched, filename) {
+        return URL.createObjectURL(images.get(filename));
     })
 }
 
 export const openBookThing = (book: Book): Book => {
     for (let i = 0; i < book.contents.length; i++) {
-        book.contents[i] = (replaceNumbersWithBlobs(book.contents[i], book.files.images));
+        book.contents[i] = (replaceNamesWithBlobs(book.contents[i], book.files.images));
     }
 
     let cssStuff: { name: string, css: string}[] = book.files.styles;

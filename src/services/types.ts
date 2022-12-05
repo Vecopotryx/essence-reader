@@ -19,7 +19,7 @@ export type TOC = {
 }
 
 export type Files = {
-    images: { name: string, blob: Blob }[],
+    images: Map<string, Blob>,
     fonts: { name: string, blob: Blob }[],
     styles: { name: string, css: string }[]
 }
