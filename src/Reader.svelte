@@ -122,7 +122,7 @@
 </svelte:head>
 
 <div in:fade={{ duration: 200 }}>
-    <Topbar>
+    <Topbar toned={scrolled > 100}>
         <button
             slot="leftbar"
             on:click={() => {
@@ -130,29 +130,19 @@
                 document.title = "Essence Reader";
                 location.hash = "";
             }}
-            style="opacity: 0.5;"
         >
             {"<"}
         </button>
 
-        <div
-            slot="toptext"
-            style="transition: opacity 0.3s; {scrolled > 100
-                ? 'opacity: 0.5;'
-                : ''}"
-        >
+        <svelte:fragment slot="toptext">
             <h4>
-                <b
-                    >{currentBook !== undefined
-                        ? currentBook.meta.title + " - "
-                        : ""}</b
-                >
-                {currentBook !== undefined ? currentBook.meta.author : ""}
+                <b>{currentBook.meta.title} - </b>
+                {currentBook.meta.author}
             </h4>
-            <p id="progress">{section}/{currentBook.contents.length - 1}</p>
-        </div>
+            <p>{section}/{currentBook.contents.length - 1}</p>
+        </svelte:fragment>
 
-        <div slot="rightbar" style="display: inline-block">
+        <svelte:fragment slot="rightbar">
             <Popover text="☰">
                 {#each currentBook.toc as tocitem}
                     <button
@@ -172,7 +162,7 @@
             </Popover>
             <button on:click={() => incrementSection(-1)}>«</button>
             <button on:click={() => incrementSection(1)}>»</button>
-        </div>
+        </svelte:fragment>
     </Topbar>
 
     <div id="container">
@@ -200,11 +190,6 @@
     .tocButton:hover {
         cursor: pointer;
         border: 1px solid var(--primary-color);
-    }
-
-    h4,
-    #progress {
-        display: inline;
     }
 
     #container {

@@ -51,7 +51,7 @@
 
 <div in:fade={{ duration: 200 }}>
     <Topbar>
-        <h3 slot="toptext" style="display: inline;">Essence Reader</h3>
+        <h3 slot="toptext">Essence Reader</h3>
         <Popover slot="rightbar" text="⚙">
             <div style="width: 8em">
                 <label style="user-select: none">

@@ -1,4 +1,8 @@
-<div id="topbar">
+<script lang="ts">
+    export let toned: boolean = false;
+</script>
+
+<div id="topbar" style={toned ? "color: rgba(0, 0, 0, 0.5);" : " "}>
     <div class="buttonbar" id="leftbar">
         <slot name="leftbar" />
     </div>
@@ -25,7 +29,7 @@
         min-width: max-content;
     }
 
-    .buttonbar :global(button) {
+    .buttonbar > :global(button) {
         margin: auto;
         border: none;
         background-color: transparent;
@@ -35,7 +39,7 @@
         display: inline-block;
     }
 
-    .buttonbar :global(button:hover) {
+    .buttonbar > :global(button:hover) {
         filter: invert(0.5);
     }
 
@@ -45,7 +49,6 @@
         grid-template-columns: 1fr auto 1fr;
         text-align: center;
         line-height: 2em;
-        top: 0;
         height: 2em;
         width: 100%;
         font-size: 1.25em;
@@ -53,7 +56,7 @@
         background: rgba(var(--secondary-bg), 0.8);
         backdrop-filter: blur(15px);
         -webkit-backdrop-filter: blur(15px);
-        transition: background-color 0.5s;
+        transition: background-color 0.5s, color 0.5s;
         filter: drop-shadow(0 20px 13px rgb(0 0 0 / 0.03))
             drop-shadow(0 8px 5px rgb(0 0 0 / 0.08));
         z-index: 100;
@@ -71,9 +74,14 @@
         min-width: 0;
     }
 
-    #toptext :global(*) {
+    #toptext {
         text-overflow: ellipsis;
         white-space: nowrap;
         overflow: hidden;
+        display: inline;
+    }
+
+    #toptext > :global(*) {
+        display: inline;
     }
 </style>
