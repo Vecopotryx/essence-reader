@@ -3,9 +3,9 @@ import type { Metadata, Book, TOC } from "./types";
 
 let sections: { id: string, href: string }[] = [];
 let images: Map<string, Blob> = new Map();
-let htmls: { href: string, html: string }[] = [];
+let htmls: Map<string, string> = new Map();
 let styles: Map<string, string> = new Map();
-let fonts:  Map<string, Blob> = new Map();
+let fonts: Map<string, Blob> = new Map();
 let coverFilename: string = "";
 
 let meta: Metadata;
@@ -48,7 +48,7 @@ const extract = async (file: File) => {
             case ".html":
             case ".xhtml": {
                 const html = await entry.text();
-                htmls.push({ href: name, html });
+                htmls.set(removePath(name), html);
                 break;
             }
             case ".otf":
@@ -93,7 +93,7 @@ const parseManifest = (manifest: HTMLCollection) => {
 
     for (const item of manifest) {
         if (item.attributes["media-type"].value === "application/xhtml+xml") {
-            tempSections.push({ id: item.attributes["id"].value, href: item.attributes["href"].value });
+            tempSections.push({ id: item.attributes["id"].value, href: removePath(item.attributes["href"].value) });
         } else if (item.attributes["media-type"].value.includes("image") && item.attributes["id"].value.includes("cover")) {
             coverFilename = removePath(item.attributes["href"].value);
         }
@@ -180,7 +180,7 @@ const parseToc = (): TOCType[] => {
 export const parser = async (epub: File): Promise<Book> => {
     images = new Map;
     sections = [];
-    htmls = [];
+    htmls = new Map;
     styles = new Map;
     fonts = new Map;
     try {
@@ -192,13 +192,8 @@ export const parser = async (epub: File): Promise<Book> => {
     const contentIndexes: { href: string, index: number }[] = [];
     const contents: string[] = [];
     for (let i = 0; i < sections.length; i++) {
-        for (const { href, html } of htmls) {
-            if (href.includes(sections[i].href)) {
-                const index = contents.push(updateHTML(html)) - 1;
-                contentIndexes.push({ href, index });
-                break;
-            }
-        }
+        contents.push(updateHTML(htmls.get(sections[i].href)));
+        contentIndexes.push({ href: sections[i].href, index: i })
     }
 
 
