@@ -4,7 +4,7 @@ import type { Metadata, Book, TOC } from "./types";
 let sections: { id: string, href: string }[] = [];
 let images: Map<string, Blob> = new Map();
 let htmls: { href: string, html: string }[] = [];
-let styles: { name: string, css: string }[] = [];
+let styles: Map<string, string> = new Map();
 let fonts: { name: string, blob: Blob }[] = [];
 let coverFilename: string = "";
 
@@ -40,7 +40,7 @@ const extract = async (file: File) => {
             }
             case ".css": {
                 const css = await entry.text();
-                styles.push({ name, css });
+                styles.set(name, cssNester(css, "#container"));
                 break;
             }
             case ".htm":
@@ -209,11 +209,6 @@ export const parser = async (epub: File): Promise<Book> => {
             }
         }
     }
-
-    for (let i = 0; i < styles.length; i++) {
-        styles[i].css = cssNester(styles[i].css, "#container");
-    }
-
 
     return { meta, contents, toc, files: { images, fonts, styles }, progress: 0 };
 }

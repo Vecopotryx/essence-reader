@@ -67,7 +67,7 @@
 
         currentBook.files.styles.forEach((stylesheet) => {
             const styleE = document.createElement("style");
-            styleE.innerText = stylesheet.css;
+            styleE.innerText = stylesheet;
             styleE.className = "essence-reader";
             document.head.appendChild(styleE);
         });

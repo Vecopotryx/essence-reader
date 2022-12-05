@@ -40,10 +40,10 @@ export const openBookThing = (book: Book): Book => {
         book.contents[i] = (replaceNamesWithBlobs(book.contents[i], book.files.images));
     }
 
-    let cssStuff: { name: string, css: string}[] = book.files.styles;
+    let cssStuff: Map<string, string> = book.files.styles;
 
-    for (let i = 0; i < cssStuff.length; i++) {
-        cssStuff[i].css = updateCSS(cssStuff[i].css, book.files.images, book.files.fonts);
+    for (const [key, css] of cssStuff) {
+        cssStuff.set(key, updateCSS(css, book.files.images, book.files.fonts));
     }
 
     return {meta: book.meta, contents: book.contents, toc: book.toc, files: book.files, progress: book.progress}
