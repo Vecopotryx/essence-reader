@@ -110,7 +110,7 @@ const parseSpine = (spine: Element, manifestSec: { id: string, href: string }[])
 }
 
 const removePath = (filename: string) => {
-    return filename.split('\\').pop().split('/').pop();
+    return decodeURI(filename.split('\\').pop().split('/').pop());
 }
 
 const updateHTML = (html: string) => {
