@@ -20,6 +20,6 @@ export type TOC = {
 
 export type Files = {
     images: Map<string, Blob>,
-    fonts: { name: string, blob: Blob }[],
+    fonts: Map<string, Blob>,
     styles: Map<string, string>,
 }

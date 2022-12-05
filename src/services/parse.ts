@@ -5,7 +5,7 @@ let sections: { id: string, href: string }[] = [];
 let images: Map<string, Blob> = new Map();
 let htmls: { href: string, html: string }[] = [];
 let styles: Map<string, string> = new Map();
-let fonts: { name: string, blob: Blob }[] = [];
+let fonts:  Map<string, Blob> = new Map();
 let coverFilename: string = "";
 
 let meta: Metadata;
@@ -55,7 +55,7 @@ const extract = async (file: File) => {
             case ".ttf":
             case ".woff": {
                 const blob = await entry.blob();
-                fonts.push({ name, blob });
+                fonts.set(removePath(name), blob);
                 break;
             }
             case ".ncx": {
@@ -181,7 +181,8 @@ export const parser = async (epub: File): Promise<Book> => {
     images = new Map;
     sections = [];
     htmls = [];
-    fonts = [];
+    styles = new Map;
+    fonts = new Map;
     try {
         parseOpf(await extract(epub));
     } catch (e) {
