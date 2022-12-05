@@ -1,30 +1,27 @@
 import { unzip } from "unzipit";
 import type { Metadata, Book, TOC } from "./types";
-
-let sections: { id: string, href: string }[] = [];
-let images: Map<string, Blob> = new Map();
-let htmls: Map<string, string> = new Map();
-let styles: Map<string, string> = new Map();
-let fonts: Map<string, Blob> = new Map();
-let coverFilename: string = "";
-
-let meta: Metadata;
-let tocNcx: string;
 const domParser = new DOMParser();
 
-const parseOpf = (xml: string) => {
+const parseOpf = (xml: string, images: Map<string, Blob>): { meta: Metadata, sections: { id: string, href: string }[] } => {
     const parsed = domParser.parseFromString(xml, "text/xml");
 
-    const manifestSections = parseManifest(parsed.querySelector("manifest").children)
-    meta = parseMeta(parsed.querySelector("metadata"))
+    const { manifestSections, coverFilename } = parseManifest(parsed.querySelector("manifest").children)
+    const meta = parseMeta(parsed.querySelector("metadata"), images, coverFilename)
 
-    parseSpine(parsed.querySelector("spine"), manifestSections);
+    const sections = parseSpine(parsed.querySelector("spine"), manifestSections);
+    return { meta, sections };
 }
 
 const extract = async (file: File) => {
     const { entries } = await unzip(file);
 
-    let opf = "";
+    const images: Map<string, Blob> = new Map();
+    const htmls: Map<string, string> = new Map();
+    const styles: Map<string, string> = new Map();
+    const fonts: Map<string, Blob> = new Map();
+    let tocNcx: string = "";
+    let opf: string = "";
+
     for (const [name, entry] of Object.entries(entries)) {
         switch (name.substring(name.lastIndexOf("."))) {
             case ".opf":
@@ -66,10 +63,10 @@ const extract = async (file: File) => {
         }
     }
 
-    return opf;
+    return { images, htmls, styles, fonts, tocNcx, opf };
 }
 
-const parseMeta = (meta: Element) => {
+const parseMeta = (meta: Element, images: Map<string, Blob>, coverFilename: string) => {
     const title = meta.querySelector("title").textContent;
     const author = [];
     for (let author2 of meta.querySelectorAll("creator")) {
@@ -88,25 +85,26 @@ const parseMeta = (meta: Element) => {
     return { title, author, cover };
 }
 
-const parseManifest = (manifest: HTMLCollection) => {
-    const tempSections: { id: string, href: string }[] = [];
+const parseManifest = (manifest: HTMLCollection): { manifestSections: { id: string, href: string }[], coverFilename: string } => {
+    const manifestSections: { id: string, href: string }[] = [];
+    let coverFilename: string = "";
 
     for (const item of manifest) {
         if (item.attributes["media-type"].value === "application/xhtml+xml") {
-            tempSections.push({ id: item.attributes["id"].value, href: removePath(item.attributes["href"].value) });
+            manifestSections.push({ id: item.attributes["id"].value, href: removePath(item.attributes["href"].value) });
         } else if (item.attributes["media-type"].value.includes("image") && item.attributes["id"].value.includes("cover")) {
             coverFilename = removePath(item.attributes["href"].value);
         }
     }
 
-    return tempSections;
+    return { manifestSections, coverFilename };
 }
 
-const parseSpine = (spine: Element, manifestSec: { id: string, href: string }[]) => {
+const parseSpine = (spine: Element, manifestSec: { id: string, href: string }[]): { id: string, href: string }[] => {
     const sortArr = [];
     spine.querySelectorAll("itemref").forEach(obj => sortArr.push(obj.attributes["idref"].value));
 
-    sections = sortArr.map((i) => manifestSec.find((j) => j.id === i));
+    return sortArr.map((i) => manifestSec.find((j) => j.id === i));
 }
 
 const removePath = (filename: string) => {
@@ -165,7 +163,7 @@ type TOCType = {
     isChild: boolean
 }
 
-const parseToc = (): TOCType[] => {
+const parseToc = (tocNcx: string): TOCType[] => {
     const array = []
     const navmap = domParser.parseFromString(tocNcx, "application/xml").querySelectorAll("navPoint");
     for (const navpoint of navmap) {
@@ -178,33 +176,30 @@ const parseToc = (): TOCType[] => {
 }
 
 export const parser = async (epub: File): Promise<Book> => {
-    images = new Map;
-    sections = [];
-    htmls = new Map;
-    styles = new Map;
-    fonts = new Map;
     try {
-        parseOpf(await extract(epub));
+        const { images, htmls, styles, fonts, tocNcx, opf } = await extract(epub)
+        const { meta, sections } = parseOpf(opf, images);
+
+        const contentIndexes: { href: string, index: number }[] = [];
+        const contents: string[] = [];
+        for (let i = 0; i < sections.length; i++) {
+            contents.push(updateHTML(htmls.get(sections[i].href)));
+            contentIndexes.push({ href: sections[i].href, index: i })
+        }
+
+
+        const toc: TOC[] = [];
+        for (const { name, href: tocHref, isChild } of parseToc(tocNcx)) {
+            for (const { href, index } of contentIndexes) {
+                if (tocHref.includes(removePath(href))) {
+                    toc.push({ name, index, isChild })
+                }
+            }
+        }
+
+        return { meta, contents, toc, files: { images, fonts, styles }, progress: 0 };
+
     } catch (e) {
         throw new Error(epub.name + " does not appear to be a valid EPUB file");
     }
-
-    const contentIndexes: { href: string, index: number }[] = [];
-    const contents: string[] = [];
-    for (let i = 0; i < sections.length; i++) {
-        contents.push(updateHTML(htmls.get(sections[i].href)));
-        contentIndexes.push({ href: sections[i].href, index: i })
-    }
-
-
-    const toc: TOC[] = [];
-    for (const { name, href: tocHref, isChild } of parseToc()) {
-        for (const { href, index } of contentIndexes) {
-            if (tocHref.includes(removePath(href))) {
-                toc.push({ name, index, isChild })
-            }
-        }
-    }
-
-    return { meta, contents, toc, files: { images, fonts, styles }, progress: 0 };
 }
