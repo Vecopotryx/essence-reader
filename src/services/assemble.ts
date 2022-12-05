@@ -6,11 +6,12 @@ const updateCSS = (css: string, images: Map<string, Blob>, fonts: Map<string, Bl
         const imageTypes = [".png", ".jpg", ".jpeg", ".gif"];
         const fontTypes = [".otf", ".ttf", ".woff"];
 
-        if (imageTypes.some(s => filename.endsWith(s))) {
+        if (imageTypes.some(s => filename.endsWith(s)) && images.has(filename)) {
             return "url(" + URL.createObjectURL(images.get(filename)) + ")";
-        } else if (fontTypes.some(s => filename.endsWith(s))) {
+        } else if (fontTypes.some(s => filename.endsWith(s)) && fonts.has(filename)) {
             return "url(" + URL.createObjectURL(fonts.get(filename)) + ")";
         }
+        return "" // Fallback
     });
 
     return newCss;
@@ -18,7 +19,10 @@ const updateCSS = (css: string, images: Map<string, Blob>, fonts: Map<string, Bl
 
 const replaceNamesWithBlobs = (html: string, images: Map<string, Blob>) => {
     return html.replace(/ESSENCE-READER-IMAGE-([^?#"']*)/g, function (matched, filename) {
-        return URL.createObjectURL(images.get(filename));
+        if (images.has(filename)) {
+            return URL.createObjectURL(images.get(filename));
+        }
+        return "";
     })
 }
 
