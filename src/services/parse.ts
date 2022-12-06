@@ -68,10 +68,7 @@ const extract = async (file: File) => {
 
 const parseMeta = (meta: Element, images: Map<string, Blob>, coverFilename: string) => {
     const title = meta.querySelector("title").textContent;
-    const author = [];
-    for (let author2 of meta.querySelectorAll("creator")) {
-        author.push(author2.textContent);
-    }
+    const author = Array.from(meta.querySelectorAll("creator")).map(v => v.textContent);
     let keys = Array.from(images.keys());
     let cover: Blob = images.get(keys[0]);
     for (let key of keys) {
@@ -181,12 +178,7 @@ export const parser = async (epub: File): Promise<Book> => {
         const { meta, sections } = parseOpf(opf, images);
 
         const contentIndexes: { href: string, index: number }[] = [];
-        const contents: string[] = [];
-        for (let i = 0; i < sections.length; i++) {
-            contents.push(updateHTML(htmls.get(sections[i].href)));
-            contentIndexes.push({ href: sections[i].href, index: i })
-        }
-
+        const contents: string[] = sections.map(v => htmls.has(v.href) ? updateHTML(htmls.get(v.href)) : null);
 
         const toc: TOC[] = [];
         for (const { name, href: tocHref, isChild } of parseToc(tocNcx)) {
