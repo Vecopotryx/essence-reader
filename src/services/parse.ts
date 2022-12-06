@@ -2,13 +2,13 @@ import { unzip } from "unzipit";
 import type { Metadata, Book, TOC } from "./types";
 const domParser = new DOMParser();
 
-const parseOpf = (xml: string, images: Map<string, Blob>): { meta: Metadata, sections: { id: string, href: string }[] } => {
+const parseOpf = (xml: string, images: Map<string, Blob>): { meta: Metadata, sections: string[] } => {
     const parsed = domParser.parseFromString(xml, "text/xml");
 
-    const { manifestSections, coverFilename } = parseManifest(parsed.querySelector("manifest").children)
+    const { manifestItems, coverFilename } = parseManifest(parsed.querySelector("manifest"))
     const meta = parseMeta(parsed.querySelector("metadata"), images, coverFilename)
 
-    const sections = parseSpine(parsed.querySelector("spine"), manifestSections);
+    const sections = parseSpine(parsed.querySelector("spine"), manifestItems);
     return { meta, sections };
 }
 
@@ -82,26 +82,29 @@ const parseMeta = (meta: Element, images: Map<string, Blob>, coverFilename: stri
     return { title, author, cover };
 }
 
-const parseManifest = (manifest: HTMLCollection): { manifestSections: { id: string, href: string }[], coverFilename: string } => {
-    const manifestSections: { id: string, href: string }[] = [];
+const parseManifest = (manifest: Element): { manifestItems: Map<string, string>, coverFilename: string } => {
+    const manifestItems: Map<string, string> = new Map();
     let coverFilename: string = "";
 
-    for (const item of manifest) {
-        if (item.attributes["media-type"].value === "application/xhtml+xml") {
-            manifestSections.push({ id: item.attributes["id"].value, href: removePath(item.attributes["href"].value) });
-        } else if (item.attributes["media-type"].value.includes("image") && item.attributes["id"].value.includes("cover")) {
+    for (const item of manifest.children) {
+        manifestItems.set(item.attributes["id"].value, removePath(item.attributes["href"].value));
+        if (item.attributes["media-type"].value.includes("image") && item.attributes["id"].value.includes("cover")) {
             coverFilename = removePath(item.attributes["href"].value);
         }
     }
 
-    return { manifestSections, coverFilename };
+    return { manifestItems, coverFilename };
 }
 
-const parseSpine = (spine: Element, manifestSec: { id: string, href: string }[]): { id: string, href: string }[] => {
-    const sortArr = [];
-    spine.querySelectorAll("itemref").forEach(obj => sortArr.push(obj.attributes["idref"].value));
-
-    return sortArr.map((i) => manifestSec.find((j) => j.id === i));
+const parseSpine = (spine: Element, manifestItems: Map<string, string>): string[] => {
+    const sections = [];
+    for (const itemref of spine.children) {
+        const idref = itemref.attributes["idref"].value;
+        if (manifestItems.has(idref)) {
+            sections.push(manifestItems.get(idref));
+        }
+    }
+    return sections;
 }
 
 const removePath = (filename: string) => {
@@ -173,13 +176,13 @@ export const parser = async (epub: File): Promise<Book> => {
         const toc: TOC[] = [];
         const parsedToc = parseToc(tocNcx);
 
-        const contents: string[] = sections.map((v, index) => {
-            if (parsedToc.has(v.href)) {
-                const tempToc: TOC = parsedToc.get(v.href);
+        const contents: string[] = sections.map((href, index) => {
+            if (parsedToc.has(href)) {
+                const tempToc: TOC = parsedToc.get(href);
                 tempToc.index = index;
                 toc.push(tempToc);
             }
-            return htmls.has(v.href) ? updateHTML(htmls.get(v.href)) : null
+            return htmls.has(href) ? updateHTML(htmls.get(href)) : null
         });
 
         return { meta, contents, toc, files: { images, fonts, styles }, progress: 0 };
