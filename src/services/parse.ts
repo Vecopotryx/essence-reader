@@ -2,14 +2,15 @@ import { unzip } from "unzipit";
 import type { Metadata, Book, TOC } from "./types";
 const domParser = new DOMParser();
 
-const parseOpf = (xml: string, images: Map<string, Blob>): { meta: Metadata, sections: string[] } => {
-    const parsed = domParser.parseFromString(xml, "text/xml");
+const parseOpf = (opf: string, images: Map<string, Blob>): { meta: Metadata, sections: string[] } => {
+    const parsed = domParser.parseFromString(opf, "text/xml");
 
-    const { manifestItems, coverFilename } = parseManifest(parsed.querySelector("manifest"))
-    const meta = parseMeta(parsed.querySelector("metadata"), images, coverFilename)
-
+    const { title, author, coverId } = parseMeta(parsed.querySelector("metadata"));
+    const manifestItems = parseManifest(parsed.querySelector("manifest"));
     const sections = parseSpine(parsed.querySelector("spine"), manifestItems);
-    return { meta, sections };
+    const cover = manifestItems.has(coverId) ? images.get(manifestItems.get(coverId)) : undefined;
+
+    return { meta: { title, author, cover }, sections };
 }
 
 const extract = async (file: File) => {
@@ -66,34 +67,21 @@ const extract = async (file: File) => {
     return { images, htmls, styles, fonts, tocNcx, opf };
 }
 
-const parseMeta = (meta: Element, images: Map<string, Blob>, coverFilename: string) => {
-    const title = meta.querySelector("title").textContent;
-    const author = Array.from(meta.querySelectorAll("creator")).map(v => v.textContent);
-    let keys = Array.from(images.keys());
-    let cover: Blob = images.get(keys[0]);
-    for (let key of keys) {
-        if (key === coverFilename) {
-            cover = images.get(key);
-            break;
-        } else if (key.includes("cover")) {
-            cover = images.get(key);
-        }
-    }
-    return { title, author, cover };
+const parseMeta = (meta: Element): { title: string, author: string[], coverId: string | undefined } => {
+    const title: string = meta.querySelector("title").textContent;
+    const author: string[] = Array.from(meta.querySelectorAll("creator")).map(v => v.textContent);
+    const coverId: string | undefined = meta.querySelector("[name='cover']")?.attributes["content"].value;
+    return { title, author, coverId };
 }
 
-const parseManifest = (manifest: Element): { manifestItems: Map<string, string>, coverFilename: string } => {
+const parseManifest = (manifest: Element): Map<string, string> => {
     const manifestItems: Map<string, string> = new Map();
-    let coverFilename: string = "";
 
     for (const item of manifest.children) {
         manifestItems.set(item.attributes["id"].value, removePath(item.attributes["href"].value));
-        if (item.attributes["media-type"].value.includes("image") && item.attributes["id"].value.includes("cover")) {
-            coverFilename = removePath(item.attributes["href"].value);
-        }
     }
 
-    return { manifestItems, coverFilename };
+    return manifestItems;
 }
 
 const parseSpine = (spine: Element, manifestItems: Map<string, string>): string[] => {
