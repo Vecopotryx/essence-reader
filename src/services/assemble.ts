@@ -27,15 +27,19 @@ const replaceNamesWithBlobs = (html: string, images: Map<string, Blob>) => {
 }
 
 export const openBookThing = (book: Book): Book => {
-    for (let i = 0; i < book.contents.length; i++) {
-        book.contents[i] = (replaceNamesWithBlobs(book.contents[i], book.files.images));
+    try {
+        for (let i = 0; i < book.contents.length; i++) {
+            book.contents[i] = (replaceNamesWithBlobs(book.contents[i], book.files.images));
+        }
+
+        let cssStuff: Map<string, string> = book.files.styles;
+
+        for (const [key, css] of cssStuff) {
+            cssStuff.set(key, updateCSS(css, book.files.images, book.files.fonts));
+        }
+
+        return { meta: book.meta, contents: book.contents, toc: book.toc, files: book.files, progress: book.progress }
+    } catch {
+        alert("An error occured when opening book, please try removing it and adding it again");
     }
-
-    let cssStuff: Map<string, string> = book.files.styles;
-
-    for (const [key, css] of cssStuff) {
-        cssStuff.set(key, updateCSS(css, book.files.images, book.files.fonts));
-    }
-
-    return { meta: book.meta, contents: book.contents, toc: book.toc, files: book.files, progress: book.progress }
 }
