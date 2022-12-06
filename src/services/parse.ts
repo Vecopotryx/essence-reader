@@ -85,14 +85,7 @@ const parseManifest = (manifest: Element): Map<string, string> => {
 }
 
 const parseSpine = (spine: Element, manifestItems: Map<string, string>): string[] => {
-    const sections = [];
-    for (const itemref of spine.children) {
-        const idref = itemref.attributes["idref"].value;
-        if (manifestItems.has(idref)) {
-            sections.push(manifestItems.get(idref));
-        }
-    }
-    return sections;
+    return Array.from(spine.children).map(x => manifestItems.get(x.attributes["idref"].value));
 }
 
 const removePath = (filename: string) => {
