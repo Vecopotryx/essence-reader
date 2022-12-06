@@ -154,40 +154,33 @@ const cssNester = (css: string, nestWith: string) => {
     return css.replace(/__keyframes__/g, x => kframes.shift());
 }
 
-type TOCType = {
-    name: string,
-    href: string,
-    isChild: boolean
-}
-
-const parseToc = (tocNcx: string): TOCType[] => {
-    const array = []
+const parseToc = (tocNcx: string): Map<string, TOC> => {
+    const tocmap: Map<string, TOC> = new Map();
     const navmap = domParser.parseFromString(tocNcx, "application/xml").querySelectorAll("navPoint");
     for (const navpoint of navmap) {
-        let name = navpoint.querySelector("text").textContent;
-        let href = decodeURI(navpoint.querySelector("content").attributes["src"].value);
+        const name = navpoint.querySelector("text").textContent;
+        const href = removePath(navpoint.querySelector("content").attributes["src"].value);
         const isChild = navpoint.parentElement.nodeName === "navPoint"
-        array.push({ name, href, isChild })
+        tocmap.set(href, { name, index: 0, isChild })
     }
-    return array;
+    return tocmap;
 }
 
 export const parser = async (epub: File): Promise<Book> => {
     try {
         const { images, htmls, styles, fonts, tocNcx, opf } = await extract(epub)
         const { meta, sections } = parseOpf(opf, images);
-
-        const contentIndexes: { href: string, index: number }[] = [];
-        const contents: string[] = sections.map(v => htmls.has(v.href) ? updateHTML(htmls.get(v.href)) : null);
-
         const toc: TOC[] = [];
-        for (const { name, href: tocHref, isChild } of parseToc(tocNcx)) {
-            for (const { href, index } of contentIndexes) {
-                if (tocHref.includes(removePath(href))) {
-                    toc.push({ name, index, isChild })
-                }
+        const parsedToc = parseToc(tocNcx);
+
+        const contents: string[] = sections.map((v, index) => {
+            if (parsedToc.has(v.href)) {
+                const tempToc: TOC = parsedToc.get(v.href);
+                tempToc.index = index;
+                toc.push(tempToc);
             }
-        }
+            return htmls.has(v.href) ? updateHTML(htmls.get(v.href)) : null
+        });
 
         return { meta, contents, toc, files: { images, fonts, styles }, progress: 0 };
 
