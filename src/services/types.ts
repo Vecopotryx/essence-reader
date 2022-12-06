@@ -9,7 +9,7 @@ export type Book = {
 export type Metadata = {
     title: string;
     author: string[];
-    cover: Blob;
+    cover: Blob | undefined;
 }
 
 export type TOC = {

@@ -92,6 +92,18 @@ const removePath = (filename: string) => {
     return decodeURI(filename.split('\\').pop().split('/').pop());
 }
 
+const getCoverFromFirstPage = (firstPageHTML: string, images: Map<string, Blob>) => {
+    // Fallback to taking image from first page if no cover from opf metadata.
+    // Should only be used if no cover from opf metadata.
+    const temp = domParser.parseFromString(firstPageHTML,
+        "application/xhtml+xml").querySelector("img");
+    if (temp.hasAttribute("src")) {
+        return images.get(removePath(temp.getAttribute("src")));
+    } else {
+        return undefined;
+    }
+}
+
 const updateHTML = (html: string) => {
     let newHTML = domParser.parseFromString(html, "application/xhtml+xml");
 
@@ -156,6 +168,10 @@ export const parser = async (epub: File): Promise<Book> => {
         const { meta, sections } = parseOpf(opf, images);
         const toc: TOC[] = [];
         const parsedToc = parseToc(tocNcx);
+
+        if (meta.cover === undefined) {
+            meta.cover = getCoverFromFirstPage(htmls.get(sections[0]), images);
+        }
 
         const contents: string[] = sections.map((href, index) => {
             if (parsedToc.has(href)) {
