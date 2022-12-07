@@ -97,7 +97,7 @@ const getCoverFromFirstPage = (firstPageHTML: string, images: Map<string, Blob>)
     // Should only be used if no cover from opf metadata.
     const temp = domParser.parseFromString(firstPageHTML,
         "application/xhtml+xml").querySelector("img");
-    if (temp.hasAttribute("src")) {
+    if (temp && temp.hasAttribute("src")) {
         return images.get(removePath(temp.getAttribute("src")));
     } else {
         return undefined;
