@@ -5,73 +5,40 @@
     import Topbar from "./components/Topbar.svelte";
     import ReaderSettings from "./components/ReaderSettings.svelte";
     import Popover from "./components/Popover.svelte";
-    import { db } from "./db";
+    import {
+        applySettings,
+        saveProgress,
+        updateLinks,
+        updateStyles,
+    } from "./reader";
 
     export let currentBook: Book;
     export let reading: boolean;
     export let currentId: number;
 
-    let section = 0;
-
+    let container: HTMLElement;
+    let section: number = 0;
+    let scrolled: number = 0;
+    let currentTitle: string = currentBook.meta.title;
     let settings = JSON.parse(localStorage.getItem("settings")) || {
         scale: 10,
         fontFamily: "Default",
     };
 
-    $: settings, applySettings();
-
-    const applySettings = () => {
-        let styleE = document.getElementById("user-settings");
-        if (!styleE) {
-            styleE = document.createElement("style");
-            styleE.id = "user-settings";
-            document.head.appendChild(styleE);
-        }
-
-        styleE.innerText =
-            "#container { transform: scale(" +
-            settings.scale / 10 +
-            "); width: " +
-            50 / (settings.scale / 10) +
-            "%; }" +
-            " @media (max-width: 1500px) {#container { width: " +
-            90 / (settings.scale / 10) +
-            "%}}" +
-            (settings.fontFamily !== "Default"
-                ? " #container p, #container a, #container span { font-family: " +
-                  settings.fontFamily +
-                  " !important;}"
-                : "");
-        localStorage.setItem("settings", JSON.stringify(settings));
-    };
-
-    let scrolled = 0;
-
-    let currentTitle = currentBook.meta.title;
+    $: settings, applySettings(settings);
 
     afterUpdate(() => {
         if (currentTitle !== currentBook.meta.title) {
             section = 0;
             currentTitle = currentBook.meta.title;
-            updateStyles();
+            updateStyles(currentBook.files.styles);
+            if (!isNaN(currentBook.progress)) {
+                updateSection(Math.floor(currentBook.progress));
+            } else {
+                updateSection(0);
+            }
         }
     });
-
-    const updateStyles = () => {
-        // Doesn't adapt based on which section is loaded, but works for now
-        for (const styleE of document.getElementsByClassName(
-            "essence-reader"
-        )) {
-            styleE.remove();
-        }
-
-        currentBook.files.styles.forEach((stylesheet) => {
-            const styleE = document.createElement("style");
-            styleE.innerText = stylesheet;
-            styleE.className = "essence-reader";
-            document.head.appendChild(styleE);
-        });
-    };
 
     onMount(() => {
         if (!isNaN(currentBook.progress)) {
@@ -79,52 +46,30 @@
         } else {
             updateSection(0);
         }
+        updateStyles(currentBook.files.styles);
     });
-
-    const saveProgress = (progress: number) => {
-        if (currentId !== -1) {
-            db.books.update(currentId, {
-                progress: progress,
-            });
-        }
-    };
 
     const updateSection = (index: number) => {
         if (0 <= index && index < currentBook.spine.length) {
             section = index;
             scrolled = 0;
-            saveProgress(section);
+            saveProgress(currentId, section);
             appendCurrentSection();
         }
     };
-
-    let container: HTMLElement;
 
     const appendCurrentSection = () => {
         container.innerHTML = currentBook.contents.get(
             currentBook.spine[section]
         ).html;
-        for (const elem of container.querySelectorAll("[href]")) {
-            if (elem.getAttribute("href").includes("http")) {
-                elem.setAttribute("target", "_blank");
-            } else {
-                let href = elem.getAttribute("href").split("\\").pop().split("/").pop();
-                elem.addEventListener("click", (e) => {
-                    e.preventDefault();
-                    if (href.includes("#")) {
-                        href = href.substring(0, href.indexOf("#")); // Necessery since some books have hash URLs for part of chapter
-                    }
-                    updateSection(currentBook.contents.get(href).index);
-                });
-            }
-        }
+        updateLinks(container.querySelectorAll("[href]"), (href) =>
+            updateSection(currentBook.contents.get(href).index)
+        );
     };
 
     const incrementSection = (inc: number) => {
         updateSection(section + inc);
     };
-
-    updateStyles();
 
     const handleKeydown = ({ key }) => {
         switch (key) {
