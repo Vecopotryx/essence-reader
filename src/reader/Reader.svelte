@@ -62,12 +62,22 @@
             currentBook.spine[section]
         ).html;
         updateLinks(container.querySelectorAll("[href]"), (href) =>
-            updateSection(currentBook.contents.get(href).index)
+            jumpToSection(currentBook.contents.get(href).index)
         );
     };
 
+    let previousJumps: number[] = [];
+
     const incrementSection = (inc: number) => {
         updateSection(section + inc);
+        if (previousJumps.length !== 0) {
+            previousJumps = [];
+        }
+    };
+
+    const jumpToSection = (index: number) => {
+        previousJumps = [...previousJumps, section];
+        updateSection(index);
     };
 
     const handleKeydown = ({ key }) => {
@@ -112,12 +122,24 @@
         </svelte:fragment>
 
         <svelte:fragment slot="rightbar">
+            {#if previousJumps.length !== 0}
+                <button
+                    transition:fade={{ duration: 200 }}
+                    id="jumpbtn"
+                    on:click={() => {
+                        updateSection(previousJumps.pop());
+                        previousJumps = previousJumps;
+                    }}
+                >
+                    ↫ {previousJumps[previousJumps.length - 1]}
+                </button>
+            {/if}
             <Popover text="☰">
                 {#each currentBook.toc as tocitem}
                     <TocButton
                         {tocitem}
                         selected={section === tocitem.index}
-                        onclick={() => updateSection(tocitem.index)}
+                        onclick={() => jumpToSection(tocitem.index)}
                     />
                 {/each}
             </Popover>
@@ -140,5 +162,11 @@
         padding-top: 3em;
         padding-bottom: 2em;
         transform-origin: top;
+    }
+
+    #jumpbtn {
+        border-radius: 0.25em;
+        font-size: 1em;
+        line-height: 1em;
     }
 </style>
