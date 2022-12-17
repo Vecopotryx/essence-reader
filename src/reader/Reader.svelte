@@ -3,7 +3,7 @@
     import { fade } from "svelte/transition";
     import type { Book } from "../services/types";
     import Topbar from "../components/Topbar.svelte";
-    import ReaderSettings from "../components/ReaderSettings.svelte";
+    import ReaderSettings from "./ReaderSettings.svelte";
     import Popover from "../components/Popover.svelte";
     import {
         applySettings,
