@@ -4,7 +4,8 @@ import type { Metadata, Files, TOC } from './services/types';
 interface Book {
   id?: number;
   meta: Metadata;
-  contents: string[];
+  contents: Map<string, { index: number, html: string }>;
+  spine: string[];
   toc: TOC[];
   files: Files;
   progress: number;
@@ -15,8 +16,8 @@ class BookDB extends Dexie {
 
   constructor() {
     super('bookDB');
-    this.version(4).stores({
-      books: '++id, meta, contents, toc, files, progress'
+    this.version(5).stores({
+      books: '++id, meta, contents, spine, toc, files, progress'
     });
   }
 }
