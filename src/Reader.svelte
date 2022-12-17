@@ -75,7 +75,9 @@
 
     onMount(() => {
         if (!isNaN(currentBook.progress)) {
-            section = Math.floor(currentBook.progress);
+            updateSection(Math.floor(currentBook.progress));
+        } else {
+            updateSection(0);
         }
     });
 
@@ -92,6 +94,29 @@
             section = index;
             scrolled = 0;
             saveProgress(section);
+            appendCurrentSection();
+        }
+    };
+
+    let container: HTMLElement;
+
+    const appendCurrentSection = () => {
+        container.innerHTML = currentBook.contents.get(
+            currentBook.spine[section]
+        ).html;
+        for (const elem of container.querySelectorAll("[href]")) {
+            if (elem.getAttribute("href").includes("http")) {
+                elem.setAttribute("target", "_blank");
+            } else {
+                let href = elem.getAttribute("href").split("\\").pop().split("/").pop();
+                elem.addEventListener("click", (e) => {
+                    e.preventDefault();
+                    if (href.includes("#")) {
+                        href = href.substring(0, href.indexOf("#")); // Necessery since some books have hash URLs for part of chapter
+                    }
+                    updateSection(currentBook.contents.get(href).index);
+                });
+            }
         }
     };
 
@@ -147,13 +172,16 @@
                 {#each currentBook.toc as tocitem}
                     <button
                         class="tocButton"
-                        style="{section === currentBook.contents.get(tocitem.href).index
+                        style="{section ===
+                        currentBook.contents.get(tocitem.href).index
                             ? 'border: 1px solid lightblue; font-weight: bold;'
                             : ''}  {tocitem.isChild
                             ? 'padding-left: 2em;'
                             : ''}"
-                        on:click={() => updateSection(currentBook.contents.get(tocitem.href).index)}
-                        >{tocitem.name}</button
+                        on:click={() =>
+                            updateSection(
+                                currentBook.contents.get(tocitem.href).index
+                            )}>{tocitem.name}</button
                     >
                 {/each}
             </Popover>
@@ -165,9 +193,7 @@
         </svelte:fragment>
     </Topbar>
 
-    <div id="container">
-        {@html currentBook.contents.get(currentBook.spine[section]).html}
-    </div>
+    <div id="container" bind:this={container} />
 </div>
 
 <svelte:window bind:scrollY={scrolled} on:keydown={handleKeydown} />

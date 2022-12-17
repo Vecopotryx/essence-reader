@@ -129,9 +129,7 @@ const updateHTML = (html: string) => {
             }
 
             default: {
-                if (e.getAttribute("href") !== null && !e.getAttribute("href").includes("http")) {
-                    e.removeAttribute("href");
-                } else if (e.getAttribute("src") !== null && !e.getAttribute("src").includes("http")) {
+                if (e.getAttribute("src") !== null && !e.getAttribute("src").includes("http")) {
                     e.removeAttribute("src");
                 }
                 break;
@@ -156,11 +154,11 @@ const parseToc = (tocNcx: string): TOC[] => {
     for (const navpoint of navmap) {
         const name = navpoint.querySelector("text").textContent;
         let href = removePath(navpoint.querySelector("content").attributes["src"].value);
-        if(href.includes("#")) {
+        if (href.includes("#")) {
             href = href.substring(0, href.indexOf("#")); // Necessery since some books have hash URLs for part of chapter
         }
         const isChild = navpoint.parentElement.nodeName === "navPoint"
-        TOC.push({ name, href, isChild} );
+        TOC.push({ name, href, isChild });
     }
     return TOC;
 }
@@ -169,7 +167,7 @@ export const parser = async (epub: File): Promise<Book> => {
     try {
         const { images, htmls, styles, fonts, tocNcx, opf } = await extract(epub)
         const { meta, spine } = parseOpf(opf, images);
-        const toc: TOC[] = parseToc(tocNcx); 
+        const toc: TOC[] = parseToc(tocNcx);
 
         if (meta.cover === undefined) {
             meta.cover = getCoverFromFirstPage(htmls.get(spine[0]), images);
@@ -177,7 +175,7 @@ export const parser = async (epub: File): Promise<Book> => {
 
         const contents = new Map();
         spine.forEach((href, index) => {
-            contents.set(href, { index, html: htmls.has(href) ? updateHTML(htmls.get(href)) : null } );
+            contents.set(href, { index, html: htmls.has(href) ? updateHTML(htmls.get(href)) : null });
         });
 
         return { meta, contents, spine, toc, files: { images, fonts, styles }, progress: 0 };
