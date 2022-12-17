@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { afterUpdate, onMount } from "svelte";
+    import { onMount } from "svelte";
     import { fade } from "svelte/transition";
     import type { Book } from "./services/types";
     import Topbar from "./components/Topbar.svelte";
@@ -27,27 +27,25 @@
 
     $: settings, applySettings(settings);
 
-    afterUpdate(() => {
-        if (currentTitle !== currentBook.meta.title) {
-            section = 0;
-            currentTitle = currentBook.meta.title;
-            updateStyles(currentBook.files.styles);
-            if (!isNaN(currentBook.progress)) {
-                updateSection(Math.floor(currentBook.progress));
-            } else {
-                updateSection(0);
-            }
-        }
-    });
-
-    onMount(() => {
+    const runOnMountOrUpdate = () => {
         if (!isNaN(currentBook.progress)) {
             updateSection(Math.floor(currentBook.progress));
         } else {
             updateSection(0);
         }
         updateStyles(currentBook.files.styles);
-    });
+    };
+
+    const checkUpdate = () => {
+        if (currentTitle !== currentBook.meta.title) {
+            currentTitle = currentBook.meta.title;
+            runOnMountOrUpdate();
+        }
+    };
+
+    $: currentBook, checkUpdate();
+
+    onMount(runOnMountOrUpdate);
 
     const updateSection = (index: number) => {
         if (0 <= index && index < currentBook.spine.length) {
