@@ -2,15 +2,15 @@ import { unzip } from "unzipit";
 import type { Metadata, Book, TOC } from "./types";
 const domParser = new DOMParser();
 
-const parseOpf = (opf: string, images: Map<string, Blob>): { meta: Metadata, sections: string[] } => {
+const parseOpf = (opf: string, images: Map<string, Blob>): { meta: Metadata, spine: string[] } => {
     const parsed = domParser.parseFromString(opf, "text/xml");
 
     const { title, author, coverId } = parseMeta(parsed.querySelector("metadata"));
     const manifestItems = parseManifest(parsed.querySelector("manifest"));
-    const sections = parseSpine(parsed.querySelector("spine"), manifestItems);
+    const spine = parseSpine(parsed.querySelector("spine"), manifestItems);
     const cover = manifestItems.has(coverId) ? images.get(manifestItems.get(coverId)) : undefined;
 
-    return { meta: { title, author, cover }, sections };
+    return { meta: { title, author, cover }, spine };
 }
 
 const extract = async (file: File) => {
@@ -165,24 +165,20 @@ const parseToc = (tocNcx: string): Map<string, TOC> => {
 export const parser = async (epub: File): Promise<Book> => {
     try {
         const { images, htmls, styles, fonts, tocNcx, opf } = await extract(epub)
-        const { meta, sections } = parseOpf(opf, images);
-        const toc: TOC[] = [];
-        const parsedToc = parseToc(tocNcx);
+        const { meta, spine } = parseOpf(opf, images);
+        const toc: TOC[] = []; // TODO: Fix TOC with contents using key value pairs
+        //const parsedToc = parseToc(tocNcx); 
 
         if (meta.cover === undefined) {
-            meta.cover = getCoverFromFirstPage(htmls.get(sections[0]), images);
+            meta.cover = getCoverFromFirstPage(htmls.get(spine[0]), images);
         }
 
-        const contents: string[] = sections.map((href, index) => {
-            if (parsedToc.has(href)) {
-                const tempToc: TOC = parsedToc.get(href);
-                tempToc.index = index;
-                toc.push(tempToc);
-            }
-            return htmls.has(href) ? updateHTML(htmls.get(href)) : null
+        const contents = new Map();
+        spine.forEach((href) => {
+            contents.set(href, htmls.has(href) ? updateHTML(htmls.get(href)) : null);
         });
 
-        return { meta, contents, toc, files: { images, fonts, styles }, progress: 0 };
+        return { meta, contents, spine, toc, files: { images, fonts, styles }, progress: 0 };
 
     } catch (e) {
         throw new Error(epub.name + " does not appear to be a valid EPUB file");

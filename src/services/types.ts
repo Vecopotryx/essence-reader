@@ -1,6 +1,7 @@
 export type Book = {
     meta: Metadata,
-    contents: string[],
+    contents: Map<string, string>,
+    spine: string[],
     toc: TOC[],
     files: Files,
     progress: number

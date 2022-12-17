@@ -94,7 +94,7 @@
                     <div class="bookInfo" in:fade={{ duration: 200 }}>
                         <h4>{book.meta.author}</h4>
                         <h3>{book.meta.title}</h3>
-                        <p>{book.progress} / {book.contents.length - 1}</p>
+                        <p>{book.progress} / {book.spine.length - 1}</p>
                     </div>
                 </button>
             {/each}

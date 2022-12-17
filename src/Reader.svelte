@@ -88,7 +88,7 @@
     };
 
     const updateSection = (index: number) => {
-        if (0 <= index && index < currentBook.contents.length) {
+        if (0 <= index && index < currentBook.spine.length) {
             section = index;
             scrolled = 0;
             saveProgress(section);
@@ -139,7 +139,7 @@
                 <b>{currentBook.meta.title} - </b>
                 {currentBook.meta.author}
             </h4>
-            <p>{section}/{currentBook.contents.length - 1}</p>
+            <p>{section}/{currentBook.spine.length - 1}</p>
         </svelte:fragment>
 
         <svelte:fragment slot="rightbar">
@@ -166,7 +166,7 @@
     </Topbar>
 
     <div id="container">
-        {@html currentBook.contents[section]}
+        {@html currentBook.contents.get(currentBook.spine[section])}
     </div>
 </div>
 
