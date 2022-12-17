@@ -1,4 +1,4 @@
-import { db } from "./db";
+import { db } from "../db";
 
 export const applySettings = (settings: { scale: number, fontFamily: string }) => {
     let styleE = document.getElementById("user-settings");

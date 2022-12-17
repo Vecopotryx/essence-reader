@@ -6,7 +6,7 @@
 	import { openBookThing } from "./services/assemble";
 	import type { Book } from "./services/types";
 
-	import Reader from "./Reader.svelte";
+	import Reader from "./reader/Reader.svelte";
 	import BookSelector from "./components/BookSelector.svelte";
     import { fade } from "svelte/transition";
 
