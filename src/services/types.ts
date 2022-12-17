@@ -1,6 +1,6 @@
 export type Book = {
     meta: Metadata,
-    contents: Map<string, string>,
+    contents: Map<string, { index: number, html: string }>,
     spine: string[],
     toc: TOC[],
     files: Files,
@@ -15,7 +15,7 @@ export type Metadata = {
 
 export type TOC = {
     name: string,
-    index: number,
+    href: string,
     isChild: boolean,
 }
 

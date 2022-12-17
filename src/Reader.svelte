@@ -147,13 +147,13 @@
                 {#each currentBook.toc as tocitem}
                     <button
                         class="tocButton"
-                        style="{section === tocitem.index
+                        style="{section === currentBook.contents.get(tocitem.href).index
                             ? 'border: 1px solid lightblue; font-weight: bold;'
                             : ''}  {tocitem.isChild
                             ? 'padding-left: 2em;'
                             : ''}"
-                        on:click={() => updateSection(tocitem.index)}
-                        >{tocitem.isChild ? "" : ""} {tocitem.name}</button
+                        on:click={() => updateSection(currentBook.contents.get(tocitem.href).index)}
+                        >{tocitem.name}</button
                     >
                 {/each}
             </Popover>
@@ -166,7 +166,7 @@
     </Topbar>
 
     <div id="container">
-        {@html currentBook.contents.get(currentBook.spine[section])}
+        {@html currentBook.contents.get(currentBook.spine[section]).html}
     </div>
 </div>
 

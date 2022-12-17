@@ -150,32 +150,34 @@ const cssNester = (css: string, nestWith: string) => {
     return css.replace(/__keyframes__/g, x => kframes.shift());
 }
 
-const parseToc = (tocNcx: string): Map<string, TOC> => {
-    const tocmap: Map<string, TOC> = new Map();
+const parseToc = (tocNcx: string): TOC[] => {
+    const TOC: TOC[] = [];
     const navmap = domParser.parseFromString(tocNcx, "application/xml").querySelectorAll("navPoint");
     for (const navpoint of navmap) {
         const name = navpoint.querySelector("text").textContent;
-        const href = removePath(navpoint.querySelector("content").attributes["src"].value);
+        let href = removePath(navpoint.querySelector("content").attributes["src"].value);
+        if(href.includes("#")) {
+            href = href.substring(0, href.indexOf("#")); // Necessery since some books have hash URLs for part of chapter
+        }
         const isChild = navpoint.parentElement.nodeName === "navPoint"
-        tocmap.set(href, { name, index: 0, isChild })
+        TOC.push({ name, href, isChild} );
     }
-    return tocmap;
+    return TOC;
 }
 
 export const parser = async (epub: File): Promise<Book> => {
     try {
         const { images, htmls, styles, fonts, tocNcx, opf } = await extract(epub)
         const { meta, spine } = parseOpf(opf, images);
-        const toc: TOC[] = []; // TODO: Fix TOC with contents using key value pairs
-        //const parsedToc = parseToc(tocNcx); 
+        const toc: TOC[] = parseToc(tocNcx); 
 
         if (meta.cover === undefined) {
             meta.cover = getCoverFromFirstPage(htmls.get(spine[0]), images);
         }
 
         const contents = new Map();
-        spine.forEach((href) => {
-            contents.set(href, htmls.has(href) ? updateHTML(htmls.get(href)) : null);
+        spine.forEach((href, index) => {
+            contents.set(href, { index, html: htmls.has(href) ? updateHTML(htmls.get(href)) : null } );
         });
 
         return { meta, contents, spine, toc, files: { images, fonts, styles }, progress: 0 };

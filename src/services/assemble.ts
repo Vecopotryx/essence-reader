@@ -28,7 +28,7 @@ const replaceNamesWithBlobs = (html: string, images: Map<string, Blob>) => {
 
 export const openBookThing = (book: Book): Book => {
     try {
-        book.contents.forEach((html, key, self) => self.set(key, replaceNamesWithBlobs(html, book.files.images)));
+        book.contents.forEach((value, key, self) => self.set(key, { index: value.index, html: replaceNamesWithBlobs(value.html, book.files.images) } ));
         book.files.styles.forEach((css, key, self) => self.set(key, updateCSS(css, book.files.images, book.files.fonts)));
         return book;
     } catch {
