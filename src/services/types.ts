@@ -15,7 +15,7 @@ export type Metadata = {
 
 export type TOC = {
     name: string,
-    href: string,
+    index: number,
     isChild: boolean,
 }
 

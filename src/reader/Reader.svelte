@@ -116,12 +116,8 @@
                 {#each currentBook.toc as tocitem}
                     <TocButton
                         {tocitem}
-                        selected={section ===
-                            currentBook.contents.get(tocitem.href).index}
-                        onclick={() =>
-                            updateSection(
-                                currentBook.contents.get(tocitem.href).index
-                            )}
+                        selected={section === tocitem.index}
+                        onclick={() => updateSection(tocitem.index)}
                     />
                 {/each}
             </Popover>
