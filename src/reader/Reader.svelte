@@ -5,6 +5,7 @@
     import Topbar from "../components/Topbar.svelte";
     import ReaderSettings from "./ReaderSettings.svelte";
     import Popover from "../components/Popover.svelte";
+    import TocButton from "./TOCButton.svelte";
     import {
         applySettings,
         saveProgress,
@@ -113,19 +114,15 @@
         <svelte:fragment slot="rightbar">
             <Popover text="☰">
                 {#each currentBook.toc as tocitem}
-                    <button
-                        class="tocButton"
-                        style="{section ===
-                        currentBook.contents.get(tocitem.href).index
-                            ? 'border: 1px solid lightblue; font-weight: bold;'
-                            : ''}  {tocitem.isChild
-                            ? 'padding-left: 2em;'
-                            : ''}"
-                        on:click={() =>
+                    <TocButton
+                        {tocitem}
+                        selected={section ===
+                            currentBook.contents.get(tocitem.href).index}
+                        onclick={() =>
                             updateSection(
                                 currentBook.contents.get(tocitem.href).index
-                            )}>{tocitem.name}</button
-                    >
+                            )}
+                    />
                 {/each}
             </Popover>
             <Popover text="⚙">
@@ -142,30 +139,10 @@
 <svelte:window bind:scrollY={scrolled} on:keydown={handleKeydown} />
 
 <style>
-    .tocButton {
-        display: block;
-        border: none;
-        font-size: inherit;
-        font-family: inherit;
-        background-color: transparent;
-        color: inherit;
-        width: 95%;
-        margin: auto;
-        text-align: left;
-        border-radius: 0.2em;
-        border: 1px solid transparent;
-    }
-
-    .tocButton:hover {
-        cursor: pointer;
-        border: 1px solid var(--primary-color);
-    }
-
     #container {
         margin: auto;
         padding-top: 3em;
         padding-bottom: 2em;
         transform-origin: top;
-        font-family: Verdana;
     }
 </style>
