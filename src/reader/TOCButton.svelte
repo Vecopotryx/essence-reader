@@ -18,7 +18,7 @@
     .tocButton {
         display: block;
         border: none;
-        font-size: inherit;
+        font-size: 0.75em;
         font-family: inherit;
         background-color: transparent;
         color: inherit;
