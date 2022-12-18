@@ -30,7 +30,8 @@
     }
 
     .buttonbar > :global(button) {
-        margin: auto;
+        margin: 0;
+        padding: 0 0.15em;
         border: none;
         background-color: transparent;
         cursor: pointer;
@@ -60,6 +61,7 @@
         filter: drop-shadow(0 20px 13px rgb(0 0 0 / 0.03))
             drop-shadow(0 8px 5px rgb(0 0 0 / 0.08));
         z-index: 100;
+        user-select: none;
     }
 
     @supports not (
@@ -79,6 +81,7 @@
         white-space: nowrap;
         overflow: hidden;
         display: inline;
+        user-select: text;
     }
 
     #toptext > :global(*) {
