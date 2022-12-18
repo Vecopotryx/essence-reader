@@ -9,6 +9,7 @@
     import { fade } from "svelte/transition";
     import { onMount } from "svelte";
     import TrashCan from "carbon-icons-svelte/lib/TrashCan.svelte";
+    import Settings from "carbon-icons-svelte/lib/Settings.svelte";
 
     export let readFiles = (file: File) => {};
     export let openExisting = (id: number) => {};
@@ -68,7 +69,8 @@
 <div in:fade={{ duration: 200 }}>
     <Topbar>
         <h3 slot="toptext">Essence Reader</h3>
-        <Popover slot="rightbar" text="⚙">
+        <Popover slot="rightbar">
+            <Settings slot="icon" size={24} />
             <div style="width: 8em">
                 <label style="user-select: none">
                     <input type="checkbox" bind:checked={saveBooksOn} />

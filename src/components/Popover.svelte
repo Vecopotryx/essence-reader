@@ -1,7 +1,6 @@
 <script lang="ts">
     import { fly } from "svelte/transition";
     let visible: boolean;
-    export let text: string;
 
     let button: Element;
 
@@ -24,8 +23,12 @@
     }
 </script>
 
-<button bind:this={button} on:click={() => (visible = !visible)}>
-    {text}
+<button
+    class="popoverBtn"
+    bind:this={button}
+    on:click={() => (visible = !visible)}
+>
+    <slot name="icon" />
 </button>
 
 {#if visible}
@@ -56,6 +59,10 @@
         right: 0;
         top: 3em;
         max-width: 50%;
+    }
+
+    .popoverBtn > :global(*) {
+        pointer-events: none;
     }
 
     @supports not (

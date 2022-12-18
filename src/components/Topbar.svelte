@@ -36,8 +36,7 @@
         background-color: transparent;
         cursor: pointer;
         color: inherit;
-        font-size: 1.25em;
-        display: inline-block;
+        vertical-align: middle;
     }
 
     .buttonbar > :global(button:hover) {

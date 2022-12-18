@@ -13,6 +13,14 @@
         updateStyles,
     } from "./reader";
 
+    // Icons:
+    import SettingsIcon from "carbon-icons-svelte/lib/Settings.svelte";
+    import TableOfContents from "carbon-icons-svelte/lib/TableOfContents.svelte";
+    import ArrowRight from "carbon-icons-svelte/lib/ArrowRight.svelte";
+    import ArrowLeft from "carbon-icons-svelte/lib/ArrowLeft.svelte";
+    import ChevronLeft from "carbon-icons-svelte/lib/ChevronLeft.svelte";
+    import DirectionLoopLeft from "carbon-icons-svelte/lib/DirectionLoopLeft.svelte";
+
     export let currentBook: Book;
     export let reading: boolean;
     export let currentId: number;
@@ -110,7 +118,7 @@
                 location.hash = "";
             }}
         >
-            {"<"}
+            <ChevronLeft size={24} />
         </button>
 
         <svelte:fragment slot="toptext">
@@ -131,10 +139,12 @@
                         previousJumps = previousJumps;
                     }}
                 >
-                    ↫ {previousJumps[previousJumps.length - 1]}
+                    <DirectionLoopLeft />
+                    {previousJumps[previousJumps.length - 1]}
                 </button>
             {/if}
-            <Popover text="☰">
+            <Popover>
+                <TableOfContents size={24} slot="icon" />
                 {#each currentBook.toc as tocitem}
                     <TocButton
                         {tocitem}
@@ -143,11 +153,16 @@
                     />
                 {/each}
             </Popover>
-            <Popover text="⚙">
+            <Popover>
+                <SettingsIcon size={24} slot="icon" />
                 <ReaderSettings bind:settings />
             </Popover>
-            <button on:click={() => incrementSection(-1)}>«</button>
-            <button on:click={() => incrementSection(1)}>»</button>
+            <button on:click={() => incrementSection(-1)}
+                ><ArrowLeft size={24} /></button
+            >
+            <button on:click={() => incrementSection(1)}
+                ><ArrowRight size={24} /></button
+            >
         </svelte:fragment>
     </Topbar>
 
