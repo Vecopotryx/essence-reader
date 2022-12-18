@@ -8,6 +8,7 @@
     import type { Book } from "../services/types";
     import { fade } from "svelte/transition";
     import { onMount } from "svelte";
+    import TrashCan from "carbon-icons-svelte/lib/TrashCan.svelte";
 
     export let readFiles = (file: File) => {};
     export let openExisting = (id: number) => {};
@@ -95,7 +96,7 @@
                         on:click={(e) => {
                             e.stopPropagation();
                             deleteBook(book.id);
-                        }}>✕</button
+                        }}><TrashCan size={20} /></button
                     >
                     <img
                         in:fade={{ duration: 200 }}
