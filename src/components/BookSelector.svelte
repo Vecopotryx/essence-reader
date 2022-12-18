@@ -7,6 +7,7 @@
     import ThemePicker from "./ThemePicker.svelte";
     import type { Book } from "../services/types";
     import { fade } from "svelte/transition";
+    import { onMount } from "svelte";
 
     export let readFiles = (file: File) => {};
     export let openExisting = (id: number) => {};
@@ -46,7 +47,16 @@
         }
     }
 
-    updateCount();
+    onMount(() => {
+        updateCount();
+
+        window.onunhandledrejection = () => {
+            db.books.clear();
+            console.log(
+                "An error was encountered and book database has been cleared"
+            );
+        };
+    });
 </script>
 
 <div in:fade={{ duration: 200 }}>
@@ -61,13 +71,11 @@
                 <button on:click={removeAllBooks}>Remove all</button>
                 <hr />
                 <p style="display: inline">Select theme</p>
-    
+
                 <ThemePicker />
             </div>
         </Popover>
     </Topbar>
-
-
 
     <div id="parent">
         {#if $books}
