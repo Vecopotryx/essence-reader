@@ -15,7 +15,12 @@
     export let saveBooksOn: boolean;
     export let loading: boolean;
 
-    let books: Observable<Book[]> = liveQuery(() => db.books.toArray());
+    let books: Observable<Book[]> = liveQuery(() =>
+        db.books.toArray().catch(() => {
+            saveBooksOn = false;
+            return null;
+        })
+    );
     let hasStored: boolean = false;
 
     const clickFile = () => {
@@ -40,9 +45,7 @@
 
     async function updateCount() {
         if (saveBooksOn) {
-            const count = await db.books
-                .count()
-                .catch(() => (saveBooksOn = false));
+            const count = await db.books.count();
             hasStored = count > 0;
         }
     }
@@ -50,12 +53,14 @@
     onMount(() => {
         updateCount();
 
-        window.onunhandledrejection = () => {
-            db.books.clear();
-            console.log(
-                "An error was encountered and book database has been cleared"
-            );
-        };
+        window.addEventListener("unhandledrejection", (e) => {
+            if (e.reason instanceof TypeError) {
+                db.books.clear();
+                console.log(
+                    "An error was encountered and book database has been cleared"
+                );
+            }
+        });
     });
 </script>
 
