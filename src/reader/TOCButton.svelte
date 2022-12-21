@@ -11,14 +11,15 @@
     style="{selected
         ? 'border: 1px solid lightblue; font-weight: bold;'
         : ''}  {tocitem.isChild ? 'padding-left: 2em;' : ''}"
-    on:click={onclick}>{tocitem.name}</button
+    on:click={onclick}
 >
+    - {tocitem.name}
+</button>
 
 <style>
     .tocButton {
         display: block;
         border: none;
-        font-size: 0.75em;
         font-family: inherit;
         background-color: transparent;
         color: inherit;

@@ -52,12 +52,12 @@
         color: var(--primary-color);
         filter: drop-shadow(0 20px 13px rgb(0 0 0 / 0.03))
             drop-shadow(0 8px 5px rgb(0 0 0 / 0.08));
-        border-radius: 0.5em;
+        border-radius: 0.25em;
         z-index: 10;
         overflow: auto;
         max-height: 80vh;
         right: 0;
-        top: 3em;
+        top: 2.5em;
         max-width: 50%;
     }
 
