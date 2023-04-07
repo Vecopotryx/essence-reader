@@ -2,7 +2,7 @@
     export let toned: boolean = false;
 </script>
 
-<div id="topbar" style={toned ? "color: rgba(0, 0, 0, 0.5);" : " "}>
+<div id="topbar" style={toned ? "color: rgba(var(--primary-color), 0.6);" : " "}>
     <div class="buttonbar" id="leftbar">
         <slot name="leftbar" />
     </div>
