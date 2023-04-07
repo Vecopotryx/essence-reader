@@ -49,7 +49,7 @@
         backdrop-filter: blur(15px);
         -webkit-backdrop-filter: blur(15px);
         text-align: center;
-        color: var(--primary-color);
+        color: rgb(var(--primary-color));
         filter: drop-shadow(0 20px 13px rgb(0 0 0 / 0.03))
             drop-shadow(0 8px 5px rgb(0 0 0 / 0.08));
         border-radius: 0.25em;

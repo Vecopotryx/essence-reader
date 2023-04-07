@@ -32,6 +32,6 @@
 
     .tocButton:hover {
         cursor: pointer;
-        border: 1px solid var(--primary-color);
+        border: 1px solid rgb(var(--primary-color));
     }
 </style>
