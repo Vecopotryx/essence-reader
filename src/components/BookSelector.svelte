@@ -268,4 +268,10 @@
     .book:hover .deleteBtn {
         display: inline-block;
     }
+
+    @media screen and (max-width: 40em) {
+        #dropInfo {
+            width: auto;
+        }
+    }
 </style>
