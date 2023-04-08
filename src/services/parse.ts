@@ -13,7 +13,16 @@ const parseOpf = (opf: string, images: Map<string, Blob>): { meta: Metadata, spi
     return { meta: { title, author, cover }, spine };
 }
 
-const extract = async (file: File) => {
+interface extractInterface {
+    images: Map<string, Blob>,
+    htmls: Map<string, string>,
+    styles: Map<string, string>,
+    fonts: Map<string, Blob>,
+    tocNcx: string,
+    opf: string
+}
+
+const extract = async (file: File): Promise<extractInterface> => {
     const { entries } = await unzip(file);
 
     const images: Map<string, Blob> = new Map();
@@ -88,11 +97,11 @@ const parseSpine = (spine: Element, manifestItems: Map<string, string>): string[
     return Array.from(spine.children).map(x => manifestItems.get(x.attributes["idref"].value));
 }
 
-const removePath = (filename: string) => {
+const removePath = (filename: string): string => {
     return decodeURI(filename.split('\\').pop().split('/').pop());
 }
 
-const getCoverFromFirstPage = (firstPageHTML: string, images: Map<string, Blob>) => {
+const getCoverFromFirstPage = (firstPageHTML: string, images: Map<string, Blob>): Blob => {
     // Fallback to taking image from first page if no cover from opf metadata.
     // Should only be used if no cover from opf metadata.
     const temp = domParser.parseFromString(firstPageHTML,
@@ -104,7 +113,7 @@ const getCoverFromFirstPage = (firstPageHTML: string, images: Map<string, Blob>)
     }
 }
 
-const updateHTML = (html: string) => {
+const updateHTML = (html: string): string => {
     let newHTML = domParser.parseFromString(html, "application/xhtml+xml");
 
     const errorNode = newHTML.querySelector('parsererror');
@@ -140,7 +149,7 @@ const updateHTML = (html: string) => {
     return newHTML.body.innerHTML;
 }
 
-const cssNester = (css: string, nestWith: string) => {
+const cssNester = (css: string, nestWith: string): string => {
     // Found on Stackoverflow and works great: https://stackoverflow.com/a/67517828
     let kframes = [];
     css = css.replace(/@(-moz-|-webkit-|-ms-)*keyframes\s(.*?){([0-9%a-zA-Z,\s.]*{(.*?)})*[\s\n]*}/g, x => kframes.push(x) && '__keyframes__');

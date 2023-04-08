@@ -10,10 +10,10 @@
 	import BookSelector from "./components/BookSelector.svelte";
 	import { fade } from "svelte/transition";
 
-	let currentBook: Book;
-	let reading = false;
-	let dragging = false;
-	let loading = false;
+	let currentBook: Book = null;
+	let reading: boolean = false;
+	let dragging: boolean = false;
+	let loading: boolean = false;
 
 	const readFiles = async (file: File) => {
 		try {
@@ -32,7 +32,7 @@
 		loading = false;
 	};
 
-	let saveBooksOn: boolean;
+	let saveBooksOn: boolean = null;
 
 	if (localStorage.getItem("saveBooksOn") !== null) {
 		saveBooksOn = JSON.parse(localStorage.getItem("saveBooksOn"));
@@ -113,8 +113,8 @@
 		readFiles(e.dataTransfer.files[0]);
 	});
 
-	let currentId: number = undefined;
-	let loadingSaved = false;
+	let currentId: number = null;
+	let loadingSaved: boolean = false;
 </script>
 
 <main>

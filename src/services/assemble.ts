@@ -1,6 +1,6 @@
 import type { Book } from "./types";
 
-const updateCSS = (css: string, images: Map<string, Blob>, fonts: Map<string, Blob>) => {
+const updateCSS = (css: string, images: Map<string, Blob>, fonts: Map<string, Blob>): string => {
     let newCss = css.replace(/url\((?!['"]?(?:data):)['"]?([^'"\)]*)['"]?\)/g, function (match, source) {
         const filename = source.split('\\').pop().split('/').pop();
         const imageTypes = [".png", ".jpg", ".jpeg", ".gif"];
