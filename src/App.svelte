@@ -69,6 +69,7 @@
 	const openExisting = (id: number) => {
 		if (id === currentId) {
 			reading = true;
+			location.hash = id.toString();
 		} else {
 			loadingSaved = true;
 
