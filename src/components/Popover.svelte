@@ -37,7 +37,11 @@
         class="popover"
         use:clickOutside
     >
-        <slot />
+        <!-- Wrapper needed since WebKit on iOS cuts off content when scrolling otherwise -->
+        <!-- See: https://stackoverflow.com/questions/26704903/only-in-safari-positionfixed-child-cut-off-when-parent-is-positionfixed-and -->
+        <div class="wrapper">
+            <slot />
+        </div>
     </div>
 {/if}
 
@@ -54,11 +58,14 @@
             drop-shadow(0 8px 5px rgb(0 0 0 / 0.08));
         border-radius: 0.25em;
         z-index: 10;
-        overflow: auto;
-        max-height: 80vh;
         right: 0;
         top: 2.5em;
         max-width: 50%;
+    }
+
+    .wrapper {
+        overflow: auto;
+        max-height: 80vh;
     }
 
     .popoverBtn > :global(*) {
