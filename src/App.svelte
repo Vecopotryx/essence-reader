@@ -2,8 +2,8 @@
 	import { onMount } from "svelte";
 	import { db, storeBook } from "./db";
 
-	import { parser } from "./services/parse";
-	import { openBookThing } from "./services/assemble";
+	import { parseEpub } from "./services/parse";
+	import { prepareBook } from "./services/assemble";
 	import type { Book } from "./services/types";
 
 	import Reader from "./reader/Reader.svelte";
@@ -18,7 +18,7 @@
 	const readFiles = async (file: File) => {
 		try {
 			loading = true;
-			const book = await parser(file);
+			const book = await parseEpub(file);
 
 			if (saveBooksOn && file.size < 30000000) {
 				const id = (await storeBook(book)) as number;
@@ -59,7 +59,7 @@
 
 	const openBook = (book: Book, id?: number) => {
 		//let startTime = performance.now();
-		currentBook = openBookThing(book);
+		currentBook = prepareBook(book);
 		reading = true;
 		location.hash = id ? id.toString() : "";
 		currentId = id ? id : -1;

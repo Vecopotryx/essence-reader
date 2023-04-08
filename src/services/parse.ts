@@ -164,7 +164,7 @@ const parseToc = (tocNcx: string, contents: Map<string, { index: number, html: s
     return TOC;
 }
 
-export const parser = async (epub: File): Promise<Book> => {
+export const parseEpub = async (epub: File): Promise<Book> => {
     try {
         const { images, htmls, styles, fonts, tocNcx, opf } = await extract(epub)
         const { meta, spine } = parseOpf(opf, images);
