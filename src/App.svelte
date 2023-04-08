@@ -81,6 +81,10 @@
 					location.hash = "";
 				}
 				loadingSaved = false;
+			}).catch(() => {
+				// Stop loading if database error occurs
+				loadingSaved = false;
+				location.hash = "";
 			});
 		}
 	};
