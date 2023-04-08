@@ -60,6 +60,7 @@
         if (0 <= index && index < currentBook.spine.length) {
             section = index;
             scrolled = 0;
+            currentBook.progress = section;
             saveProgress(currentId, section);
             appendCurrentSection();
         }

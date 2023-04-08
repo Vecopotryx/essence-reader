@@ -119,7 +119,7 @@
 
 <main>
 	{#if reading}
-		<Reader {currentBook} bind:reading bind:currentId />
+		<Reader bind:currentBook bind:reading bind:currentId />
 	{:else if loadingSaved}
 		<p style="text-align: center;" in:fade>Loading</p>
 	{:else}
