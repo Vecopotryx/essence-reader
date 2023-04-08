@@ -8,7 +8,7 @@
 
 	import Reader from "./reader/Reader.svelte";
 	import BookSelector from "./components/BookSelector.svelte";
-    import { fade } from "svelte/transition";
+	import { fade } from "svelte/transition";
 
 	let currentBook: Book;
 	let reading = false;
@@ -67,16 +67,21 @@
 	};
 
 	const openExisting = (id: number) => {
-		loadingSaved = true;
-		db.transaction("r", db.books, async () => {
-			let stored = await db.books.get(id);
-			if (stored) {
-				openBook(stored, stored.id);
-			} else {
-				location.hash = "";
-				loadingSaved = false;
-			}
-		});
+		if (id === currentId) {
+			reading = true;
+		} else {
+			loadingSaved = true;
+
+			db.transaction("r", db.books, async () => {
+				let stored = await db.books.get(id);
+				if (stored) {
+					openBook(stored, stored.id);
+				} else {
+					location.hash = "";
+					loadingSaved = false;
+				}
+			});
+		}
 	};
 
 	onMount(() => {
