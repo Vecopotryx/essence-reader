@@ -13,17 +13,19 @@
         : ''}  {tocitem.isChild ? 'padding-left: 2em;' : ''}"
     on:click={onclick}
 >
-    - {tocitem.name}
+    {tocitem.name} <span> {tocitem.index} </span>
 </button>
 
 <style>
     .tocButton {
-        display: block;
+        display: flex;
+        justify-content: space-between;
         border: none;
         font-family: inherit;
         background-color: transparent;
         color: inherit;
         width: 95%;
+        padding: 1vh;
         margin: auto;
         text-align: left;
         border-radius: 0.2em;
