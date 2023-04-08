@@ -79,15 +79,14 @@
 					openBook(stored, stored.id);
 				} else {
 					location.hash = "";
-					loadingSaved = false;
 				}
+				loadingSaved = false;
 			});
 		}
 	};
 
 	onMount(() => {
 		if (location.hash !== "") {
-			loadingSaved = true;
 			openExisting(parseInt(location.hash.substring(1)));
 		}
 	});
@@ -97,7 +96,6 @@
 			document.title = "Essence Reader";
 			reading = false;
 			history.replaceState(null, "", " "); // Remove empty hash from URL
-			loadingSaved = false;
 		} else if (saveBooksOn && location.hash !== "") {
 			openExisting(parseInt(location.hash.substring(1)));
 		}
