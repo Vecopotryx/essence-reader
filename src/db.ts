@@ -1,12 +1,12 @@
 import Dexie, { type Table } from 'dexie';
-import type { Metadata, Files, TOC } from './services/types';
+import type { Metadata, Files, TOCItem } from './services/types';
 
 interface Book {
   id?: number;
   meta: Metadata;
   contents: Map<string, { index: number, html: string }>;
   spine: string[];
-  toc: TOC[];
+  toc: TOCItem[];
   files: Files;
   progress: number;
 }
