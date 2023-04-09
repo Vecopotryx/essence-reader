@@ -34,17 +34,14 @@
 
 	let saveBooksOn: boolean = null;
 
+	// Update localStorage to reflect saveBooksOn
+	$: saveBooksOn, localStorage.setItem("saveBooksOn", JSON.stringify(saveBooksOn));
+
 	if (localStorage.getItem("saveBooksOn") !== null) {
 		saveBooksOn = JSON.parse(localStorage.getItem("saveBooksOn"));
 	} else {
 		saveBooksOn = true;
 	}
-
-	const updateSaving = () => {
-		localStorage.setItem("saveBooksOn", JSON.stringify(saveBooksOn));
-	};
-
-	$: saveBooksOn, updateSaving();
 
 	window.addEventListener("dragenter", (e) => {
 		if (e.dataTransfer.types.includes("Files")) {
