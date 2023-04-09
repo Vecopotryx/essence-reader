@@ -120,7 +120,7 @@
 <main>
 	{#if reading}
 		<Reader bind:currentBook bind:reading bind:currentId />
-	{:else if loadingSaved}
+	{:else if loadingSaved || loading}
 		<p style="text-align: center;" in:fade>Loading</p>
 	{:else}
 		<BookSelector
@@ -128,7 +128,6 @@
 			{openExisting}
 			{dragging}
 			bind:saveBooksOn
-			bind:loading
 		/>
 	{/if}
 </main>

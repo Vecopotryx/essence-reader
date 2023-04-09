@@ -1,21 +1,21 @@
 <script lang="ts">
-    import { flip } from "svelte/animate";
     import { db } from "../db";
+    import { onMount } from "svelte";
+    import { flip } from "svelte/animate";
+    import { fade } from "svelte/transition";
     import { liveQuery, type Observable } from "dexie";
+    import type { Book } from "../services/types";
+
     import Topbar from "./Topbar.svelte";
     import Popover from "./Popover.svelte";
     import ThemePicker from "./ThemePicker.svelte";
-    import type { Book } from "../services/types";
-    import { fade } from "svelte/transition";
-    import { onMount } from "svelte";
-    import TrashCan from "carbon-icons-svelte/lib/TrashCan.svelte";
     import Settings from "carbon-icons-svelte/lib/Settings.svelte";
+    import BookPreview from "./BookPreview.svelte";
 
     export let readFiles = (file: File) => {};
     export let openExisting = (id: number) => {};
     export let dragging: boolean;
     export let saveBooksOn: boolean;
-    export let loading: boolean;
 
     let books: Observable<Book[]> = liveQuery(() =>
         db.books.toArray().catch(() => {
@@ -72,14 +72,13 @@
         <Popover slot="rightbar">
             <Settings slot="icon" size={24} />
             <div style="width: 8em">
-                <label style="user-select: none">
+                <label>
                     <input type="checkbox" bind:checked={saveBooksOn} />
                     Save books
-                </label><br />
+                </label>
                 <button on:click={removeAllBooks}>Remove all</button>
                 <hr />
-                <p style="display: inline">Select theme</p>
-
+                Select theme
                 <ThemePicker />
             </div>
         </Popover>
@@ -89,189 +88,60 @@
         {#if $books}
             {#each $books as book (book.id)}
                 <button
-                    animate:flip={{ duration: 200 }}
-                    class="book"
+                    class="libraryItem"
                     on:click={() => openExisting(book.id)}
+                    animate:flip={{ duration: 200 }}
                 >
-                    <button
-                        class="deleteBtn"
-                        on:click={(e) => {
-                            e.stopPropagation();
-                            deleteBook(book.id);
-                        }}><TrashCan size={20} /></button
-                    >
-                    <img
-                        in:fade={{ duration: 200 }}
-                        src={book.meta.cover !== undefined
-                            ? URL.createObjectURL(book.meta.cover)
-                            : ""}
-                        alt="cover"
-                    />
-                    <div class="bookInfo" in:fade={{ duration: 200 }}>
-                        <h4>{book.meta.author}</h4>
-                        <h3>{book.meta.title}</h3>
-                        <p>{book.progress} / {book.spine.length - 1}</p>
-                    </div>
+                    <BookPreview {book} {deleteBook} />
                 </button>
             {/each}
         {/if}
-
         <button
-            class="book"
+            class="libraryItem"
             on:click={() => clickFile()}
-            style={!hasStored ? "max-width: 50vw" : ""}
+            style="color: {dragging ? 'green' : 'gray'}"
         >
-            <div
-                id="dropInfo"
-                class={loading ? "loading" : ""}
-                style="max-width: {!hasStored
-                    ? '100% '
-                    : ''}; background-color: {dragging ? ' #87CEFA' : ''}"
-            >
-                {#if loading}
-                    <h1>📚</h1>
-                    <h2>...</h2>
-                {:else}
-                    <h1>📚</h1>
-                    <h2>
-                        {!hasStored
-                            ? "Drop anywhere or click to select a file"
-                            : "+"}
-                    </h2>
-                {/if}
-            </div>
-            {#if hasStored}
-                <div class="bookInfo">
-                    <h4>Load new book</h4>
-                    <h3 style="color: {dragging ? '#87CEFA' : ''}">
-                        {loading
-                            ? "Loading"
-                            : "Drop anywhere or click to select a file"}
-                    </h3>
-                </div>
-            {/if}
+            <h1 id="dropInfoIcon">{dragging ? "↓" : "📚"}</h1>
+
+            <h2>Drop anywhere or click to select a file</h2>
         </button>
     </div>
 </div>
 
 <style>
-    @keyframes gradient {
-        0% {
-            background-position: 0% 0%;
-        }
-        50% {
-            background-position: 0% 100%;
-        }
-        100% {
-            background-position: 0% 0%;
-        }
-    }
-
-    .loading {
-        background: linear-gradient(
-            rgb(var(--secondary-bg)),
-            #0a1223,
-            rgb(var(--secondary-bg))
-        );
-        background-size: 400% 400%;
-        animation: gradient 5s ease infinite;
-    }
-
     #parent {
-        padding: 1em;
-        padding-top: 3.5em;
-        text-align: center;
         display: flex;
         flex-wrap: wrap;
         justify-content: center;
+        padding: 3.5em 1em 1em;
         gap: 1em;
     }
 
-    #dropInfo > h1 {
-        font-size: 400%;
-        margin-bottom: 0;
+    #dropInfoIcon {
+        font-size: 5em;
+        margin: 0;
     }
 
-    .bookInfo > h3 {
-        font-weight: 500;
-        color: gray;
-    }
-
-    #dropInfo {
-        background-color: rgb(var(--secondary-bg));
-        text-align: center;
-        user-select: none;
-        min-width: 10em;
-        width: 50vw;
-        vertical-align: middle;
-        transition: background-color 0.3s ease;
-        cursor: pointer;
+    .libraryItem {
+        color: inherit;
+        border: none;
         overflow: hidden;
-        margin: auto;
-        color: gray;
-    }
-
-    .bookInfo {
-        min-width: 100%;
-    }
-
-    .book {
+        font-size: inherit;
+        font-family: inherit;
+        flex: 1 1 100%;
+        height: 15em;
+        padding: 0;
         max-width: 30vw;
         min-width: 20em;
-        filter: drop-shadow(0 15px 15px rgb(0 0 0 / 0.15));
-        transition: transform 0.25s, filter 0.25s;
-        background-color: rgb(var(--secondary-bg));
         border-radius: 0.5em;
-        box-shadow: none;
-        border: none;
-        display: grid;
-        padding: 0;
-        flex: 1 1 100%;
-        grid-template-columns: auto 1fr;
-        color: inherit;
-        font-family: inherit;
-        font-size: inherit;
-        overflow: hidden;
+        filter: drop-shadow(0 15px 15px rgb(0 0 0 / 0.15));
+        background-color: rgb(var(--secondary-bg));
+        transition: transform 0.25s;
     }
 
-    .book > img,
-    .book > div {
-        height: 15em;
-        margin: auto;
-        max-width: 10em;
-        object-fit: cover;
-    }
-
-    .book:hover,
-    .book:focus {
+    .libraryItem:hover,
+    .libraryItem:focus {
+        cursor: pointer;
         transform: translateY(-0.5em);
-        cursor: pointer;
-    }
-
-    .deleteBtn {
-        display: none;
-        position: absolute;
-        background-color: transparent;
-        right: 0;
-        font-size: 1.5em;
-        border-bottom-left-radius: 0.2em;
-        color: inherit;
-        cursor: pointer;
-        border: none;
-        transition: background-color 0.2s;
-    }
-
-    .deleteBtn:hover {
-        background-color: rgba(255, 10, 50, 1);
-    }
-
-    .book:hover .deleteBtn {
-        display: inline-block;
-    }
-
-    @media screen and (max-width: 40em) {
-        #dropInfo {
-            width: auto;
-        }
     }
 </style>
