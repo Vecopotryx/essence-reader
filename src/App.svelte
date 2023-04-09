@@ -68,7 +68,7 @@
 			reading = true;
 			location.hash = id.toString();
 		} else {
-			loadingSaved = true;
+			loading = true;
 
 			db.transaction("r", db.books, async () => {
 				let stored = await db.books.get(id);
@@ -77,10 +77,10 @@
 				} else {
 					location.hash = "";
 				}
-				loadingSaved = false;
+				loading = false;
 			}).catch(() => {
 				// Stop loading if database error occurs
-				loadingSaved = false;
+				loading = false;
 				location.hash = "";
 			});
 		}
@@ -111,13 +111,12 @@
 	});
 
 	let currentId: number = null;
-	let loadingSaved: boolean = false;
 </script>
 
 <main>
 	{#if reading}
 		<Reader bind:currentBook bind:reading bind:currentId />
-	{:else if loadingSaved || loading}
+	{:else if loading}
 		<p style="text-align: center;" in:fade>Loading</p>
 	{:else}
 		<BookSelector
