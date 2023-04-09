@@ -2,7 +2,7 @@ export type Book = {
     meta: Metadata;
     contents: Map<string, { index: number, html: string }>;
     spine: string[];
-    toc: TOC[];
+    toc: TOCItem[];
     files: Files;
     progress: number;
 }
@@ -13,7 +13,7 @@ export type Metadata = {
     cover: Blob | undefined;
 }
 
-export type TOC = {
+export type TOCItem = {
     name: string;
     index: number;
     isChild: boolean;

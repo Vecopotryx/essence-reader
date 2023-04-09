@@ -1,7 +1,7 @@
 <script lang="ts">
-    import type { TOC } from "../services/types";
+    import type { TOCItem } from "../services/types";
 
-    export let tocitem: TOC;
+    export let tocitem: TOCItem;
     export let onclick: () => void;
     export let selected: boolean;
 </script>
