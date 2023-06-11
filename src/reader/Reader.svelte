@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { onMount } from "svelte";
+    import { onMount, tick } from "svelte";
     import { fade } from "svelte/transition";
     import type { Book } from "../services/types";
     import Topbar from "../components/Topbar.svelte";
@@ -70,9 +70,24 @@
         container.innerHTML = currentBook.contents.get(
             currentBook.spine[section]
         ).html;
-        updateLinks(container.querySelectorAll("[href]"), (href) =>
-            jumpToSection(currentBook.contents.get(href).index)
-        );
+        updateLinks(container.querySelectorAll("[href]"), async (href) => {
+            let [chapter, elemId] = href.split("#");
+            jumpToSection(currentBook.contents.get(chapter).index);
+            if (elemId) {
+                // if there is an element that is to be focused
+                await tick(); // Wait until chapter has been loaded
+                const element = document.getElementById(elemId);
+                element.style.fontSize = "100px";
+                element.scrollIntoView({
+                    behavior: "auto",
+                    block: "center",
+                    inline: "center",
+                });
+                // Make the element "pop" and then resize back into its normal size.
+                element.style.transition = "font 1s ease";
+                element.style.fontSize = "";
+            }
+        });
     };
 
     let previousJumps: number[] = [];

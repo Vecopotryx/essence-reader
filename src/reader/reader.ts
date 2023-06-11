@@ -58,9 +58,6 @@ export const updateLinks = (elems: NodeListOf<Element>, updateSection: (href: st
             let href = elem.getAttribute("href").split("\\").pop().split("/").pop();
             elem.addEventListener("click", (e) => {
                 e.preventDefault();
-                if (href.includes("#")) {
-                    href = href.substring(0, href.indexOf("#")); // Necessery since some books have hash URLs for part of chapter
-                }
                 updateSection(href);
             });
         }
