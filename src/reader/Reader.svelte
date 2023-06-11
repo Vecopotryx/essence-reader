@@ -126,14 +126,7 @@
 
 <div in:fade={{ duration: 200 }}>
     <Topbar toned={scrolled > 100}>
-        <button
-            slot="leftbar"
-            on:click={() => {
-                reading = false;
-                document.title = "Essence Reader";
-                location.hash = "";
-            }}
-        >
+        <button slot="leftbar" on:click={() => (location.hash = "")}>
             <ChevronLeft size={24} />
         </button>
 
