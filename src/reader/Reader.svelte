@@ -10,7 +10,7 @@
         applySettings,
         saveProgress,
         updateStyles,
-        assembleChapter
+        assembleChapter,
     } from "./reader";
 
     // Icons:
@@ -68,27 +68,31 @@
 
     const jumpToElementAndChapter = async (href: string) => {
         let [chapter, elemId] = href.split("#");
+        if (chapter) {
             jumpToSection(currentBook.contents.get(chapter).index);
-            if (elemId) {
-                // if there is an element that is to be focused
-                await tick(); // Wait until chapter has been loaded
-                const element = document.getElementById(elemId);
-                element.style.fontSize = "100px";
-                element.scrollIntoView({
-                    behavior: "auto",
-                    block: "center",
-                    inline: "center",
-                });
-                // Make the element "pop" and then resize back into its normal size.
-                element.style.transition = "font 1s ease";
-                element.style.fontSize = "";
-            }
-    }
+        }
+        if (elemId) {
+            // if there is an element that is to be focused
+            await tick(); // Wait until chapter has been loaded
+            const element = document.getElementById(elemId);
+            element.style.fontSize = "100px";
+            element.scrollIntoView({
+                behavior: "auto",
+                block: "center",
+                inline: "center",
+            });
+            // Make the element "pop" and then resize back into its normal size.
+            element.style.transition = "font 1s ease";
+            element.style.fontSize = "";
+        }
+    };
 
     const appendCurrentSection = () => {
         const html = currentBook.contents.get(currentBook.spine[section]).html;
         const images = currentBook.files.images;
-        container.replaceChildren(assembleChapter(html, images, jumpToElementAndChapter));
+        container.replaceChildren(
+            assembleChapter(html, images, jumpToElementAndChapter)
+        );
     };
 
     let previousJumps: number[] = [];
