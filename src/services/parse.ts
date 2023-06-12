@@ -113,42 +113,6 @@ const getCoverFromFirstPage = (firstPageHTML: string, images: Map<string, Blob>)
     }
 }
 
-const updateHTML = (html: string): string => {
-    let newHTML = domParser.parseFromString(html, "application/xhtml+xml");
-
-    const errorNode = newHTML.querySelector('parsererror');
-    if (errorNode) {
-        // Try parsing as HTML if error when parsing as XHTML.
-        // Can solve issues with mismatched tags
-        newHTML = domParser.parseFromString(html, "text/html");
-    }
-    for (const e of newHTML.querySelectorAll<HTMLElement>('[src],[href], image')) {
-        switch (e.tagName) {
-            case "img": {
-                const filename = removePath(e.getAttribute("src"));
-                e.setAttribute("src", "ESSENCE-READER-IMAGE-" + filename);
-                e.style.cssText += 'max-height: 100%; max-width: 100%; object-fit: scale-down;';
-                break;
-            }
-
-            case "image": {
-                const filename = removePath(e.getAttributeNS('http://www.w3.org/1999/xlink', 'href'));
-                e.setAttributeNS('http://www.w3.org/1999/xlink', 'href', "ESSENCE-READER-IMAGE-" + filename);
-                break;
-            }
-
-            default: {
-                if (e.getAttribute("src") !== null && !e.getAttribute("src").includes("http")) {
-                    e.removeAttribute("src");
-                }
-                break;
-            }
-        }
-    }
-
-    return newHTML.body.innerHTML;
-}
-
 const cssNester = (css: string, nestWith: string): string => {
     // Found on Stackoverflow and works great: https://stackoverflow.com/a/67517828
     let kframes = [];
@@ -189,7 +153,7 @@ export const parseEpub = async (epub: File): Promise<Book> => {
 
         const contents: Map<string,Content> = new Map();
         spine.forEach((href, index) => {
-            contents.set(href, { index, html: htmls.has(href) ? updateHTML(htmls.get(href)) : null });
+            contents.set(href, { index, html: htmls.has(href) ? htmls.get(href) : null });
         });
 
         const toc: TOCItem[] = parseToc(tocNcx, contents);

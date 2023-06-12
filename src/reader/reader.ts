@@ -63,3 +63,49 @@ export const updateLinks = (elems: NodeListOf<Element>, updateSection: (href: st
         }
     }
 }
+
+const domParser = new DOMParser();
+
+const removePath = (filename: string): string => {
+    return decodeURI(filename.split('\\').pop().split('/').pop());
+}
+
+export const assembleChapter = (html: string, images: Map<string, Blob>): HTMLElement => {
+    let newHTML = domParser.parseFromString(html, "application/xhtml+xml");
+
+    const errorNode = newHTML.querySelector('parsererror');
+    if (errorNode) {
+        // Try parsing as HTML if error when parsing as XHTML.
+        // Can solve issues with mismatched tags
+        newHTML = domParser.parseFromString(html, "text/html");
+    }
+    for (const e of newHTML.querySelectorAll<HTMLElement>('[src],[href], image')) {
+        switch (e.tagName) {
+            case "img": {
+                const filename = removePath(e.getAttribute("src"));
+                if(images.has(filename)) {
+                    e.setAttribute("src", URL.createObjectURL(images.get(filename)));
+                    e.style.cssText += 'max-height: 100%; max-width: 100%; object-fit: scale-down;';
+                }
+                break;
+            }
+
+            case "image": {
+                const filename = removePath(e.getAttributeNS('http://www.w3.org/1999/xlink', 'href'));
+                if(images.has(filename)) {
+                    e.setAttributeNS('http://www.w3.org/1999/xlink', 'href', URL.createObjectURL(images.get(filename)));
+                }
+                break;
+            }
+
+            default: {
+                if (e.getAttribute("src") !== null && !e.getAttribute("src").includes("http")) {
+                    e.removeAttribute("src");
+                }
+                break;
+            }
+        }
+    }
+
+    return newHTML.body;
+}

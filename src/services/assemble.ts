@@ -17,18 +17,8 @@ const updateCSS = (css: string, images: Map<string, Blob>, fonts: Map<string, Bl
     return newCss;
 }
 
-const replaceNamesWithBlobs = (html: string, images: Map<string, Blob>): string => {
-    return html.replace(/ESSENCE-READER-IMAGE-([^?#"']*)/g, function (matched, filename) {
-        if (images.has(filename)) {
-            return URL.createObjectURL(images.get(filename));
-        }
-        return "";
-    })
-}
-
 export const prepareBook = (book: Book): Book => {
     try {
-        book.contents.forEach((value, key, self) => self.set(key, { index: value.index, html: replaceNamesWithBlobs(value.html, book.files.images) } ));
         book.files.styles.forEach((css, key, self) => self.set(key, updateCSS(css, book.files.images, book.files.fonts)));
         return book;
     } catch {

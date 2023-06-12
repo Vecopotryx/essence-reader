@@ -11,6 +11,7 @@
         saveProgress,
         updateLinks,
         updateStyles,
+        assembleChapter
     } from "./reader";
 
     // Icons:
@@ -67,9 +68,9 @@
     };
 
     const appendCurrentSection = () => {
-        container.innerHTML = currentBook.contents.get(
-            currentBook.spine[section]
-        ).html;
+        const html = currentBook.contents.get(currentBook.spine[section]).html;
+        const images = currentBook.files.images;
+        container.replaceChildren(assembleChapter(html, images));
         updateLinks(container.querySelectorAll("[href]"), async (href) => {
             let [chapter, elemId] = href.split("#");
             jumpToSection(currentBook.contents.get(chapter).index);
