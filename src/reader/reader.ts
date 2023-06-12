@@ -68,6 +68,7 @@ export const assembleChapter = (html: string, images: Map<string, Blob>, jumpToE
 
     for (const e of newHTML.querySelectorAll<HTMLElement>('[src],[href], image')) {
         switch (e.tagName) {
+            case "IMG":
             case "img": {
                 const filename = removePath(e.getAttribute("src"));
                 if (images.has(filename)) {
@@ -76,7 +77,8 @@ export const assembleChapter = (html: string, images: Map<string, Blob>, jumpToE
                 }
                 break;
             }
-
+            
+            case "IMAGE":
             case "image": {
                 const filename = removePath(e.getAttributeNS('http://www.w3.org/1999/xlink', 'href'));
                 if (images.has(filename)) {
