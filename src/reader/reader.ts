@@ -50,27 +50,13 @@ export const saveProgress = (currentId: number, progress: number) => {
     }
 };
 
-export const updateLinks = (elems: NodeListOf<Element>, updateSection: (href: string) => void) => {
-    for (const elem of elems) {
-        if (elem.getAttribute("href").includes("http")) {
-            elem.setAttribute("target", "_blank");
-        } else {
-            let href = elem.getAttribute("href").split("\\").pop().split("/").pop();
-            elem.addEventListener("click", (e) => {
-                e.preventDefault();
-                updateSection(href);
-            });
-        }
-    }
-}
-
 const domParser = new DOMParser();
 
 const removePath = (filename: string): string => {
     return decodeURI(filename.split('\\').pop().split('/').pop());
 }
 
-export const assembleChapter = (html: string, images: Map<string, Blob>): HTMLElement => {
+export const assembleChapter = (html: string, images: Map<string, Blob>, jumpToElementAndChapter: (href: string) => void): HTMLElement => {
     let newHTML = domParser.parseFromString(html, "application/xhtml+xml");
 
     const errorNode = newHTML.querySelector('parsererror');
@@ -79,11 +65,12 @@ export const assembleChapter = (html: string, images: Map<string, Blob>): HTMLEl
         // Can solve issues with mismatched tags
         newHTML = domParser.parseFromString(html, "text/html");
     }
+
     for (const e of newHTML.querySelectorAll<HTMLElement>('[src],[href], image')) {
         switch (e.tagName) {
             case "img": {
                 const filename = removePath(e.getAttribute("src"));
-                if(images.has(filename)) {
+                if (images.has(filename)) {
                     e.setAttribute("src", URL.createObjectURL(images.get(filename)));
                     e.style.cssText += 'max-height: 100%; max-width: 100%; object-fit: scale-down;';
                 }
@@ -92,13 +79,26 @@ export const assembleChapter = (html: string, images: Map<string, Blob>): HTMLEl
 
             case "image": {
                 const filename = removePath(e.getAttributeNS('http://www.w3.org/1999/xlink', 'href'));
-                if(images.has(filename)) {
+                if (images.has(filename)) {
                     e.setAttributeNS('http://www.w3.org/1999/xlink', 'href', URL.createObjectURL(images.get(filename)));
                 }
                 break;
             }
 
             default: {
+
+                if (e.getAttribute("href") !== null) {
+                    if (e.getAttribute("href").includes("http")) {
+                        e.setAttribute("target", "_blank");
+                    } else {
+                        let href = e.getAttribute("href").split("\\").pop().split("/").pop();
+                        e.addEventListener("click", (e) => {
+                            e.preventDefault();
+                            jumpToElementAndChapter(href);
+                        });
+                    }
+                }
+
                 if (e.getAttribute("src") !== null && !e.getAttribute("src").includes("http")) {
                     e.removeAttribute("src");
                 }

@@ -9,7 +9,6 @@
     import {
         applySettings,
         saveProgress,
-        updateLinks,
         updateStyles,
         assembleChapter
     } from "./reader";
@@ -67,12 +66,8 @@
         }
     };
 
-    const appendCurrentSection = () => {
-        const html = currentBook.contents.get(currentBook.spine[section]).html;
-        const images = currentBook.files.images;
-        container.replaceChildren(assembleChapter(html, images));
-        updateLinks(container.querySelectorAll("[href]"), async (href) => {
-            let [chapter, elemId] = href.split("#");
+    const jumpToElementAndChapter = async (href: string) => {
+        let [chapter, elemId] = href.split("#");
             jumpToSection(currentBook.contents.get(chapter).index);
             if (elemId) {
                 // if there is an element that is to be focused
@@ -88,7 +83,12 @@
                 element.style.transition = "font 1s ease";
                 element.style.fontSize = "";
             }
-        });
+    }
+
+    const appendCurrentSection = () => {
+        const html = currentBook.contents.get(currentBook.spine[section]).html;
+        const images = currentBook.files.images;
+        container.replaceChildren(assembleChapter(html, images, jumpToElementAndChapter));
     };
 
     let previousJumps: number[] = [];
