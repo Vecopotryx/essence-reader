@@ -22,7 +22,6 @@
     import DirectionLoopLeft from "carbon-icons-svelte/lib/DirectionLoopLeft.svelte";
 
     export let currentBook: Book;
-    export let reading: boolean;
     export let currentId: number;
 
     let container: HTMLElement;
