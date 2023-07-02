@@ -23,7 +23,6 @@
             return null;
         })
     );
-    let hasStored: boolean = false;
 
     const clickFile = () => {
         let input = document.createElement("input");
@@ -45,16 +44,7 @@
         }
     };
 
-    async function updateCount() {
-        if (saveBooksOn) {
-            const count = await db.books.count();
-            hasStored = count > 0;
-        }
-    }
-
     onMount(() => {
-        updateCount();
-
         window.addEventListener("unhandledrejection", (e) => {
             if (e.reason instanceof TypeError) {
                 db.books.clear();
