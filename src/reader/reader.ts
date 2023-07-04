@@ -1,4 +1,4 @@
-// import { db } from "../db";
+import bookDB from "../db";
 
 export const applySettings = (settings: { scale: number, fontFamily: string }) => {
     let styleE = document.getElementById("user-settings");
@@ -42,11 +42,12 @@ export const updateStyles = (styles: Map<string, string>) => {
 };
 
 
-export const saveProgress = (currentId: number, progress: number) => {
+export const saveProgress = async (currentId: number, progress: number) => {
     if (currentId !== -1) {
-        /*db.books.update(currentId, {
-            progress: progress,
-        });*/
+        bookDB.getBook(currentId).then((book) => {
+            book.progress = progress;
+            bookDB.updateBook(book);
+        });
     }
 };
 
@@ -77,7 +78,7 @@ export const assembleChapter = (html: string, images: Map<string, Blob>, jumpToE
                 }
                 break;
             }
-            
+
             case "IMAGE":
             case "image": {
                 const filename = removePath(e.getAttributeNS('http://www.w3.org/1999/xlink', 'href'));

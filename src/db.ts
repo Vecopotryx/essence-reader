@@ -23,6 +23,15 @@ const bookDB = {
     }
   },
 
+  async updateBook(book: Book) {
+    try {
+      return (await openBookDB).put(BOOKS_STORE, book);
+    } catch (error) {
+      console.error('Failed to update book:', error);
+      return -1;
+    };
+  },
+
   async deleteBook(id: number) {
     try {
       return (await openBookDB).delete(BOOKS_STORE, id);
