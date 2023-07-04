@@ -16,7 +16,7 @@
     export let dragging: boolean;
     export let saveBooksOn: boolean;
 
-    let bookList = bookDB.getAll();
+    let bookList: Book[];
 
     const clickFile = () => {
         let input = document.createElement("input");
@@ -28,24 +28,21 @@
         input.click();
     };
 
-    async function deleteBook(id: number) {
-        // await db.books.delete(id);
-    }
+    const deleteBook = (id: number) => {
+        bookList = bookList.filter((book) => book.id !== id);
+        bookDB.deleteBook(id);
+    };
 
-    const removeAllBooks = async () => {
-        if (confirm("Are you sure you want to remove all saved books?")) {
-            // await db.books.clear();
+    const deleteAllBooks = () => {
+        if (confirm("Are you sure you want to delete all saved books?")) {
+            bookDB.deleteAll();
+            bookList = [];
         }
     };
 
     onMount(() => {
-        window.addEventListener("unhandledrejection", (e) => {
-            if (e.reason instanceof TypeError) {
-                // db.books.clear();
-                // console.log(
-                //     "An error was encountered and book database has been cleared"
-                // );
-            }
+        bookDB.getAll().then((books) => {
+            bookList = books;
         });
     });
 </script>
@@ -60,7 +57,7 @@
                     <input type="checkbox" bind:checked={saveBooksOn} />
                     Save books
                 </label>
-                <button on:click={removeAllBooks}>Remove all</button>
+                <button on:click={deleteAllBooks}>Remove all</button>
                 <hr />
                 Select theme
                 <ThemePicker />
@@ -69,10 +66,8 @@
     </Topbar>
 
     <div id="parent">
-        {#await bookList}
-            <!-- Could perhaps have loading indicator here? -->
-        {:then $books}
-            {#each $books as book (book.id)}
+        {#if bookList}
+            {#each bookList as book (book.id)}
                 <button
                     class="libraryItem"
                     on:click={() => openExisting(book.id)}
@@ -81,9 +76,7 @@
                     <BookPreview {book} {deleteBook} />
                 </button>
             {/each}
-        {:catch error}
-            <h1>Error: {error.message}</h1>
-        {/await}
+        {/if}
 
         <button
             class="libraryItem"

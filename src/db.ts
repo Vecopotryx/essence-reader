@@ -23,11 +23,20 @@ const bookDB = {
     }
   },
 
-  async removeBook(id: number) {
+  async deleteBook(id: number) {
     try {
       return (await openBookDB).delete(BOOKS_STORE, id);
     } catch (error) {
-      console.error('Failed to remove book:', error);
+      console.error('Failed to delete book:', error);
+      return -1;
+    }
+  },
+
+  async deleteAll() {
+    try {
+      return (await openBookDB).clear(BOOKS_STORE);
+    } catch (error) {
+      console.error('Failed to delete all books:', error);
       return -1;
     }
   },
