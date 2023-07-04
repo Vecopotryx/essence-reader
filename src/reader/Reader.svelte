@@ -6,12 +6,8 @@
     import ReaderSettings from "./ReaderSettings.svelte";
     import Popover from "../components/Popover.svelte";
     import TocButton from "./TOCButton.svelte";
-    import {
-        applySettings,
-        saveProgress,
-        updateStyles,
-        assembleChapter,
-    } from "./reader";
+    import { applySettings, updateStyles, assembleChapter } from "./reader";
+    import bookDB from "../db";
 
     // Icons:
     import SettingsIcon from "carbon-icons-svelte/lib/Settings.svelte";
@@ -22,7 +18,6 @@
     import DirectionLoopLeft from "carbon-icons-svelte/lib/DirectionLoopLeft.svelte";
 
     export let currentBook: Book;
-    export let currentId: number;
 
     let container: HTMLElement;
     let section: number = 0;
@@ -60,7 +55,9 @@
             section = index;
             scrolled = 0;
             currentBook.progress = section;
-            saveProgress(currentId, section);
+            if (currentBook.id) {
+                bookDB.updateBook(currentBook);
+            }
             appendCurrentSection();
         }
     };

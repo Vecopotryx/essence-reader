@@ -35,7 +35,8 @@
 	let saveBooksOn: boolean = null;
 
 	// Update localStorage to reflect saveBooksOn
-	$: saveBooksOn, localStorage.setItem("saveBooksOn", JSON.stringify(saveBooksOn));
+	$: saveBooksOn,
+		localStorage.setItem("saveBooksOn", JSON.stringify(saveBooksOn));
 
 	if (localStorage.getItem("saveBooksOn") !== null) {
 		saveBooksOn = JSON.parse(localStorage.getItem("saveBooksOn"));
@@ -59,12 +60,11 @@
 		currentBook = prepareBook(book);
 		reading = true;
 		location.hash = id ? id.toString() : "-1";
-		currentId = id ? id : -1;
 		//console.log(performance.now() - startTime);
 	};
 
 	const openExisting = async (id: number) => {
-		if (id === currentId) {
+		if (id === currentBook?.id) {
 			reading = true;
 			location.hash = id.toString();
 		} else {
@@ -102,13 +102,11 @@
 		dragging = false;
 		readFiles(e.dataTransfer.files[0]);
 	});
-
-	let currentId: number = null;
 </script>
 
 <main>
 	{#if reading}
-		<Reader bind:currentBook bind:currentId />
+		<Reader bind:currentBook />
 	{:else if loading}
 		<p style="text-align: center;" in:fade>Loading</p>
 	{:else}

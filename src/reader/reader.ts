@@ -42,15 +42,6 @@ export const updateStyles = (styles: Map<string, string>) => {
 };
 
 
-export const saveProgress = async (currentId: number, progress: number) => {
-    if (currentId !== -1) {
-        bookDB.getBook(currentId).then((book) => {
-            book.progress = progress;
-            bookDB.updateBook(book);
-        });
-    }
-};
-
 const domParser = new DOMParser();
 
 const removePath = (filename: string): string => {
