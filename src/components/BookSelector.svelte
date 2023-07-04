@@ -1,9 +1,8 @@
 <script lang="ts">
-    import { db } from "../db";
+    import bookDB from "../db";
     import { onMount } from "svelte";
     import { flip } from "svelte/animate";
     import { fade } from "svelte/transition";
-    import { liveQuery, type Observable } from "dexie";
     import type { Book } from "../services/types";
 
     import Topbar from "./Topbar.svelte";
@@ -17,12 +16,7 @@
     export let dragging: boolean;
     export let saveBooksOn: boolean;
 
-    let books: Observable<Book[]> = liveQuery(() =>
-        db.books.toArray().catch(() => {
-            saveBooksOn = false;
-            return null;
-        })
-    );
+    let bookList = bookDB.getAll();
 
     const clickFile = () => {
         let input = document.createElement("input");
@@ -35,22 +29,22 @@
     };
 
     async function deleteBook(id: number) {
-        await db.books.delete(id);
+        // await db.books.delete(id);
     }
 
     const removeAllBooks = async () => {
         if (confirm("Are you sure you want to remove all saved books?")) {
-            await db.books.clear();
+            // await db.books.clear();
         }
     };
 
     onMount(() => {
         window.addEventListener("unhandledrejection", (e) => {
             if (e.reason instanceof TypeError) {
-                db.books.clear();
-                console.log(
-                    "An error was encountered and book database has been cleared"
-                );
+                // db.books.clear();
+                // console.log(
+                //     "An error was encountered and book database has been cleared"
+                // );
             }
         });
     });
@@ -75,7 +69,9 @@
     </Topbar>
 
     <div id="parent">
-        {#if $books}
+        {#await bookList}
+            <!-- Could perhaps have loading indicator here? -->
+        {:then $books}
             {#each $books as book (book.id)}
                 <button
                     class="libraryItem"
@@ -85,7 +81,10 @@
                     <BookPreview {book} {deleteBook} />
                 </button>
             {/each}
-        {/if}
+        {:catch error}
+            <h1>Error: {error.message}</h1>
+        {/await}
+
         <button
             class="libraryItem"
             on:click={() => clickFile()}

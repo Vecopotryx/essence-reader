@@ -1,4 +1,5 @@
 export type Book = {
+    id?: number;
     meta: Metadata;
     contents: Map<string, { index: number, html: string }>;
     spine: string[];

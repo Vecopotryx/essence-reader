@@ -1,4 +1,4 @@
-import { db } from "../db";
+// import { db } from "../db";
 
 export const applySettings = (settings: { scale: number, fontFamily: string }) => {
     let styleE = document.getElementById("user-settings");
@@ -44,9 +44,9 @@ export const updateStyles = (styles: Map<string, string>) => {
 
 export const saveProgress = (currentId: number, progress: number) => {
     if (currentId !== -1) {
-        db.books.update(currentId, {
+        /*db.books.update(currentId, {
             progress: progress,
-        });
+        });*/
     }
 };
 

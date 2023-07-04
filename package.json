@@ -20,7 +20,7 @@
     "vite": "^4.3.9"
   },
   "dependencies": {
-    "dexie": "^3.2.4",
+    "idb": "^7.1.1",
     "unzipit": "^1.4.3"
   }
 }

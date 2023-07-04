@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from "svelte";
-	import { db, storeBook } from "./db";
+	import bookDB from "./db";
 
 	import { parseEpub } from "./services/parse";
 	import { prepareBook } from "./services/assemble";
@@ -21,7 +21,7 @@
 			const book = await parseEpub(file);
 
 			if (saveBooksOn && file.size < 30000000) {
-				const id = (await storeBook(book)) as number;
+				const id = (await bookDB.addBook(book)) as number;
 				openBook(book, id);
 			} else {
 				openBook(book);
@@ -63,26 +63,19 @@
 		//console.log(performance.now() - startTime);
 	};
 
-	const openExisting = (id: number) => {
+	const openExisting = async (id: number) => {
 		if (id === currentId) {
 			reading = true;
 			location.hash = id.toString();
 		} else {
 			loading = true;
-
-			db.transaction("r", db.books, async () => {
-				let stored = await db.books.get(id);
-				if (stored) {
-					openBook(stored, stored.id);
-				} else {
-					location.hash = "";
-				}
-				loading = false;
-			}).catch(() => {
-				// Stop loading if database error occurs
-				loading = false;
+			const stored = await bookDB.getBook(id);
+			if (stored) {
+				openBook(stored, stored.id);
+			} else {
 				location.hash = "";
-			});
+			}
+			loading = false;
 		}
 	};
 
@@ -119,11 +112,6 @@
 	{:else if loading}
 		<p style="text-align: center;" in:fade>Loading</p>
 	{:else}
-		<BookSelector
-			{readFiles}
-			{openExisting}
-			{dragging}
-			bind:saveBooksOn
-		/>
+		<BookSelector {readFiles} {openExisting} {dragging} bind:saveBooksOn />
 	{/if}
 </main>
