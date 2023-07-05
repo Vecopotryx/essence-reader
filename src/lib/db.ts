@@ -1,5 +1,5 @@
 import { openDB, deleteDB } from 'idb';
-import type { Book } from './services/types';
+import type { Book } from '$lib/types';
 
 const DB_NAME = 'bookDB';
 const DB_VERSION = 1;
@@ -59,12 +59,9 @@ const bookDB = {
   },
 
   async getBook(id: number) {
-    try {
-      return (await openBookDB).get(BOOKS_STORE, id);
-    } catch (error) {
-      console.error('Failed to get book:', error);
-      return null;
-    }
+    const book = await (await openBookDB).get(BOOKS_STORE, id);
+    if (!book) throw new Error("Book not found");
+    return book;
   },
 
   async getAll() {
