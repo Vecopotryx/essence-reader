@@ -8,6 +8,11 @@ export const load = (async ({ params }) => {
     const loadedBook = getLoadedBook();
     const slugID = Number(params.slug);
 
+    // Handles the case where book is loaded, but saving of books is off.
+    if(loadedBook && slugID === -1) {
+        return { currentBook: loadedBook };
+    }
+
     if (!loadedBook || loadedBook.id !== slugID) {
         const book = await bookDB.getBook(slugID).catch((e) => {
             console.log("Error occured when loading book from database: ", e);
