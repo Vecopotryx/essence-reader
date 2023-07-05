@@ -161,7 +161,7 @@
 	</Topbar> -->
 
     Reading {currentBook.meta.title} by {currentBook.meta.author}
-	<div id="container" bind:this={container} />
+	<div id="container" data-sveltekit-preload-data="off" bind:this={container} />
 </div>
 
 <svelte:window bind:scrollY={scrolled} on:keydown={handleKeydown} />
