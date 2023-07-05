@@ -29,6 +29,7 @@
 	},
 	"type": "module",
 	"dependencies": {
+		"idb": "^7.1.1",
 		"unzipit": "^1.4.3"
 	}
 }

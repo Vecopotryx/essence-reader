@@ -1,13 +1,22 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { currentBook } from '$lib/stores';
+	import { setLoadedBook } from '$lib/stores';
+
+	let saveBooksOn = true;
 
 	const readFiles = async (file: File) => {
 		try {
-			let parseEpub = (await import('$lib/services/parse')).parseEpub;
+			const parseEpub = (await import('$lib/services/parse')).parseEpub;
+            const addBook = (await import('$lib/db')).default.addBook;
 			const book = await parseEpub(file);
-			currentBook.set(book);
-			goto(`/reading/-1`);
+			setLoadedBook(book);
+
+			if (saveBooksOn && file.size < 30000000) {
+				const id = (await addBook(book)) as number;
+				goto(`reading/${id}`);
+			} else {
+				goto(`/reading/-1`);
+			}
 		} catch (e) {
 			alert(e);
 		}
