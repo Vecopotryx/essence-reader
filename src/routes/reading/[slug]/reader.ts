@@ -1,5 +1,3 @@
-import bookDB from "../db";
-
 export const applySettings = (settings: { scale: number, fontFamily: string }) => {
     let styleE = document.getElementById("user-settings");
     if (!styleE) {
