@@ -1,5 +1,7 @@
 import type { PageLoad } from './$types';
 import type { Book } from '$lib/types';
+import { currentBook } from '$lib/stores';
+import { get } from 'svelte/store';
 
 export const ssr = false;
 
@@ -22,6 +24,10 @@ export const load = (async ({ params }) => {
         },
         progress: 0,
     };
+
+    if(get(currentBook) && params.slug === '-1') {
+        return { currentBook: get(currentBook) }
+    }
 
     return { currentBook: book }
 
