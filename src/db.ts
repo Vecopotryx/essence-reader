@@ -16,6 +16,14 @@ const openBookDB = openDB(DB_NAME, DB_VERSION, {
 const bookDB = {
   async addBook(book: Book) {
     try {
+      const books = await bookDB.getAll();
+      const foundBook = books.find((b) => b.meta.title === book.meta.title);
+
+      // Don't save duplicate books
+      if (foundBook) {
+        return foundBook.id;
+      }
+
       return (await openBookDB).add(BOOKS_STORE, book);
     } catch (error) {
       console.error('Failed to add book:', error);
