@@ -54,6 +54,10 @@
     });
 </script>
 
+<svelte:head>
+	<title>Essence Reader</title>
+</svelte:head>
+
 {#if bookList}
             {#each bookList as book (book.id)}
                 <button
