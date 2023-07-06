@@ -82,8 +82,7 @@
 
 	const appendCurrentSection = async() => {
 		const html = await entries[currentBook.spine[section]].text();
-		const images: Map<string, Blob> = new Map(); // Empty for now
-		container.replaceChildren(assembleChapter(html, images, jumpToElementAndChapter));
+		container.replaceChildren(assembleChapter(html, entries, jumpToElementAndChapter));
 	};
 
 	let previousJumps: number[] = [];

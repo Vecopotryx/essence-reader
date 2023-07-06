@@ -1,3 +1,5 @@
+import type { ZipInfo } from "unzipit";
+
 export const applySettings = (settings: { scale: number, fontFamily: string }) => {
     let styleE = document.getElementById("user-settings");
     if (!styleE) {
@@ -42,11 +44,7 @@ export const updateStyles = (styles: Map<string, string>) => {
 
 const domParser = new DOMParser();
 
-const removePath = (filename: string): string => {
-    return decodeURI(filename.split('\\').pop().split('/').pop());
-}
-
-export const assembleChapter = (html: string, images: Map<string, Blob>, jumpToElementAndChapter: (href: string) => void): HTMLElement => {
+export const assembleChapter = (html: string, entries: ZipInfo["entries"], jumpToElementAndChapter: (href: string) => void): HTMLElement => {
     let newHTML = domParser.parseFromString(html, "application/xhtml+xml");
 
     const errorNode = newHTML.querySelector('parsererror');
@@ -60,20 +58,22 @@ export const assembleChapter = (html: string, images: Map<string, Blob>, jumpToE
         switch (e.tagName) {
             case "IMG":
             case "img": {
-                const filename = removePath(e.getAttribute("src"));
-                if (images.has(filename)) {
-                    e.setAttribute("src", URL.createObjectURL(images.get(filename)));
+                const filename = e.getAttribute("src");
+                entries[filename].blob().then((blob) => {
+                    e.setAttribute("src", URL.createObjectURL(blob));
                     e.style.cssText += 'max-height: 100%; max-width: 100%; object-fit: scale-down;';
-                }
+                });
+
+   
                 break;
             }
 
             case "IMAGE":
             case "image": {
-                const filename = removePath(e.getAttributeNS('http://www.w3.org/1999/xlink', 'href'));
-                if (images.has(filename)) {
-                    e.setAttributeNS('http://www.w3.org/1999/xlink', 'href', URL.createObjectURL(images.get(filename)));
-                }
+                const filename = e.getAttributeNS('http://www.w3.org/1999/xlink', 'href');
+                entries[filename].blob().then((blob) => {
+                    e.setAttributeNS('http://www.w3.org/1999/xlink', 'href', URL.createObjectURL(blob));
+                });
                 break;
             }
 
