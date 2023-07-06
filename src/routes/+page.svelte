@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { setLoadedBook } from '$lib/stores';
+	import type { Book } from '$lib/types';
+	import { onMount } from 'svelte';
 
 	let saveBooksOn = true;
 
@@ -31,7 +33,37 @@
 
 		input.click();
 	};
+
+    let bookList: Book[] = [];
+
+    // Not a good solution. Fix those imports 
+
+
+    const deleteBook = async(id: number) => {
+        let bookDB = (await import('$lib/db')).default;
+
+        bookList = bookList.filter((book) => book.id !== id);
+        bookDB.deleteBook(id);
+    };
+
+    onMount(async() => {
+        let bookDB = (await import('$lib/db')).default;
+        bookDB.getAll().then((books) => {
+            bookList = books;
+        });
+    });
 </script>
+
+{#if bookList}
+            {#each bookList as book (book.id)}
+                <button
+                    class="libraryItem"
+                    on:click={() => { setLoadedBook(book); goto(`reading/${book.id}`); } }
+                >
+                    <img src={URL.createObjectURL(book.meta.cover)} width="100px" alt={book.meta.title}>
+                </button>
+            {/each}
+        {/if}
 
 <button on:click={() => clickFile()}>
 	<h1>📚</h1>
