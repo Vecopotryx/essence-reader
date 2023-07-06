@@ -41,10 +41,17 @@ export const updateStyles = (styles: Map<string, string>) => {
     });
 };
 
+  const relativeToAbs = (path: string, relativeTo: string) => {
+    const basePath = "http://localhost/" + relativeTo;
+    const resolvedPath = new URL(path, basePath).pathname.slice(1);
+    return resolvedPath;
+}
 
 const domParser = new DOMParser();
 
-export const assembleChapter = (html: string, entries: ZipInfo["entries"], jumpToElementAndChapter: (href: string) => void): HTMLElement => {
+export const assembleChapter = async(chapterPath: string, entries: ZipInfo["entries"], jumpToElementAndChapter: (href: string) => void): Promise<HTMLElement> => {
+    const html = await entries[chapterPath].text();
+
     let newHTML = domParser.parseFromString(html, "application/xhtml+xml");
 
     const errorNode = newHTML.querySelector('parsererror');
@@ -58,7 +65,7 @@ export const assembleChapter = (html: string, entries: ZipInfo["entries"], jumpT
         switch (e.tagName) {
             case "IMG":
             case "img": {
-                const filename = e.getAttribute("src");
+                const filename = relativeToAbs(e.getAttribute("src"), chapterPath);
                 entries[filename].blob().then((blob) => {
                     e.setAttribute("src", URL.createObjectURL(blob));
                     e.style.cssText += 'max-height: 100%; max-width: 100%; object-fit: scale-down;';
@@ -70,7 +77,8 @@ export const assembleChapter = (html: string, entries: ZipInfo["entries"], jumpT
 
             case "IMAGE":
             case "image": {
-                const filename = e.getAttributeNS('http://www.w3.org/1999/xlink', 'href');
+                const href = e.getAttributeNS('http://www.w3.org/1999/xlink', 'href');
+                const filename = relativeToAbs(href, chapterPath);
                 entries[filename].blob().then((blob) => {
                     e.setAttributeNS('http://www.w3.org/1999/xlink', 'href', URL.createObjectURL(blob));
                 });

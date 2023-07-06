@@ -34,7 +34,7 @@
     };*/
 
 	// $: settings, applySettings(settings);
-	let entries: ZipInfo["entries"];
+	let entries: ZipInfo['entries'];
 
 	onMount(() => {
 		currentBook = data.currentBook;
@@ -78,11 +78,11 @@
 			element.style.fontSize = '';
 		}
 	};
-	
 
-	const appendCurrentSection = async() => {
-		const html = await entries[currentBook.spine[section]].text();
-		container.replaceChildren(assembleChapter(html, entries, jumpToElementAndChapter));
+	const appendCurrentSection = async () => {
+		container.replaceChildren(
+			await assembleChapter(currentBook.spine[section], entries, jumpToElementAndChapter)
+		);
 	};
 
 	let previousJumps: number[] = [];
@@ -166,7 +166,7 @@
 		</svelte:fragment>
 	</Topbar> -->
 
-    Reading {currentBook.meta.title} by {currentBook.meta.author}
+	Reading {currentBook.meta.title} by {currentBook.meta.author}
 	now on section {section} of {currentBook.spine.length - 1}
 	<div id="container" data-sveltekit-preload-data="off" bind:this={container} />
 </div>
