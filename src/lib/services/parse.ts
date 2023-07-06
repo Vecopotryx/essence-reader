@@ -1,8 +1,8 @@
 import { unzip, type ZipInfo } from "unzipit";
-import type { Metadata, Book, TOCItem } from "./types";
+import type { Metadata, Book, TOCItem } from "$lib/types";
 const domParser = new DOMParser();
 
-const parseOpf = (opf: string): { meta: Metadata, spine: string[] } => {
+const parseOpf = (opf: string): { title: string, author: string[], coverFile: string | undefined, spine: string[] } => {
     const parsed = domParser.parseFromString(opf, "text/xml");
 
     const { title, author, coverId } = parseMeta(parsed.querySelector("metadata"));
@@ -10,7 +10,7 @@ const parseOpf = (opf: string): { meta: Metadata, spine: string[] } => {
     const spine = parseSpine(parsed.querySelector("spine"), manifestItems);
     const coverFile = manifestItems.has(coverId) ? manifestItems.get(coverId) : undefined;
 
-    return { meta: { title, author, coverFile }, spine };
+    return { title, author, coverFile, spine };
 }
 
 interface extractInterface {
@@ -78,7 +78,7 @@ const parseSpine = (spine: Element, manifestItems: Map<string, string>): string[
 const getCoverFromFirstPage = (firstPageHTML: string, relativeTo: string): string => {
     // Fallback to taking image from first page if no cover from opf metadata.
     // Should only be used if no cover from opf metadata.
-    
+
     const temp = domParser.parseFromString(firstPageHTML,
         "application/xhtml+xml").querySelector("img");
     if (temp && temp.hasAttribute("src")) {
@@ -109,24 +109,28 @@ const parseToc = (tocNcx: string, spine: string[]): TOCItem[] => {
 };
 
 
-export const parseEpub = async (epub: File): Promise<Book> => {
+export const parseEpub = async (epub: File): Promise<{ meta: Metadata, book: Book }> => {
     try {
         const { tocNcx, opf, entries } = await extract(epub)
-        const { meta, spine } = parseOpf(opf);
-
-        if (meta.coverFile === undefined) {
-             meta.coverFile = getCoverFromFirstPage(await entries[spine[0]].text(), spine[0]);
-        }
+        const { title, author, coverFile, spine } = parseOpf(opf);
+        const toc: TOCItem[] = parseToc(tocNcx, spine);
+        let cover: Blob | undefined;
 
         try {
-            meta.cover = await entries[meta.coverFile].blob();
-        } catch(e) {
-            meta.cover = undefined;
+            if (coverFile === undefined) {
+                const firstPageImage = getCoverFromFirstPage(await entries[spine[0]].text(), spine[0]);
+                cover = await entries[firstPageImage].blob();
+            } else {
+                cover = await entries[coverFile].blob();
+            }
+        } catch (e) {
+            cover = undefined;
         }
- 
-        const toc: TOCItem[] = parseToc(tocNcx, spine);
 
-        return { meta, spine, toc, progress: 0, file: epub };
+        const meta: Metadata = { title, author, cover, progress: 0 };
+        const book: Book = { spine, toc, file: epub };
+
+        return { meta, book };
 
     } catch (e) {
         console.error(e);

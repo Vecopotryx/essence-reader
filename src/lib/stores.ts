@@ -1,12 +1,12 @@
 import { get, writable } from 'svelte/store';
-import type { Book } from '$lib/types';
+import type { Book, Metadata } from '$lib/types';
 
-const loadedBookStore = writable<Book>(undefined);
+const loadedStore = writable<{ meta: Metadata, book: Book }>(undefined);
 
-export const getLoadedBook = () => {
-    return get(loadedBookStore);
+export const getLoaded = () => {
+    return get(loadedStore);
 }
 
-export const setLoadedBook = (book: Book) => {
-    loadedBookStore.set(book);
+export const setLoaded = (object: { meta: Metadata, book: Book }) => {
+    loadedStore.set(object);
 }

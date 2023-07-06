@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount, tick } from 'svelte';
 	import { fade } from 'svelte/transition';
-	import type { Book } from '$lib/types';
+	import type { Book, Metadata } from '$lib/types';
 	/*import Topbar from "../components/Topbar.svelte";
     import ReaderSettings from "./ReaderSettings.svelte";
     import Popover from "../components/Popover.svelte";
@@ -22,7 +22,8 @@
 	import { unzip, type ZipInfo } from 'unzipit';
 
 	export let data: PageData;
-	let currentBook: Book = data.currentBook;
+	let meta: Metadata = data.meta;
+	let book: Book = data.book;
 
 	let container: HTMLElement;
 	let section: number = 0;
@@ -37,8 +38,10 @@
 	let entries: ZipInfo['entries'];
 
 	onMount(() => {
-		currentBook = data.currentBook;
-		unzip(currentBook.file).then((zip) => {
+		book = data.book;
+		meta = data.meta;
+
+		unzip(book.file).then((zip) => {
 			entries = zip.entries;
 			updateSection(1);
 		});
@@ -47,7 +50,7 @@
 	});
 
 	const updateSection = (index: number) => {
-		if (0 <= index && index < currentBook.spine.length) {
+		if (0 <= index && index < book.spine.length) {
 			section = index;
 			scrolled = 0;
 			// currentBook.progress = section;
@@ -81,7 +84,7 @@
 
 	const appendCurrentSection = async () => {
 		container.replaceChildren(
-			await assembleChapter(currentBook.spine[section], entries, jumpToElementAndChapter)
+			await assembleChapter(book.spine[section], entries, jumpToElementAndChapter)
 		);
 	};
 
@@ -115,7 +118,7 @@
 
 <svelte:head>
 	<title>
-		{currentBook.meta.title + ' - ' + currentBook.meta.author}
+		{meta.title + ' - ' + meta.author}
 	</title>
 </svelte:head>
 
@@ -166,8 +169,8 @@
 		</svelte:fragment>
 	</Topbar> -->
 
-	Reading {currentBook.meta.title} by {currentBook.meta.author}
-	now on section {section} of {currentBook.spine.length - 1}
+	Reading {meta.title} by {meta.author}
+	now on section {section} of {book.spine.length - 1}
 	<div id="container" data-sveltekit-preload-data="off" bind:this={container} />
 </div>
 

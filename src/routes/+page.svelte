@@ -1,20 +1,20 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { setLoadedBook } from '$lib/stores';
-	import type { Book } from '$lib/types';
+	import { setLoaded } from '$lib/stores';
+	import type { Book, Metadata } from '$lib/types';
 	import { onMount } from 'svelte';
 
 	let saveBooksOn = true;
+	let bookDB: typeof import('$lib/db').default;
 
 	const readFiles = async (file: File) => {
 		try {
 			const parseEpub = (await import('$lib/services/parse')).parseEpub;
-            const addBook = (await import('$lib/db')).default.addBook;
-			const book = await parseEpub(file);
-			setLoadedBook(book);
+			const { meta, book } = await parseEpub(file);
+			setLoaded({ meta, book });
 
 			if (saveBooksOn && file.size < 30000000) {
-				const id = (await addBook(book)) as number;
+				const id = (await bookDB.addBook(meta, book)) as number;
 				goto(`reading/${id}`);
 			} else {
 				goto(`/reading/-1`);
@@ -34,24 +34,21 @@
 		input.click();
 	};
 
-    let bookList: Book[] = [];
+	let bookList: Metadata[] = [];
 
-    // Not a good solution. Fix those imports 
+	// Not a good solution. Fix those imports
 
+	const deleteBook = async (id: number) => {
+		bookList = bookList.filter((book) => book.id !== id);
+		bookDB.deleteBook(id);
+	};
 
-    const deleteBook = async(id: number) => {
-        let bookDB = (await import('$lib/db')).default;
-
-        bookList = bookList.filter((book) => book.id !== id);
-        bookDB.deleteBook(id);
-    };
-
-    onMount(async() => {
-        let bookDB = (await import('$lib/db')).default;
-        bookDB.getAll().then((books) => {
-            bookList = books;
-        });
-    });
+	onMount(async () => {
+		bookDB = (await import('$lib/db')).default;
+		bookDB.getAllMetas().then((books) => {
+			bookList = books;
+		});
+	});
 </script>
 
 <svelte:head>
@@ -59,15 +56,22 @@
 </svelte:head>
 
 {#if bookList}
-            {#each bookList as book (book.id)}
-                <button
-                    class="libraryItem"
-                    on:click={() => { setLoadedBook(book); goto(`reading/${book.id}`); } }
-                >
-                    <img src={book.meta.cover ? URL.createObjectURL(book.meta.cover) : ""} width="100px" alt={book.meta.title}>
-                </button>
-            {/each}
-        {/if}
+	{#each bookList as book (book.id)}
+		<button
+			class="libraryItem"
+			on:click={() => {
+				// setLoaded(book);
+				goto(`reading/${book.id}`);
+			}}
+		>
+			<img
+				src={book.cover ? URL.createObjectURL(book.cover) : ''}
+				width="100px"
+				alt={book.title}
+			/>
+		</button>
+	{/each}
+{/if}
 
 <button on:click={() => clickFile()}>
 	<h1>📚</h1>

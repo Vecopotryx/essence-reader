@@ -1,30 +1,43 @@
 import { openDB, deleteDB } from 'idb';
-import type { Book } from '$lib/types';
+import type { Book, Metadata } from '$lib/types';
 
 const DB_NAME = 'bookDB';
 const DB_VERSION = 1;
 const BOOKS_STORE = 'books';
+const METAS_STORE = 'metas';
 
 const openBookDB = openDB(DB_NAME, DB_VERSION, {
   upgrade(db) {
-    if (!db.objectStoreNames.contains(BOOKS_STORE)) {
+    if (!db.objectStoreNames.contains(BOOKS_STORE) ||!db.objectStoreNames.contains('metas') ) {
       db.createObjectStore(BOOKS_STORE, { keyPath: 'id', autoIncrement: true });
+      db.createObjectStore(METAS_STORE, { keyPath: 'id' });
     }
   },
 });
 
 const bookDB = {
-  async addBook(book: Book) {
+  async addBook(meta: Metadata, book: Book) {
     try {
-      const books = await bookDB.getAll();
-      const foundBook = books.find((b) => b.meta.title === book.meta.title);
-
+      const db = (await openBookDB);
+      const metas = await db.getAll('metas');
+      const foundBook = metas.find((b) => b.title === meta.title);
+  
       // Don't save duplicate books
       if (foundBook) {
         return foundBook.id;
       }
+  
+      const tx = db.transaction([BOOKS_STORE, 'metas'], 'readwrite');
+      const bookStore = tx.objectStore(BOOKS_STORE);
+      const metasStore = tx.objectStore(METAS_STORE);
+  
+      const bookID = await bookStore.add(book);
 
-      return (await openBookDB).add(BOOKS_STORE, book);
+      meta.id = Number(bookID);
+      await metasStore.add(meta);
+  
+      await tx.done;
+      return bookID;
     } catch (error) {
       console.error('Failed to add book:', error);
       return -1;
@@ -58,15 +71,21 @@ const bookDB = {
     }
   },
 
-  async getBook(id: number) {
+  async getBook(id: number): Promise<{ meta: Metadata, book: Book }> {
+    const meta = await (await openBookDB).get(METAS_STORE, id);
     const book = await (await openBookDB).get(BOOKS_STORE, id);
     if (!book) throw new Error("Book not found");
-    return book;
+    return { meta, book };
   },
 
-  async getAll() {
+
+  async getAllMetas() {
+    return this.getAll(METAS_STORE);
+  },
+
+  async getAll(store?: string) {
     try {
-      return (await openBookDB).getAll(BOOKS_STORE);
+      return (await openBookDB).getAll(store || BOOKS_STORE);
     } catch (error) {
       console.error('Failed to get all books:', error);
       if (error.message.includes("version")) {
