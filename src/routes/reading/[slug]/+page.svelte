@@ -19,6 +19,7 @@
 */
 	// export let currentBook: Book;
 	import type { PageData } from './$types';
+	import { unzip, type ZipInfo } from 'unzipit';
 
 	export let data: PageData;
 	let currentBook: Book = data.currentBook;
@@ -33,21 +34,26 @@
     };*/
 
 	// $: settings, applySettings(settings);
+	let entries: ZipInfo["entries"];
 
 	onMount(() => {
 		currentBook = data.currentBook;
-		updateSection(Math.floor(currentBook.progress));
-		updateStyles(currentBook.files.styles);
+		unzip(currentBook.file).then((zip) => {
+			entries = zip.entries;
+			updateSection(1);
+		});
+		// updateSection(Math.floor(currentBook.progress));
+		// updateStyles(currentBook.files.styles);
 	});
 
 	const updateSection = (index: number) => {
 		if (0 <= index && index < currentBook.spine.length) {
 			section = index;
 			scrolled = 0;
-			currentBook.progress = section;
-			if (currentBook.id) {
-				// bookDB.updateBook(currentBook);
-			}
+			// currentBook.progress = section;
+			// if (currentBook.id) {
+			// 	bookDB.updateBook(currentBook);
+			// }
 			appendCurrentSection();
 		}
 	};
@@ -55,7 +61,7 @@
 	const jumpToElementAndChapter = async (href: string) => {
 		let [chapter, elemId] = href.split('#');
 		if (chapter) {
-			jumpToSection(currentBook.contents.get(chapter).index);
+			// jumpToSection(currentBook.contents.get(chapter).index);
 		}
 		if (elemId) {
 			// if there is an element that is to be focused
@@ -72,10 +78,11 @@
 			element.style.fontSize = '';
 		}
 	};
+	
 
-	const appendCurrentSection = () => {
-		const html = currentBook.contents.get(currentBook.spine[section]).html;
-		const images = currentBook.files.images;
+	const appendCurrentSection = async() => {
+		const html = await entries[currentBook.spine[section]].text();
+		const images: Map<string, Blob> = new Map(); // Empty for now
 		container.replaceChildren(assembleChapter(html, images, jumpToElementAndChapter));
 	};
 
@@ -161,6 +168,7 @@
 	</Topbar> -->
 
     Reading {currentBook.meta.title} by {currentBook.meta.author}
+	now on section {section} of {currentBook.spine.length - 1}
 	<div id="container" data-sveltekit-preload-data="off" bind:this={container} />
 </div>
 
