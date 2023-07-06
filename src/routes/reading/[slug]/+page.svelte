@@ -20,6 +20,7 @@
 	// export let currentBook: Book;
 	import type { PageData } from './$types';
 	import { unzip, type ZipInfo } from 'unzipit';
+	import bookDB from '$lib/db';
 
 	export let data: PageData;
 	let meta: Metadata = data.meta;
@@ -43,7 +44,7 @@
 
 		unzip(book.file).then((zip) => {
 			entries = zip.entries;
-			updateSection(1);
+			updateSection(meta.progress);
 		});
 		// updateSection(Math.floor(currentBook.progress));
 		// updateStyles(currentBook.files.styles);
@@ -53,10 +54,10 @@
 		if (0 <= index && index < book.spine.length) {
 			section = index;
 			scrolled = 0;
-			// currentBook.progress = section;
-			// if (currentBook.id) {
-			// 	bookDB.updateBook(currentBook);
-			// }
+			meta.progress = section;
+			if (meta.id) {
+			 	bookDB.updateMeta(meta);
+			}
 			appendCurrentSection();
 		}
 	};

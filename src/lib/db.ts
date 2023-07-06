@@ -44,11 +44,11 @@ const bookDB = {
     }
   },
 
-  async updateBook(book: Book) {
+  async updateMeta(meta: Metadata) {
     try {
-      return (await openBookDB).put(BOOKS_STORE, book);
+      return (await openBookDB).put(METAS_STORE, meta);
     } catch (error) {
-      console.error('Failed to update book:', error);
+      console.error('Failed to update book metadata:', error);
       return -1;
     };
   },
