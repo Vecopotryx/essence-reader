@@ -60,7 +60,7 @@
                     class="libraryItem"
                     on:click={() => { setLoadedBook(book); goto(`reading/${book.id}`); } }
                 >
-                    <img src={URL.createObjectURL(book.meta.cover)} width="100px" alt={book.meta.title}>
+                    <img src={book.meta.cover ? URL.createObjectURL(book.meta.cover) : ""} width="100px" alt={book.meta.title}>
                 </button>
             {/each}
         {/if}

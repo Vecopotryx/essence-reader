@@ -74,15 +74,21 @@ const parseSpine = (spine: Element, manifestItems: Map<string, string>): string[
 }
 
 
-const getCoverFromFirstPage = (firstPageHTML: string, images: Map<string, Blob>): Blob => {
+
+const getCoverFromFirstPage = (firstPageHTML: string, relativeTo: string): string => {
     // Fallback to taking image from first page if no cover from opf metadata.
     // Should only be used if no cover from opf metadata.
+    
     const temp = domParser.parseFromString(firstPageHTML,
         "application/xhtml+xml").querySelector("img");
     if (temp && temp.hasAttribute("src")) {
-        return images.get(temp.getAttribute("src"));
+        const path = temp.getAttribute("src");
+        const basePath = "http://localhost/" + relativeTo;
+        const resolvedPath = new URL(path, basePath).pathname.slice(1);
+
+        return resolvedPath;
     } else {
-        return undefined;
+        return "";
     }
 }
 
@@ -108,17 +114,22 @@ export const parseEpub = async (epub: File): Promise<Book> => {
         const { tocNcx, opf, entries } = await extract(epub)
         const { meta, spine } = parseOpf(opf);
 
-        // if (meta.cover === undefined) {
-        //     meta.cover = getCoverFromFirstPage(htmls.get(spine[0]), images);
-        // }
+        if (meta.coverFile === undefined) {
+             meta.coverFile = getCoverFromFirstPage(await entries[spine[0]].text(), spine[0]);
+        }
 
-        meta.cover = await entries[meta.coverFile].blob('image/png');
-
+        try {
+            meta.cover = await entries[meta.coverFile].blob();
+        } catch(e) {
+            meta.cover = undefined;
+        }
+ 
         const toc: TOCItem[] = parseToc(tocNcx, spine);
 
         return { meta, spine, toc, progress: 0, file: epub };
 
     } catch (e) {
+        console.error(e);
         throw new Error(epub.name + " does not appear to be a valid EPUB file");
     }
 }
