@@ -80,12 +80,9 @@ export const assembleChapter = async (chapterPath: string, entries: ZipInfo["ent
             case "IMG":
             case "img": {
                 const filename = relativeToAbs(e.getAttribute("src"), chapterPath);
-                entries[filename].blob().then((blob) => {
-                    e.setAttribute("src", URL.createObjectURL(blob));
-                    e.style.cssText += 'max-height: 100%; max-width: 100%; object-fit: scale-down;';
-                });
-
-
+                const blob = await entries[filename].blob();           
+                e.setAttribute("src", URL.createObjectURL(blob));
+                e.style.cssText += 'max-height: 100%; max-width: 100%; object-fit: scale-down;';
                 break;
             }
 
@@ -93,9 +90,8 @@ export const assembleChapter = async (chapterPath: string, entries: ZipInfo["ent
             case "image": {
                 const href = e.getAttributeNS('http://www.w3.org/1999/xlink', 'href');
                 const filename = relativeToAbs(href, chapterPath);
-                entries[filename].blob().then((blob) => {
-                    e.setAttributeNS('http://www.w3.org/1999/xlink', 'href', URL.createObjectURL(blob));
-                });
+                const blob = await entries[filename].blob();
+                e.setAttributeNS('http://www.w3.org/1999/xlink', 'href', URL.createObjectURL(blob));
                 break;
             }
 
