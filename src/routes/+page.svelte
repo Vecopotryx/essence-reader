@@ -17,7 +17,7 @@
 				const id = (await bookDB.addBook(meta, book)) as number;
 				goto(`reading/${id}`);
 			} else {
-				goto(`/reading/-1`);
+				goto(`/reading`);
 			}
 		} catch (e) {
 			alert(e);
@@ -77,3 +77,6 @@
 	<h1>📚</h1>
 	<h2>Click to select a file</h2>
 </button>
+
+<label for="saveBooksOn">Save books on</label>
+<input type="checkbox" bind:checked={saveBooksOn} />

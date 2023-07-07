@@ -5,14 +5,17 @@ import { goto } from '$app/navigation';
 import type { Book, Metadata } from '$lib/types';
 
 export const load = (async ({ params }) => {
-    const bookDB = (await import('$lib/db')).default;
     const loaded = getLoaded();
-    const slugID = Number(params.slug);
 
     // Handles the case where book is loaded, but saving of books is off.
-    if (loaded?.book && slugID === -1) {
+    if (!params.slug && !loaded) {
+        throw new Error("No book loaded");
+    } else if (!params.slug) {
         return loaded;
     }
+    
+    const bookDB = (await import('$lib/db')).default;
+    const slugID = Number(params.slug);
 
     if (!loaded || loaded.meta.id !== slugID) {
         const stored = await bookDB.getBook(slugID).catch((e) => {
