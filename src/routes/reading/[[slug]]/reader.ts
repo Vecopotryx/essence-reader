@@ -46,7 +46,7 @@ const relativeToAbs = (path: string, relativeTo: string) =>
 
 
 const nestCSSSelectors = (css: string): string =>
-    css.replace(/(@media[^{]+{[\s$]*)([.#]?-?[_a-zA-Z]+[_a-zA-Z0-9-]*)/, "$1 #container $2");
+    css.replace(/([^\r\n,{}]+)(,(?=[^}]*{)|\s*{)/g, '#container $1$2');
 
 
 const domParser = new DOMParser();
