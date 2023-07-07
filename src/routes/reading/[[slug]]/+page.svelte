@@ -37,6 +37,7 @@
 
 	// $: settings, applySettings(settings);
 	let entries: ZipInfo['entries'];
+	let previousJumps: number[] = [];
 
 	onMount(() => {
 		book = data.book;
@@ -49,25 +50,33 @@
 	});
 
 	onDestroy(() => {
-		document.head.querySelectorAll(".essence-reader").forEach(styleE => styleE.remove());
+		document.head.querySelectorAll('.essence-reader').forEach((styleE) => styleE.remove());
 	});
 
-	const updateSection = (index: number) => {
+	const updateSection = async (index: number) => {
 		if (0 <= index && index < book.spine.length) {
 			section = index;
 			scrolled = 0;
 			meta.progress = section;
 			if (meta.id) {
-			 	bookDB.updateMeta(meta);
+				bookDB.updateMeta(meta);
 			}
-			appendCurrentSection();
+			container.replaceChildren(await assembleChapter(book.spine[section], entries, jumpTo));
 		}
 	};
 
-	const jumpToElementAndChapter = async (href: string) => {
+	const relativeToAbs = (path: string, relativeTo: string) => 
+    	new URL(path, `http://localhost/${relativeTo}`).pathname.slice(1);
+
+	
+	const jumpTo = async (href: string) => {
+		previousJumps = [...previousJumps, section];
 		let [chapter, elemId] = href.split('#');
+		
+		chapter = relativeToAbs(chapter, book.spine[section]);
 		if (chapter) {
-			// jumpToSection(currentBook.contents.get(chapter).index);
+			const chapterIndex = book.spine.indexOf(chapter);
+			await updateSection(chapterIndex);
 		}
 		if (elemId) {
 			// if there is an element that is to be focused
@@ -85,24 +94,11 @@
 		}
 	};
 
-	const appendCurrentSection = async () => {
-		container.replaceChildren(
-			await assembleChapter(book.spine[section], entries, jumpToElementAndChapter)
-		);
-	};
-
-	let previousJumps: number[] = [];
-
 	const incrementSection = (inc: number) => {
 		updateSection(section + inc);
 		if (previousJumps.length !== 0) {
 			previousJumps = [];
 		}
-	};
-
-	const jumpToSection = (index: number) => {
-		previousJumps = [...previousJumps, section];
-		updateSection(index);
 	};
 
 	const handleKeydown = ({ key }) => {
