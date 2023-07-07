@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onMount, tick } from 'svelte';
+	import { onDestroy, onMount, tick } from 'svelte';
 	import { fade } from 'svelte/transition';
 	import type { Book, Metadata } from '$lib/types';
 	/*import Topbar from "../components/Topbar.svelte";
@@ -46,6 +46,10 @@
 			entries = zip.entries;
 			updateSection(meta.progress);
 		});
+	});
+
+	onDestroy(() => {
+		document.head.querySelectorAll(".essence-reader").forEach(styleE => styleE.remove());
 	});
 
 	const updateSection = (index: number) => {
