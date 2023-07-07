@@ -16,5 +16,6 @@ export type Metadata = {
 export type TOCItem = {
     name: string;
     index: number;
+    href: string;
     isChild: boolean;
 }

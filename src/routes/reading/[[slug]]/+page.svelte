@@ -21,6 +21,7 @@
 	import type { PageData } from './$types';
 	import { unzip, type ZipInfo } from 'unzipit';
 	import bookDB from '$lib/db';
+	import TocButton from './TOCButton.svelte';
 
 	export let data: PageData;
 	let meta: Metadata = data.meta;
@@ -61,19 +62,21 @@
 			if (meta.id) {
 				bookDB.updateMeta(meta);
 			}
-			container.replaceChildren(await assembleChapter(book.spine[section], entries, jumpTo));
+			container.replaceChildren(
+				await assembleChapter(book.spine[section], entries, (href: string) => jumpTo(href, true))
+			);
 		}
 	};
 
-	const relativeToAbs = (path: string, relativeTo: string) => 
-    	new URL(path, `http://localhost/${relativeTo}`).pathname.slice(1);
+	const relativeToAbs = (path: string, relativeTo: string) =>
+		new URL(path, `http://localhost/${relativeTo}`).pathname.slice(1);
 
-	
-	const jumpTo = async (href: string) => {
+	const jumpTo = async (href: string, isRelative: boolean) => {
 		previousJumps = [...previousJumps, section];
 		let [chapter, elemId] = href.split('#');
-		
-		chapter = relativeToAbs(chapter, book.spine[section]);
+
+		if (isRelative) chapter = relativeToAbs(chapter, book.spine[section]);
+
 		if (chapter) {
 			const chapterIndex = book.spine.indexOf(chapter);
 			await updateSection(chapterIndex);
@@ -168,16 +171,29 @@
 		</svelte:fragment>
 	</Topbar> -->
 
-	Reading {meta.title} by {meta.author}
-	now on section {section} of {book.spine.length - 1}
-	<div id="container" data-sveltekit-preload-data="off" bind:this={container} />
+	<!-- Temporary grid -->
+	<div style="display: grid; grid-template-columns: 1fr 3fr;">
+		<div>
+			Reading {meta.title} by {meta.author}
+			now on section {section} of {book.spine.length - 1}
+			{#each book.toc as tocitem}
+				<TocButton
+					{tocitem}
+					selected={section === tocitem.index}
+					onclick={() => jumpTo(tocitem.href, false)}
+				/>
+			{/each}
+		</div>
+
+		<div id="container" data-sveltekit-preload-data="off" bind:this={container} />
+	</div>
 </div>
 
 <svelte:window bind:scrollY={scrolled} on:keydown={handleKeydown} />
 
 <style>
 	#container {
-		margin: auto;
+		/* margin: auto; */
 		padding-top: 3em;
 		padding-bottom: 2em;
 		transform-origin: top;

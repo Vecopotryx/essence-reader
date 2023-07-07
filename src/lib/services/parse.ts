@@ -48,7 +48,8 @@ const extract = async (file: File): Promise<extractInterface> => {
             default: break;
         }
     }
-
+    console.log(tocNcx);
+    console.log(opf);
     return { tocNcx, opf, entries };
 }
 
@@ -92,19 +93,23 @@ const getCoverFromFirstPage = (firstPageHTML: string, relativeTo: string): strin
     }
 }
 
+const relativeToAbsAndHash = (path: string, relativeTo: string) => {
+    const url = new URL(path, `http://localhost/${relativeTo}`);
+    return { path: url.pathname.slice(1), hash: url.hash };
+}
+
 const parseToc = (tocNcx: string, spine: string[]): TOCItem[] => {
     const TOC: TOCItem[] = [];
     const navmap = domParser.parseFromString(tocNcx, "application/xml").querySelectorAll("navPoint");
     for (const navpoint of navmap) {
         const name = navpoint.querySelector("text").textContent;
         let href = navpoint.querySelector("content").attributes["src"].value;
-        if (href.includes("#")) {
-            href = href.substring(0, href.indexOf("#")); // Necessary since some books have hash URLs for part of chapter
-        }
-        const index = spine.indexOf(href);
+        const { path, hash } = relativeToAbsAndHash(href, ncxLocation);
+        const index = spine.indexOf(path);
         const isChild = navpoint.parentElement.nodeName === "navPoint"
-        TOC.push({ name, index, isChild });
+        TOC.push({ name, index,  href: path + hash, isChild });
     }
+    console.log(TOC);
     return TOC;
 };
 
