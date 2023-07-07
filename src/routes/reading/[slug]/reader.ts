@@ -25,31 +25,33 @@ export const applySettings = (settings: { scale: number, fontFamily: string }) =
     localStorage.setItem("settings", JSON.stringify(settings));
 };
 
-export const updateStyles = (styles: Map<string, string>) => {
-    // Doesn't adapt based on which section is loaded, but works for now
-    for (const styleE of document.getElementsByClassName(
-        "essence-reader"
-    )) {
-        styleE.remove();
-    }
+const injectStyles = (styles: string[]) => {
+    // TODO: Keep track of stylesheets and only update if changed
+    const fragment = document.createDocumentFragment();
+
+    document.head.querySelectorAll(".essence-reader").forEach(styleE => styleE.remove());
 
     styles.forEach((stylesheet) => {
         const styleE = document.createElement("style");
-        styleE.innerText = stylesheet;
+        styleE.innerText = nestCSSSelectors(stylesheet);
         styleE.className = "essence-reader";
-        document.head.appendChild(styleE);
+        fragment.appendChild(styleE);
     });
+
+    document.head.appendChild(fragment);
 };
 
-  const relativeToAbs = (path: string, relativeTo: string) => {
-    const basePath = "http://localhost/" + relativeTo;
-    const resolvedPath = new URL(path, basePath).pathname.slice(1);
-    return resolvedPath;
-}
+const relativeToAbs = (path: string, relativeTo: string) =>
+    new URL(path, `http://localhost/${relativeTo}`).pathname.slice(1);
+
+
+const nestCSSSelectors = (css: string): string =>
+    css.replace(/(@media[^{]+{[\s$]*)([.#]?-?[_a-zA-Z]+[_a-zA-Z0-9-]*)/, "$1 #container $2");
+
 
 const domParser = new DOMParser();
 
-export const assembleChapter = async(chapterPath: string, entries: ZipInfo["entries"], jumpToElementAndChapter: (href: string) => void): Promise<HTMLElement> => {
+export const assembleChapter = async (chapterPath: string, entries: ZipInfo["entries"], jumpToElementAndChapter: (href: string) => void): Promise<HTMLElement> => {
     const html = await entries[chapterPath].text();
 
     let newHTML = domParser.parseFromString(html, "application/xhtml+xml");
@@ -61,7 +63,19 @@ export const assembleChapter = async(chapterPath: string, entries: ZipInfo["entr
         newHTML = domParser.parseFromString(html, "text/html");
     }
 
-    for (const e of newHTML.querySelectorAll<HTMLElement>('[src],[href], image')) {
+    const styles: string[] = [];
+    for (const e of newHTML.head.querySelectorAll('link[rel="stylesheet"], style')) {
+        if (e.tagName.toLowerCase() === 'link') {
+            const filename = relativeToAbs(e.getAttribute('href'), chapterPath);
+            styles.push(await entries[filename].text());
+        } else {
+            styles.push(e.innerHTML);
+        }
+    }
+
+    injectStyles(styles);
+
+    for (const e of newHTML.body.querySelectorAll<HTMLElement>('[src],[href], image')) {
         switch (e.tagName) {
             case "IMG":
             case "img": {
@@ -71,7 +85,7 @@ export const assembleChapter = async(chapterPath: string, entries: ZipInfo["entr
                     e.style.cssText += 'max-height: 100%; max-width: 100%; object-fit: scale-down;';
                 });
 
-   
+
                 break;
             }
 

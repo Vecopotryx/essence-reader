@@ -6,7 +6,7 @@
     import ReaderSettings from "./ReaderSettings.svelte";
     import Popover from "../components/Popover.svelte";
     import TocButton from "./TOCButton.svelte";*/
-	import { applySettings, updateStyles, assembleChapter } from './reader';
+	import { applySettings, assembleChapter } from './reader';
 	// import bookDB from '$lib/db';
 
 	// Icons:
@@ -46,8 +46,6 @@
 			entries = zip.entries;
 			updateSection(meta.progress);
 		});
-		// updateSection(Math.floor(currentBook.progress));
-		// updateStyles(currentBook.files.styles);
 	});
 
 	const updateSection = (index: number) => {
