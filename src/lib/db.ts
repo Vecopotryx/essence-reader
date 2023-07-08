@@ -8,10 +8,8 @@ const METAS_STORE = 'metas';
 
 const openBookDB = openDB(DB_NAME, DB_VERSION, {
   upgrade(db) {
-    if (!db.objectStoreNames.contains(BOOKS_STORE) ||!db.objectStoreNames.contains('metas') ) {
-      db.createObjectStore(BOOKS_STORE, { keyPath: 'id', autoIncrement: true });
-      db.createObjectStore(METAS_STORE, { keyPath: 'id' });
-    }
+    db.createObjectStore(BOOKS_STORE, { keyPath: 'id', autoIncrement: true });
+    db.createObjectStore(METAS_STORE, { keyPath: 'id' });
   },
 });
 
@@ -19,23 +17,23 @@ const bookDB = {
   async addBook(meta: Metadata, book: Book) {
     try {
       const db = (await openBookDB);
-      const metas = await db.getAll('metas');
+      const metas = await db.getAll(METAS_STORE);
       const foundBook = metas.find((b) => b.title === meta.title);
-  
+
       // Don't save duplicate books
       if (foundBook) {
         return foundBook.id;
       }
-  
-      const tx = db.transaction([BOOKS_STORE, 'metas'], 'readwrite');
+
+      const tx = db.transaction([BOOKS_STORE, METAS_STORE], 'readwrite');
       const bookStore = tx.objectStore(BOOKS_STORE);
       const metasStore = tx.objectStore(METAS_STORE);
-  
+
       const bookID = await bookStore.add(book);
 
       meta.id = Number(bookID);
       await metasStore.add(meta);
-  
+
       await tx.done;
       return bookID;
     } catch (error) {
@@ -83,12 +81,13 @@ const bookDB = {
     return this.getAll(METAS_STORE);
   },
 
-  async getAll(store?: string) {
+  async getAll(storeName: string) {
     try {
-      return (await openBookDB).getAll(store || BOOKS_STORE);
+      const store = (await openBookDB).transaction(storeName).objectStore(storeName);
+      return await store.getAll();
     } catch (error) {
       console.error('Failed to get all books:', error);
-      if (error.message.includes("version")) {
+      if (error.message.includes("version") || error.message.includes("store name")) {
         // This is primarily such that if an old (higher version) 
         // database is found (like one from Dexie),
         // a new one can be created and allow the app to continue.
