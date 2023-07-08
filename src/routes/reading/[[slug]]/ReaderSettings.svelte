@@ -1,5 +1,5 @@
 <script lang="ts">
-    import ThemePicker from "../components/ThemePicker.svelte";
+    // import ThemePicker from "../components/ThemePicker.svelte";
 
     interface settingsInterface {
         scale: Number,
@@ -34,7 +34,7 @@
         bind:value={settings.scale}
     />
 
-    <ThemePicker />
+    <!-- <ThemePicker /> -->
 
 <style>
 </style>

@@ -3,7 +3,7 @@
 	import { fade } from 'svelte/transition';
 	import type { Book, Metadata } from '$lib/types';
 	import Topbar from '$lib/components/Topbar.svelte';
-	// import ReaderSettings from './ReaderSettings.svelte';
+	import ReaderSettings from './ReaderSettings.svelte';
 	import Popover from '$lib/components/Popover.svelte';
 	import { applySettings, assembleChapter } from './reader';
 
@@ -28,13 +28,13 @@
 	let container: HTMLElement;
 	let section: number = 0;
 	let scrolled: number = 0;
-	/*let currentTitle: string = currentBook.meta.title;
-    let settings = JSON.parse(localStorage.getItem("settings")) || {
+
+	let settings = JSON.parse(localStorage.getItem("settings")) || {
         scale: 10,
         fontFamily: "Default",
-    };*/
+    };
 
-	// $: settings, applySettings(settings);
+	$: settings, applySettings(settings);
 	let entries: ZipInfo['entries'];
 	let previousJumps: number[] = [];
 
@@ -160,10 +160,10 @@
 					/>
 				{/each}
 			</Popover>
-			<!-- <Popover>
+			<Popover>
 				<SettingsIcon size={24} slot="icon" />
 				<ReaderSettings bind:settings />
-			</Popover> -->
+			</Popover>
 			<button on:click={() => incrementSection(-1)}><ArrowLeft size={24} /></button>
 			<button on:click={() => incrementSection(1)}><ArrowRight size={24} /></button>
 		</svelte:fragment>
@@ -176,7 +176,7 @@
 
 <style>
 	#container {
-		/* margin: auto; */
+		margin: auto;
 		padding-top: 3em;
 		padding-bottom: 2em;
 		transform-origin: top;
