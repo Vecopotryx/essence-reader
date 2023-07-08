@@ -103,13 +103,13 @@ const TocRecursive = (navpoint: Element, spine: string[]): TableOfContentsItem =
     const { path, hash } = relativeToAbsAndHash(href, ncxLocation);
     const index = spine.indexOf(path);
     const children = Array.from(navpoint.querySelectorAll("navPoint")).map(x => TocRecursive(x, spine));
-    return { title, href: path + hash, index, children };
+    return { title, href: path + hash, index, children: children.length > 0 ? children : undefined };
 }
 
 const parseToc = (tocNcx: string, spine: string[]): TableOfContentsItem[] => {
     const TOC: TableOfContentsItem[] = [];
     const navmap = domParser.parseFromString(tocNcx, "application/xml").querySelector("navMap");
-    if(navmap) {
+    if (navmap) {
         for (const navpoint of navmap.children) {
             TOC.push(TocRecursive(navpoint, spine));
         }
