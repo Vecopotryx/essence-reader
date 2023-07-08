@@ -2,21 +2,19 @@
 	import { onDestroy, onMount, tick } from 'svelte';
 	import { fade } from 'svelte/transition';
 	import type { Book, Metadata } from '$lib/types';
-	/*import Topbar from "../components/Topbar.svelte";
-    import ReaderSettings from "./ReaderSettings.svelte";
-    import Popover from "../components/Popover.svelte";
-    import TocButton from "./TOCButton.svelte";*/
+	import Topbar from '$lib/components/Topbar.svelte';
+	// import ReaderSettings from './ReaderSettings.svelte';
+	import Popover from '$lib/components/Popover.svelte';
 	import { applySettings, assembleChapter } from './reader';
-	// import bookDB from '$lib/db';
 
 	// Icons:
-	/*import SettingsIcon from "carbon-icons-svelte/lib/Settings.svelte";
-    import TableOfContents from "carbon-icons-svelte/lib/TableOfContents.svelte";
-    import ArrowRight from "carbon-icons-svelte/lib/ArrowRight.svelte";
-    import ArrowLeft from "carbon-icons-svelte/lib/ArrowLeft.svelte";
-    import ChevronLeft from "carbon-icons-svelte/lib/ChevronLeft.svelte";
-    import DirectionLoopLeft from "carbon-icons-svelte/lib/DirectionLoopLeft.svelte";
-*/
+	import SettingsIcon from 'carbon-icons-svelte/lib/Settings.svelte';
+	import TableOfContents from 'carbon-icons-svelte/lib/TableOfContents.svelte';
+	import ArrowRight from 'carbon-icons-svelte/lib/ArrowRight.svelte';
+	import ArrowLeft from 'carbon-icons-svelte/lib/ArrowLeft.svelte';
+	import ChevronLeft from 'carbon-icons-svelte/lib/ChevronLeft.svelte';
+	import DirectionLoopLeft from 'carbon-icons-svelte/lib/DirectionLoopLeft.svelte';
+
 	// export let currentBook: Book;
 	import type { PageData } from './$types';
 	import { unzip, type ZipInfo } from 'unzipit';
@@ -125,17 +123,17 @@
 </svelte:head>
 
 <div in:fade={{ duration: 200 }}>
-	<!-- <Topbar toned={scrolled > 100}>
+	<Topbar toned={scrolled > 100}>
 		<button slot="leftbar" on:click={() => (location.hash = '')}>
 			<ChevronLeft size={24} />
 		</button>
 
 		<svelte:fragment slot="toptext">
 			<h4>
-				<b>{currentBook.meta.title} - </b>
-				{currentBook.meta.author}
+				<b>{meta.title} - </b>
+				{meta.author}
 			</h4>
-			<p>{section}/{currentBook.spine.length - 1}</p>
+			<p>{section}/{book.spine.length - 1}</p>
 		</svelte:fragment>
 
 		<svelte:fragment slot="rightbar">
@@ -154,39 +152,24 @@
 			{/if}
 			<Popover>
 				<TableOfContents size={24} slot="icon" />
-				{#each currentBook.toc as tocitem}
+				{#each book.toc as tocitem}
 					<TocButton
 						{tocitem}
 						selected={section === tocitem.index}
-						onclick={() => jumpToSection(tocitem.index)}
+						onclick={() => jumpTo(tocitem.href, false)}
 					/>
 				{/each}
 			</Popover>
-			<Popover>
+			<!-- <Popover>
 				<SettingsIcon size={24} slot="icon" />
 				<ReaderSettings bind:settings />
-			</Popover>
+			</Popover> -->
 			<button on:click={() => incrementSection(-1)}><ArrowLeft size={24} /></button>
 			<button on:click={() => incrementSection(1)}><ArrowRight size={24} /></button>
 		</svelte:fragment>
-	</Topbar> -->
+	</Topbar>
 
-	<!-- Temporary grid -->
-	<div style="display: grid; grid-template-columns: 1fr 3fr;">
-		<div>
-			Reading {meta.title} by {meta.author}
-			now on section {section} of {book.spine.length - 1}
-			{#each book.toc as tocitem}
-				<TocButton
-					{tocitem}
-					selected={section === tocitem.index}
-					onclick={() => jumpTo(tocitem.href, false)}
-				/>
-			{/each}
-		</div>
-
-		<div id="container" data-sveltekit-preload-data="off" bind:this={container} />
-	</div>
+	<div id="container" data-sveltekit-preload-data="off" bind:this={container} />
 </div>
 
 <svelte:window bind:scrollY={scrolled} on:keydown={handleKeydown} />
