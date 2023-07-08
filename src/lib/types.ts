@@ -11,6 +11,7 @@ export type Metadata = {
     author: string[];
     cover: Blob | undefined;
     progress: number;
+    length: number;
 }
 
 export type TOCItem = {

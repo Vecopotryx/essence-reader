@@ -23,8 +23,7 @@
 	<div class="bookInfo">
 		<h4>{meta.author}</h4>
 		<h3>{meta.title}</h3>
-		<p>{meta.progress}</p>
-		<!-- TODO: Store book length in meta -->
+		<p>{meta.progress} / {meta.length}</p>
 	</div>
 </div>
 

@@ -131,7 +131,7 @@ export const parseEpub = async (epub: File): Promise<{ meta: Metadata, book: Boo
             cover = undefined;
         }
 
-        const meta: Metadata = { title, author, cover, progress: 0 };
+        const meta: Metadata = { title, author, cover, progress: 0, length: spine.length - 1 };
         const book: Book = { spine, toc, file: epub };
 
         return { meta, book };

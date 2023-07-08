@@ -133,7 +133,7 @@
 				<b>{meta.title} - </b>
 				{meta.author}
 			</h4>
-			<p>{section}/{book.spine.length - 1}</p>
+			<p>{section}/{meta.length}</p>
 		</svelte:fragment>
 
 		<svelte:fragment slot="rightbar">
