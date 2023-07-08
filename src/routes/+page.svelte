@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { setLoaded } from '$lib/stores';
-	import type { Book, Metadata } from '$lib/types';
+	import type { Metadata } from '$lib/types';
 	import { onMount } from 'svelte';
 
 	let saveBooksOn = true;
@@ -36,8 +36,6 @@
 
 	let bookList: Metadata[] = [];
 
-	// Not a good solution. Fix those imports
-
 	const deleteBook = async (id: number) => {
 		bookList = bookList.filter((book) => book.id !== id);
 		bookDB.deleteBook(id);
@@ -49,6 +47,11 @@
 			bookList = books;
 		});
 	});
+
+	const setTheme = (theme: string) => {
+		document.documentElement.setAttribute('data-theme', theme);
+		localStorage.setItem('theme', theme);
+	};
 </script>
 
 <svelte:head>
@@ -64,11 +67,7 @@
 				goto(`reading/${book.id}`);
 			}}
 		>
-			<img
-				src={book.cover ? URL.createObjectURL(book.cover) : ''}
-				width="100px"
-				alt={book.title}
-			/>
+			<img src={book.cover ? URL.createObjectURL(book.cover) : ''} width="100px" alt={book.title} />
 		</button>
 	{/each}
 {/if}
@@ -80,3 +79,8 @@
 
 <label for="saveBooksOn">Save books on</label>
 <input type="checkbox" bind:checked={saveBooksOn} />
+
+<button on:click={() => setTheme('light')}>Light</button>
+<button on:click={() => setTheme('dark')}>Dark</button>
+<button on:click={() => setTheme('black')}>Black</button>
+<button on:click={() => setTheme('warm')}>Warm</button>
