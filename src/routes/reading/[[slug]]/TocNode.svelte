@@ -30,7 +30,7 @@
 <div class="tocNode">
 	<button class="tocButton" class:selected on:click={() => onClick(tocitem.href, false)}>
 		{#if tocitem.children}
-			<button class:expanded on:click={toggleExpansion}>▶</button>
+			<button class="expansionBtn" class:expanded on:click={toggleExpansion}>▶</button>
 		{/if}
 		{tocitem.title}
 	</button>
@@ -63,6 +63,16 @@
 
 	.selected {
 		border: 1px solid lightblue;
+	}
+
+	.expansionBtn {
+		margin-right: 0.5em;
+		transform: rotate(0deg);
+		transition: transform 0.2s;
+	}
+
+	.expansionBtn:hover {
+		filter: invert(0.6);
 	}
 
 	.expanded {
