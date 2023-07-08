@@ -19,7 +19,7 @@
 	import type { PageData } from './$types';
 	import { unzip, type ZipInfo } from 'unzipit';
 	import bookDB from '$lib/db';
-	import TocButton from './TOCButton.svelte';
+	import TocNode from './TocNode.svelte';
 
 	export let data: PageData;
 	let meta: Metadata = data.meta;
@@ -153,10 +153,10 @@
 			<Popover>
 				<TableOfContents size={24} slot="icon" />
 				{#each book.toc as tocitem}
-					<TocButton
+					<TocNode
 						{tocitem}
-						selected={section === tocitem.index}
-						onclick={() => jumpTo(tocitem.href, false)}
+						onClick={jumpTo}
+						currentSection={section}
 					/>
 				{/each}
 			</Popover>

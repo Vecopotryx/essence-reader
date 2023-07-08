@@ -1,5 +1,5 @@
 import { unzip, type ZipInfo } from "unzipit";
-import type { Metadata, Book, TOCItem } from "$lib/types";
+import type { Metadata, Book, TableOfContentsItem } from "$lib/types";
 const domParser = new DOMParser();
 
 const parseOpf = (opf: string): { title: string, author: string[], coverFile: string | undefined, spine: string[] } => {
@@ -97,27 +97,31 @@ const relativeToAbsAndHash = (path: string, relativeTo: string) => {
     return { path: url.pathname.slice(1), hash: url.hash };
 }
 
-const parseToc = (tocNcx: string, spine: string[]): TOCItem[] => {
-    const TOC: TOCItem[] = [];
-    const navmap = domParser.parseFromString(tocNcx, "application/xml").querySelectorAll("navPoint");
-    for (const navpoint of navmap) {
-        const name = navpoint.querySelector("text").textContent;
-        let href = navpoint.querySelector("content").attributes["src"].value;
-        const { path, hash } = relativeToAbsAndHash(href, ncxLocation);
-        const index = spine.indexOf(path);
-        const isChild = navpoint.parentElement.nodeName === "navPoint"
-        TOC.push({ name, index, href: path + hash, isChild });
-    }
-    console.log(TOC);
-    return TOC;
-};
+const TocRecursive = (navpoint: Element, spine: string[]): TableOfContentsItem => {
+    const title = navpoint.querySelector("text").textContent;
+    const href = navpoint.querySelector("content").attributes["src"].value;
+    const { path, hash } = relativeToAbsAndHash(href, ncxLocation);
+    const index = spine.indexOf(path);
+    const children = Array.from(navpoint.querySelectorAll("navPoint")).map(x => TocRecursive(x, spine));
+    return { title, href: path + hash, index, children };
+}
 
+const parseToc = (tocNcx: string, spine: string[]): TableOfContentsItem[] => {
+    const TOC: TableOfContentsItem[] = [];
+    const navmap = domParser.parseFromString(tocNcx, "application/xml").querySelector("navMap");
+    if(navmap) {
+        for (const navpoint of navmap.children) {
+            TOC.push(TocRecursive(navpoint, spine));
+        }
+    }
+    return TOC;
+}
 
 export const parseEpub = async (epub: File): Promise<{ meta: Metadata, book: Book }> => {
     try {
         const { tocNcx, opf, entries } = await extract(epub)
         const { title, author, coverFile, spine } = parseOpf(opf);
-        const toc: TOCItem[] = parseToc(tocNcx, spine);
+        const toc: TableOfContentsItem[] = parseToc(tocNcx, spine);
         let cover: Blob | undefined;
 
         try {

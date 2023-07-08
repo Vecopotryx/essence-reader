@@ -1,7 +1,7 @@
 export type Book = {
     id?: number;
     spine: string[];
-    toc: TOCItem[];
+    toc: TableOfContentsItem[];
     file: File;
 }
 
@@ -14,9 +14,9 @@ export type Metadata = {
     length: number;
 }
 
-export type TOCItem = {
-    name: string;
-    index: number;
+export type TableOfContentsItem = {
+    title: string;
     href: string;
-    isChild: boolean;
+    index: number;
+    children?: TableOfContentsItem[];
 }
