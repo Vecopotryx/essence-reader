@@ -3,6 +3,11 @@
 	import { setLoaded } from '$lib/stores';
 	import type { Metadata } from '$lib/types';
 	import { onMount } from 'svelte';
+	import Topbar from '$lib/components/Topbar.svelte';
+	import Popover from '$lib/components/Popover.svelte';
+	import { Settings } from 'carbon-icons-svelte';
+	import ThemePicker from '$lib/components/ThemePicker.svelte';
+    import { flip } from "svelte/animate";
 
 	let saveBooksOn = true;
 	let bookDB: typeof import('$lib/db').default;
@@ -41,46 +46,97 @@
 		bookDB.deleteBook(id);
 	};
 
+	const deleteAllBooks = async () => {
+		// TODO: Implement
+	};
+
 	onMount(async () => {
 		bookDB = (await import('$lib/db')).default;
 		bookDB.getAllMetas().then((books) => {
 			bookList = books;
 		});
 	});
-
-	const setTheme = (theme: string) => {
-		document.documentElement.setAttribute('data-theme', theme);
-		localStorage.setItem('theme', theme);
-	};
 </script>
 
 <svelte:head>
 	<title>Essence Reader</title>
 </svelte:head>
 
-{#if bookList}
-	{#each bookList as book (book.id)}
-		<button
-			class="libraryItem"
-			on:click={() => {
-				// setLoaded(book);
-				goto(`reading/${book.id}`);
-			}}
-		>
-			<img src={book.cover ? URL.createObjectURL(book.cover) : ''} width="100px" alt={book.title} />
-		</button>
-	{/each}
-{/if}
+<Topbar>
+	<h3 slot="toptext">Essence Reader</h3>
+	<Popover slot="rightbar">
+		<Settings slot="icon" size={24} />
+		<div style="width: 8em">
+			<label>
+				<input type="checkbox" bind:checked={saveBooksOn} />
+				Save books
+			</label>
+			<button on:click={deleteAllBooks}>Remove all</button>
+			<hr />
+			Select theme
+			<ThemePicker />
+		</div>
+	</Popover>
+</Topbar>
 
-<button on:click={() => clickFile()}>
-	<h1>📚</h1>
-	<h2>Click to select a file</h2>
-</button>
+<div id="parent">
+	{#if bookList}
+		{#each bookList as book (book.id)}
+			<button
+				class="libraryItem"
+				on:click={() => goto(`reading/${book.id}`)}
+				animate:flip={{ duration: 200 }}
+			>
+				<img src={book.cover ? URL.createObjectURL(book.cover) : ''} width="100px" alt={book.title} />
+				<!-- <BookPreview {book} {deleteBook} /> -->
+			</button>
+		{/each}
+	{/if}
 
-<label for="saveBooksOn">Save books on</label>
-<input type="checkbox" bind:checked={saveBooksOn} />
+	<button
+		class="libraryItem"
+		on:click={() => clickFile()}
+	>
+		<h1 id="dropInfoIcon">📚</h1>
 
-<button on:click={() => setTheme('light')}>Light</button>
-<button on:click={() => setTheme('dark')}>Dark</button>
-<button on:click={() => setTheme('black')}>Black</button>
-<button on:click={() => setTheme('warm')}>Warm</button>
+		<h2>Drop anywhere or click to select a file</h2>
+	</button>
+</div>
+
+<style>
+	#parent {
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: center;
+		padding: 3.5em 1em 1em;
+		gap: 1em;
+	}
+
+	#dropInfoIcon {
+		font-size: 5em;
+		margin: 0;
+	}
+
+	.libraryItem {
+		color: inherit;
+		border: none;
+		overflow: hidden;
+		font-size: inherit;
+		font-family: inherit;
+		flex: 1 1 100%;
+		height: 15em;
+		padding: 0;
+		max-width: 30vw;
+		min-width: 20em;
+		border-radius: 0.5em;
+		filter: drop-shadow(0 15px 15px rgb(0 0 0 / 0.15));
+		background-color: rgb(var(--secondary-bg));
+		transition: transform 0.25s;
+	}
+
+	.libraryItem:hover,
+	.libraryItem:focus {
+		cursor: pointer;
+		transform: translateY(-0.5em);
+	}
+</style>
