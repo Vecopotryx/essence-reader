@@ -100,7 +100,7 @@
 	>
 		<h1 id="dropInfoIcon">📚</h1>
 
-		<h2>Drop anywhere or click to select a file</h2>
+		<h2 style="color: gray">Drop anywhere or click to select a file</h2>
 	</button>
 </div>
 
