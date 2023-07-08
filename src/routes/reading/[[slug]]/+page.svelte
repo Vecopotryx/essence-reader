@@ -29,10 +29,10 @@
 	let section: number = 0;
 	let scrolled: number = 0;
 
-	let settings = JSON.parse(localStorage.getItem("settings")) || {
-        scale: 10,
-        fontFamily: "Default",
-    };
+	let settings = JSON.parse(localStorage.getItem('settings')) || {
+		scale: 10,
+		fontFamily: 'Default'
+	};
 
 	$: settings, applySettings(settings);
 	let entries: ZipInfo['entries'];
@@ -124,9 +124,9 @@
 
 <div in:fade={{ duration: 200 }}>
 	<Topbar toned={scrolled > 100}>
-		<button slot="leftbar" on:click={() => (location.hash = '')}>
+		<a slot="leftbar" href="/">
 			<ChevronLeft size={24} />
-		</button>
+		</a>
 
 		<svelte:fragment slot="toptext">
 			<h4>
@@ -153,11 +153,7 @@
 			<Popover>
 				<TableOfContents size={24} slot="icon" />
 				{#each book.toc as tocitem}
-					<TocNode
-						{tocitem}
-						onClick={jumpTo}
-						currentSection={section}
-					/>
+					<TocNode {tocitem} onClick={jumpTo} currentSection={section} />
 				{/each}
 			</Popover>
 			<Popover>

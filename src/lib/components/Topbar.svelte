@@ -29,6 +29,12 @@
         min-width: max-content;
     }
 
+    .buttonbar > :global(a) {
+        padding: 0.25em 0.15em;
+        display: inline-block;
+        color: inherit;
+    }
+
     .buttonbar > :global(button) {
         margin: 0;
         padding: 0 0.15em;
