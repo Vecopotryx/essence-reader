@@ -48,7 +48,8 @@
 	};
 
 	const deleteAllBooks = async () => {
-		// TODO: Implement
+		bookList = [];
+		bookDB.deleteAll();
 	};
 
 	onMount(async () => {
