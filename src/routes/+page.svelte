@@ -8,6 +8,7 @@
 	import { Settings } from 'carbon-icons-svelte';
 	import ThemePicker from '$lib/components/ThemePicker.svelte';
     import { flip } from "svelte/animate";
+	import BookPreview from './BookPreview.svelte';
 
 	let saveBooksOn = true;
 	let bookDB: typeof import('$lib/db').default;
@@ -81,14 +82,13 @@
 
 <div id="parent">
 	{#if bookList}
-		{#each bookList as book (book.id)}
+		{#each bookList as meta (meta.id)}
 			<button
 				class="libraryItem"
-				on:click={() => goto(`reading/${book.id}`)}
+				on:click={() => goto(`reading/${meta.id}`)}
 				animate:flip={{ duration: 200 }}
 			>
-				<img src={book.cover ? URL.createObjectURL(book.cover) : ''} width="100px" alt={book.title} />
-				<!-- <BookPreview {book} {deleteBook} /> -->
+				<BookPreview {meta} {deleteBook} />
 			</button>
 		{/each}
 	{/if}

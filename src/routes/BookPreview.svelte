@@ -1,83 +1,80 @@
 <script lang="ts">
-    import TrashCan from "carbon-icons-svelte/lib/TrashCan.svelte";
-    import { fade } from "svelte/transition";
+	import type { Metadata } from '$lib/types';
+	import TrashCan from 'carbon-icons-svelte/lib/TrashCan.svelte';
+	import { fade } from 'svelte/transition';
 
-    export let book: any;
-    export let deleteBook: (id: number) => void;
+	export let meta: Metadata;
+	export let deleteBook: (id: number) => void;
 </script>
 
 <div class="book" in:fade={{ duration: 200 }}>
-    <button
-        class="deleteBtn"
-        on:click={(e) => {
-            e.stopPropagation();
-            deleteBook(book.id);
-        }}
-    >
-        <TrashCan size={20} />
-    </button>
+	<button
+		class="deleteBtn"
+		on:click={(e) => {
+			e.stopPropagation();
+			if (meta.id) deleteBook(meta.id);
+		}}
+	>
+		<TrashCan size={20} />
+	</button>
 
-    <img
-        src={book.meta.cover !== undefined
-            ? URL.createObjectURL(book.meta.cover)
-            : ""}
-        alt="cover"
-    />
+	<img src={meta.cover !== undefined ? URL.createObjectURL(meta.cover) : ''} alt="cover" />
 
-    <div class="bookInfo">
-        <h4>{book.meta.author}</h4>
-        <h3>{book.meta.title}</h3>
-        <p>{book.progress} / {book.spine.length - 1}</p>
-    </div>
+	<div class="bookInfo">
+		<h4>{meta.author}</h4>
+		<h3>{meta.title}</h3>
+		<p>{meta.progress}</p>
+		<!-- TODO: Store book length in meta -->
+	</div>
 </div>
 
 <style>
-    .book {
-        width: 100%;
-        display: grid;
-        padding: 0;
-        grid-template-columns: auto 1fr;
-    }
+	.book {
+		width: 100%;
+		display: grid;
+		padding: 0;
+		grid-template-columns: auto 1fr;
+	}
 
-    .book > img,
-    .book > div {
-        height: 15em;
-        width: 10em;
-        object-fit: cover;
-    }
+	.book > img,
+	.book > div {
+		height: 15em;
+		width: 10em;
+		object-fit: cover;
+	}
 
-    .book > img {
-        background-color: gray;
-    }
+	.book > img {
+		background-color: gray;
+	}
 
-    .deleteBtn {
-        display: none;
-        position: absolute;
-        background-color: transparent;
-        right: 0;
-        font-size: 1.5em;
-        border-radius: 0 0.5em;
-        color: inherit;
-        cursor: pointer;
-        border: none;
-        transition: background-color 0.2s;
-    }
+	.deleteBtn {
+		display: none;
+		position: absolute;
+		background-color: transparent;
+		right: 0;
+		font-size: 1.5em;
+		border-radius: 0 0.5em;
+		color: inherit;
+		cursor: pointer;
+		border: none;
+		transition: background-color 0.2s;
+	}
 
-    .deleteBtn:hover {
-        background-color: rgba(255, 10, 50, 1);
-        color: white;
-    }
+	.deleteBtn:hover {
+		background-color: rgba(255, 10, 50, 1);
+		color: white;
+	}
 
-    .book:hover .deleteBtn {
-        display: inline-block;
-    }
+	.book:hover .deleteBtn {
+		display: inline-block;
+	}
 
-    .bookInfo > h3 {
-        font-weight: 500;
-        color: gray;
-    }
+	.bookInfo > h3 {
+		font-weight: 500;
+		color: gray;
+	}
 
-    .bookInfo {
-        min-width: 100%;
-    }
+	.bookInfo {
+		min-width: 100%;
+	}
 </style>
