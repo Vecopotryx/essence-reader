@@ -48,8 +48,7 @@ const extract = async (file: File): Promise<extractInterface> => {
             default: break;
         }
     }
-    console.log(tocNcx);
-    console.log(opf);
+
     return { tocNcx, opf, entries };
 }
 
@@ -64,7 +63,7 @@ const parseManifest = (manifest: Element): Map<string, string> => {
     const manifestItems: Map<string, string> = new Map();
 
     for (const item of manifest.children) {
-        manifestItems.set(item.attributes["id"].value, opfLocation + item.attributes["href"].value);
+        manifestItems.set(item.attributes["id"].value, relativeToAbsAndHash(item.attributes["href"].value, opfLocation).path);
     }
 
     return manifestItems;
@@ -107,7 +106,7 @@ const parseToc = (tocNcx: string, spine: string[]): TOCItem[] => {
         const { path, hash } = relativeToAbsAndHash(href, ncxLocation);
         const index = spine.indexOf(path);
         const isChild = navpoint.parentElement.nodeName === "navPoint"
-        TOC.push({ name, index,  href: path + hash, isChild });
+        TOC.push({ name, index, href: path + hash, isChild });
     }
     console.log(TOC);
     return TOC;
