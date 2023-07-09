@@ -2,8 +2,8 @@ import { unzip, type ZipInfo } from "unzipit";
 import type { Metadata, Book, TableOfContentsItem } from "$lib/types";
 const domParser = new DOMParser();
 
-const parseOpf = (opf: string): { title: string, author: string[], coverFile: string | undefined, spine: string[] } => {
-    const parsed = domParser.parseFromString(opf, "text/xml");
+const parseOpf = (opf: { text: string, href: string }): { title: string, author: string[], coverFile: string | undefined, spine: string[] } => {
+    const parsed = domParser.parseFromString(opf.text, "text/xml");
 
     const metadata = parsed.querySelector("metadata");
     const { title, author, coverId } = metadata ? parseMeta(metadata) : { title: "", author: [], coverId: undefined };
@@ -11,7 +11,7 @@ const parseOpf = (opf: string): { title: string, author: string[], coverFile: st
     const manifestElement = parsed.querySelector("manifest");
     if (!manifestElement) throw new Error("Manifest element not found in OPF");
 
-    const manifestItems = parseManifest(manifestElement);
+    const manifestItems = parseManifest(manifestElement, opf.href);
 
     const spineElement = parsed.querySelector("spine");
     if (!spineElement) throw new Error("Spine element not found in OPF");
@@ -29,42 +29,33 @@ const parseOpf = (opf: string): { title: string, author: string[], coverFile: st
 }
 
 interface extractInterface {
-    tocNcx: string,
-    opf: string,
+    opf: { text: string, href: string },
+    ncx: { text: string, href: string },
     entries: ZipInfo["entries"]
-}
-
-
-let opfLocation = ""
-let ncxLocation = ""
-
-const getFilePath = (path: string) => {
-    const lastIndex = path.lastIndexOf('/');
-    return path.substring(0, lastIndex + 1);
 }
 
 const extract = async (file: File): Promise<extractInterface> => {
     const { entries } = await unzip(file);
 
-    let tocNcx = "";
-    let opf = "";
+    const opf = { text: "", href: "" };
+    const ncx = { text: "", href: "" };
 
-    for (const [name, entry] of Object.entries(entries)) {
-        switch (name.substring(name.lastIndexOf("."))) {
+    for (const [href, entry] of Object.entries(entries)) {
+        switch (href.substring(href.lastIndexOf("."))) {
             case ".opf":
-                opf = await entry.text();
-                opfLocation = getFilePath(name);
+                opf.text = await entry.text();
+                opf.href = href;
                 break;
             case ".ncx": {
-                tocNcx = await entry.text();
-                ncxLocation = getFilePath(name);
+                ncx.text = await entry.text();
+                ncx.href = href;
                 break;
             }
             default: break;
         }
     }
 
-    return { tocNcx, opf, entries };
+    return { opf, ncx, entries };
 }
 
 const parseMeta = (meta: Element): { title: string, author: string[], coverId: string | undefined } => {
@@ -80,14 +71,14 @@ const parseMeta = (meta: Element): { title: string, author: string[], coverId: s
     return { title, author, coverId };
 }
 
-const parseManifest = (manifest: Element): Map<string, string> => {
+const parseManifest = (manifest: Element, opfHref: string): Map<string, string> => {
     const manifestItems: Map<string, string> = new Map();
 
     for (const item of manifest.children) {
         const id = item.getAttribute("id");
         const href = item.getAttribute("href");
         if (id && href) {
-            manifestItems.set(id, relativeToAbsAndHash(href, opfLocation).path);
+            manifestItems.set(id, relativeToAbs(href, opfHref).path);
         }
     }
 
@@ -106,37 +97,38 @@ const getCoverFromFirstPage = (firstPageHTML: string, relativeTo: string): strin
     const imageElement = domParser.parseFromString(firstPageHTML, "application/xhtml+xml").querySelector("img");
     if (imageElement && imageElement.hasAttribute("src")) {
         const path = imageElement.getAttribute("src");
-        return path ? relativeToAbsAndHash(path, relativeTo).path : "";
+        return path ? relativeToAbs(path, relativeTo).path : "";
     } else {
         return "";
     }
 }
 
-const relativeToAbsAndHash = (path: string, relativeTo: string) => {
+const relativeToAbs = (path: string, relativeTo: string) => {
     const url = new URL(path, `http://localhost/${relativeTo}`);
     return { path: url.pathname.slice(1), hash: url.hash };
 }
 
-const TocRecursive = (navPoint: Element, spine: string[]): TableOfContentsItem => {
+
+const TocRecursive = (navPoint: Element, spine: string[], ncxHref: string): TableOfContentsItem => {
     const title = navPoint.querySelector("text")?.textContent || "";
 
     const contentElement = navPoint.querySelector("content");
     const href = contentElement?.getAttribute("src");
 
-    const { path, hash } = href ? relativeToAbsAndHash(href, ncxLocation) : { path: "", hash: "" };
+    const { path, hash } = href ? relativeToAbs(href, ncxHref) : { path: "", hash: "" };
 
     const index = spine.indexOf(path);
 
-    const children = Array.from(navPoint.querySelectorAll("navPoint")).map(x => TocRecursive(x, spine));
+    const children = Array.from(navPoint.querySelectorAll("navPoint")).map(x => TocRecursive(x, spine, ncxHref));
     return { title, href: path + hash, index, children: children.length > 0 ? children : undefined };
 }
 
-const parseToc = (tocNcx: string, spine: string[]): TableOfContentsItem[] => {
+const parseToc = (ncx: { text: string, href: string }, spine: string[]): TableOfContentsItem[] => {
     const TOC: TableOfContentsItem[] = [];
-    const navMap = domParser.parseFromString(tocNcx, "application/xml").querySelector("navMap");
+    const navMap = domParser.parseFromString(ncx.text, "application/xml").querySelector("navMap");
     if (navMap) {
         for (const navPoint of navMap.children) {
-            TOC.push(TocRecursive(navPoint, spine));
+            TOC.push(TocRecursive(navPoint, spine, ncx.href));
         }
     }
     return TOC;
@@ -145,9 +137,9 @@ const parseToc = (tocNcx: string, spine: string[]): TableOfContentsItem[] => {
 export const parseEpub = async (epub: File): Promise<{ meta: Metadata, book: Book }> => {
     // Perhaps want to extract here and then pass entries to function that gets toc and opf
     try {
-        const { tocNcx, opf, entries } = await extract(epub)
+        const { opf, ncx, entries } = await extract(epub)
         const { title, author, coverFile, spine } = parseOpf(opf);
-        const toc: TableOfContentsItem[] = parseToc(tocNcx, spine);
+        const toc: TableOfContentsItem[] = parseToc(ncx, spine);
         let cover: Blob | undefined;
 
         try {
