@@ -10,7 +10,7 @@ export const readFile = async (file: File) => {
 
         if (/*saveBooksOn && */file.size < 30000000) {
             const id = await bookDB.addBook(meta, book) as number;
-            goto(`reading/${id}`);
+            goto(`/reading/${id}`);
         } else {
             goto(`/reading`);
         }
