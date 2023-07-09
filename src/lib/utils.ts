@@ -33,5 +33,5 @@ export const readFile = async (file: File) => {
 export const relativeToAbs = (href: string, relativeTo: string) => {
     const [nohash, hash] = href.split('#');
     const url = new URL(nohash, `http://localhost/${relativeTo}`);
-    return { path: decodeURI(url.pathname.slice(1)), hash };
+    return { path: decodeURI(url.pathname.slice(1)), hash: `#${hash}` };
 }
