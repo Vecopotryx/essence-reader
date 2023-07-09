@@ -29,10 +29,13 @@
 	let section: number = 0;
 	let scrolled: number = 0;
 
-	let settings = JSON.parse(localStorage.getItem('settings')) || {
-		scale: 10,
-		fontFamily: 'Default'
-	};
+	let storedSettingsJson = localStorage.getItem('settings');
+	let settings = storedSettingsJson
+		? JSON.parse(storedSettingsJson)
+		: {
+				scale: 10,
+				fontFamily: 'Default'
+		  };
 
 	$: settings, applySettings(settings);
 	let entries: ZipInfo['entries'];
@@ -83,6 +86,7 @@
 			// if there is an element that is to be focused
 			await tick(); // Wait until chapter has been loaded
 			const element = document.getElementById(elemId);
+			if (!element) return;
 			element.style.fontSize = '100px';
 			element.scrollIntoView({
 				behavior: 'auto',
@@ -102,7 +106,7 @@
 		}
 	};
 
-	const handleKeydown = ({ key }) => {
+	const handleKeydown = ({ key }: { key: string }) => {
 		switch (key) {
 			case 'ArrowLeft':
 				incrementSection(-1);
@@ -142,8 +146,11 @@
 					transition:fade={{ duration: 200 }}
 					id="jumpbtn"
 					on:click={() => {
-						updateSection(previousJumps.pop());
+						let lastJump = previousJumps.pop();
 						previousJumps = previousJumps;
+						if (lastJump !== undefined) {
+							updateSection(lastJump);
+						}
 					}}
 				>
 					<DirectionLoopLeft />
