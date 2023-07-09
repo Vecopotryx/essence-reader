@@ -7,7 +7,7 @@
 	import Popover from '$lib/components/Popover.svelte';
 	import { Settings } from 'carbon-icons-svelte';
 	import ThemePicker from '$lib/components/ThemePicker.svelte';
-    import { flip } from "svelte/animate";
+	import { flip } from 'svelte/animate';
 	import BookPreview from './BookPreview.svelte';
 
 	let saveBooksOn = true;
@@ -34,7 +34,10 @@
 		let input = document.createElement('input');
 		input.type = 'file';
 		input.onchange = (e) => {
-			readFiles((e.target as HTMLInputElement).files[0]);
+			const files = (e.target as HTMLInputElement).files;
+			if (files && files.length > 0) {
+				readFiles(files[0]);
+			}
 		};
 
 		input.click();
@@ -94,10 +97,7 @@
 		{/each}
 	{/if}
 
-	<button
-		class="libraryItem"
-		on:click={() => clickFile()}
-	>
+	<button class="libraryItem" on:click={() => clickFile()}>
 		<h1 id="dropInfoIcon">📚</h1>
 
 		<h2 style="color: gray">Drop anywhere or click to select a file</h2>
