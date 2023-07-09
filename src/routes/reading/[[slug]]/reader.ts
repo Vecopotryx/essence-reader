@@ -8,20 +8,24 @@ export const applySettings = (settings: { scale: number, fontFamily: string }) =
         document.head.appendChild(styleE);
     }
 
-    styleE.innerText =
-        "#container { transform: scale(" +
-        settings.scale / 10 +
-        "); width: " +
-        50 / (settings.scale / 10) +
-        "%; }" +
-        " @media (max-width: 1500px) {#container { width: " +
-        90 / (settings.scale / 10) +
-        "%}}" +
-        (settings.fontFamily !== "Default"
-            ? " #container p, #container a, #container span { font-family: " +
-            settings.fontFamily +
-            " !important;}"
-            : "");
+    styleE.innerText = `
+        #container {
+            transform: scale(${settings.scale / 10});
+            width: ${50 / (settings.scale / 10)}%;
+        }
+  
+        @media (max-width: 1500px) {
+            #container {
+                width: ${90 / (settings.scale / 10)}%;
+            }
+        }
+  
+        ${settings.fontFamily !== "Default" ?
+            `#container p, #container a, #container span {
+            font-family: ${settings.fontFamily} !important;
+        }`
+            : ""}
+    `;
     localStorage.setItem("settings", JSON.stringify(settings));
 };
 
@@ -66,7 +70,9 @@ export const assembleChapter = async (chapterPath: string, entries: ZipInfo["ent
     const styles: string[] = [];
     for (const e of newHTML.head.querySelectorAll('link[rel="stylesheet"], style')) {
         if (e.tagName.toLowerCase() === 'link') {
-            const filename = relativeToAbs(e.getAttribute('href'), chapterPath);
+            const href = e.getAttribute('href');
+            if (!href) continue;
+            const filename = relativeToAbs(href, chapterPath);
             styles.push(await entries[filename].text());
         } else {
             styles.push(e.innerHTML);
@@ -79,8 +85,10 @@ export const assembleChapter = async (chapterPath: string, entries: ZipInfo["ent
         switch (e.tagName) {
             case "IMG":
             case "img": {
-                const filename = relativeToAbs(e.getAttribute("src"), chapterPath);
-                const blob = await entries[filename].blob();           
+                const src = e.getAttribute("src");
+                if (!src) break;
+                const filename = relativeToAbs(src, chapterPath);
+                const blob = await entries[filename].blob();
                 e.setAttribute("src", URL.createObjectURL(blob));
                 e.style.cssText += 'max-height: 100%; max-width: 100%; object-fit: scale-down;';
                 break;
@@ -89,6 +97,7 @@ export const assembleChapter = async (chapterPath: string, entries: ZipInfo["ent
             case "IMAGE":
             case "image": {
                 const href = e.getAttributeNS('http://www.w3.org/1999/xlink', 'href');
+                if (!href) break;
                 const filename = relativeToAbs(href, chapterPath);
                 const blob = await entries[filename].blob();
                 e.setAttributeNS('http://www.w3.org/1999/xlink', 'href', URL.createObjectURL(blob));
@@ -97,21 +106,23 @@ export const assembleChapter = async (chapterPath: string, entries: ZipInfo["ent
 
             default: {
 
-                if (e.getAttribute("href") !== null) {
-                    if (e.getAttribute("href").includes("http")) {
+                const href = e.getAttribute("href");
+                if (href !== null) {
+                    if (href.includes("http")) {
                         e.setAttribute("target", "_blank");
                     } else {
-                        let href = e.getAttribute("href").split("\\").pop().split("/").pop();
-                        e.addEventListener("click", (e) => {
-                            e.preventDefault();
+                        e.addEventListener("click", (event) => {
+                            event.preventDefault();
                             jumpToElementAndChapter(href);
                         });
                     }
                 }
 
-                if (e.getAttribute("src") !== null && !e.getAttribute("src").includes("http")) {
+                const src = e.getAttribute("src");
+                if (src && !src.includes("http")) {
                     e.removeAttribute("src");
                 }
+
                 break;
             }
         }
