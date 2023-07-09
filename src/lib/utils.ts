@@ -11,19 +11,20 @@ export const readFile = async (file: File) => {
             throw new Error('File is not of type .epub or .zip');
         }
         const { meta, book } = await parseEpub(file);
-        setLoaded({ meta, book });
+        let id = "";
 
         if (/*saveBooksOn && */file.size < 30000000) {
-            const id = await addBook(meta, book) as number;
-            if (get(page).route.id?.includes("reading")) {
-                // Not an ideal solution, but makes sure that reading page is
-                // reloaded with new book when already on reading page.
-                await goto(`/`);
-            }
-            goto(`/reading/${id}`);
-        } else {
-            goto(`/reading`);
+            id = await addBook(meta, book);
         }
+
+        setLoaded({ meta, book });
+
+        if (get(page).route.id?.includes("reading")) {
+            // Not an ideal solution, but makes sure that reading page is
+            // reloaded with new book when already on reading page.
+            await goto(`/`);
+        }
+        goto(`/reading/${id}`);
     } catch (e) {
         alert(e);
     }

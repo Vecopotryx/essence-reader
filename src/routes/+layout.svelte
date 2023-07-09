@@ -26,8 +26,9 @@
 			e.preventDefault();
 			dragCounter = 0;
 			dragging = false;
-			const file = e.dataTransfer?.files?.[0];
-			if (file) {
+			const files = e.dataTransfer?.files;
+			if (!files) return;
+			for (const file of files) {
 				readFile(file);
 			}
 		});

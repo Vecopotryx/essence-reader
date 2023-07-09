@@ -16,12 +16,14 @@
 	const clickFile = async () => {
 		let input = document.createElement('input');
 		const readFile = (await import('$lib/utils')).readFile;
-
+		
 		input.type = 'file';
+		input.multiple = true;
 		input.onchange = (e) => {
 			const files = (e.target as HTMLInputElement).files;
-			if (files && files.length > 0) {
-				readFile(files[0]);
+			if(!files) return;
+			for (const file of files) {
+				readFile(file); // Perhaps want to pass saveBooksOn here
 			}
 		};
 
