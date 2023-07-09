@@ -15,9 +15,9 @@ export const readFile = async (file: File) => {
 
         if (/*saveBooksOn && */file.size < 30000000) {
             const id = await bookDB.addBook(meta, book) as number;
-            if(get(page).route.id?.includes("reading")) {
-                 // Not an ideal solution, but makes sure that reading page is
-                 // reloaded with new book when already on reading page.
+            if (get(page).route.id?.includes("reading")) {
+                // Not an ideal solution, but makes sure that reading page is
+                // reloaded with new book when already on reading page.
                 await goto(`/`);
             }
             goto(`/reading/${id}`);
@@ -28,3 +28,8 @@ export const readFile = async (file: File) => {
         alert(e);
     }
 };
+
+export const relativeToAbs = (path: string, relativeTo: string) => {
+    const url = new URL(path, `http://localhost/${relativeTo}`);
+    return { path: url.pathname.slice(1), hash: url.hash };
+}

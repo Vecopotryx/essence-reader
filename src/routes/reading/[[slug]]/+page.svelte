@@ -63,20 +63,13 @@
 			if (meta.id) {
 				bookDB.updateMeta(meta);
 			}
-			container.replaceChildren(
-				await assembleChapter(book.spine[section], entries, (href: string) => jumpTo(href, true))
-			);
+			container.replaceChildren(await assembleChapter(book.spine[section], entries, jumpTo));
 		}
 	};
 
-	const relativeToAbs = (path: string, relativeTo: string) =>
-		new URL(path, `http://localhost/${relativeTo}`).pathname.slice(1);
-
-	const jumpTo = async (href: string, isRelative: boolean) => {
+	const jumpTo = async (href: string) => {
 		previousJumps = [...previousJumps, section];
-		let [chapter, elemId] = href.split('#');
-
-		if (isRelative) chapter = relativeToAbs(chapter, book.spine[section]);
+		const [chapter, elemId] = href.split('#');
 
 		if (chapter) {
 			const chapterIndex = book.spine.indexOf(chapter);

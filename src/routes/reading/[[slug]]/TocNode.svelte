@@ -2,7 +2,7 @@
 	import type { TableOfContentsItem } from '$lib/types';
 
 	export let tocitem: TableOfContentsItem;
-	export let onClick: (href: string, isRelative: boolean) => void;
+	export let onClick: (href: string) => void;
 	export let currentSection: number;
 
 	let expanded = false;
@@ -28,7 +28,7 @@
 </script>
 
 <div class="tocNode">
-	<button class="tocButton" class:selected on:click={() => onClick(tocitem.href, false)}>
+	<button class="tocButton" class:selected on:click={() => onClick(tocitem.href)}>
 		{#if tocitem.children}
 			<button class="expansionBtn" class:expanded on:click={toggleExpansion}>▶</button>
 		{/if}

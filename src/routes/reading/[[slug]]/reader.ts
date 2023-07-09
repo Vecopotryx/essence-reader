@@ -1,3 +1,4 @@
+import { relativeToAbs } from "$lib/utils";
 import type { ZipInfo } from "unzipit";
 
 export const applySettings = (settings: { scale: number, fontFamily: string }) => {
@@ -45,17 +46,13 @@ const injectStyles = (styles: string[]) => {
     document.head.appendChild(fragment);
 };
 
-const relativeToAbs = (path: string, relativeTo: string) =>
-    new URL(path, `http://localhost/${relativeTo}`).pathname.slice(1);
-
-
 const nestCSSSelectors = (css: string): string =>
     css.replace(/([^\r\n,{}]+)(,(?=[^}]*{)|\s*{)/g, '#container $1$2');
 
 
 const domParser = new DOMParser();
 
-export const assembleChapter = async (chapterPath: string, entries: ZipInfo["entries"], jumpToElementAndChapter: (href: string) => void): Promise<HTMLElement> => {
+export const assembleChapter = async (chapterPath: string, entries: ZipInfo["entries"], jumpTo: (href: string) => void): Promise<HTMLElement> => {
     const html = await entries[chapterPath].text();
 
     let newHTML = domParser.parseFromString(html, "application/xhtml+xml");
@@ -72,7 +69,7 @@ export const assembleChapter = async (chapterPath: string, entries: ZipInfo["ent
         if (e.tagName.toLowerCase() === 'link') {
             const href = e.getAttribute('href');
             if (!href) continue;
-            const filename = relativeToAbs(href, chapterPath);
+            const filename = relativeToAbs(href, chapterPath).path;
             styles.push(await entries[filename].text());
         } else {
             styles.push(e.innerHTML);
@@ -87,7 +84,7 @@ export const assembleChapter = async (chapterPath: string, entries: ZipInfo["ent
             case "img": {
                 const src = e.getAttribute("src");
                 if (!src) break;
-                const filename = relativeToAbs(src, chapterPath);
+                const filename = relativeToAbs(src, chapterPath).path;
                 const blob = await entries[filename].blob();
                 e.setAttribute("src", URL.createObjectURL(blob));
                 e.style.cssText += 'max-height: 100%; max-width: 100%; object-fit: scale-down;';
@@ -98,7 +95,7 @@ export const assembleChapter = async (chapterPath: string, entries: ZipInfo["ent
             case "image": {
                 const href = e.getAttributeNS('http://www.w3.org/1999/xlink', 'href');
                 if (!href) break;
-                const filename = relativeToAbs(href, chapterPath);
+                const filename = relativeToAbs(href, chapterPath).path;
                 const blob = await entries[filename].blob();
                 e.setAttributeNS('http://www.w3.org/1999/xlink', 'href', URL.createObjectURL(blob));
                 break;
@@ -111,9 +108,11 @@ export const assembleChapter = async (chapterPath: string, entries: ZipInfo["ent
                     if (href.includes("http")) {
                         e.setAttribute("target", "_blank");
                     } else {
+                        const relativeToAbsResult = relativeToAbs(href, chapterPath);
+                        const absHref = relativeToAbsResult.path + relativeToAbsResult.hash;
                         e.addEventListener("click", (event) => {
                             event.preventDefault();
-                            jumpToElementAndChapter(href);
+                            jumpTo(absHref);
                         });
                     }
                 }

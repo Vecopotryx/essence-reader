@@ -1,5 +1,6 @@
 import { unzip, type ZipInfo } from "unzipit";
 import type { Metadata, Book, TableOfContentsItem } from "$lib/types";
+import { relativeToAbs } from "$lib/utils";
 const domParser = new DOMParser();
 
 const parseOpf = (opf: { text: string, href: string }): { title: string, author: string[], coverFile: string | undefined, spine: string[] } => {
@@ -85,8 +86,6 @@ const parseManifest = (manifest: Element, opfHref: string): Map<string, string> 
     return manifestItems;
 }
 
-
-
 const parseSpine = (spine: Element, manifestItems: Map<string, string>): string[] =>
     Array.from(spine.children).map(x => manifestItems.get(x.getAttribute("idref") ?? "") ?? "");
 
@@ -102,12 +101,6 @@ const getCoverFromFirstPage = (firstPageHTML: string, relativeTo: string): strin
         return "";
     }
 }
-
-const relativeToAbs = (path: string, relativeTo: string) => {
-    const url = new URL(path, `http://localhost/${relativeTo}`);
-    return { path: url.pathname.slice(1), hash: url.hash };
-}
-
 
 const TocRecursive = (navPoint: Element, spine: string[], ncxHref: string): TableOfContentsItem => {
     const title = navPoint.querySelector("text")?.textContent || "";
