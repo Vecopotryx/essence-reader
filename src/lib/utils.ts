@@ -5,6 +5,9 @@ import { parseEpub } from './services/parse';
 
 export const readFile = async (file: File) => {
     try {
+        if (!file.type.includes('epub') || !file.type.includes('zip')) {
+            throw new Error('File is not of type .epub or .zip');
+        }
         const { meta, book } = await parseEpub(file);
         setLoaded({ meta, book });
 
