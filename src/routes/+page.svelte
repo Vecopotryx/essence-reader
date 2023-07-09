@@ -13,30 +13,15 @@
 	let saveBooksOn = true;
 	let bookDB: typeof import('$lib/db').default;
 
-	const readFiles = async (file: File) => {
-		try {
-			const parseEpub = (await import('$lib/services/parse')).parseEpub;
-			const { meta, book } = await parseEpub(file);
-			setLoaded({ meta, book });
-
-			if (saveBooksOn && file.size < 30000000) {
-				const id = (await bookDB.addBook(meta, book)) as number;
-				goto(`reading/${id}`);
-			} else {
-				goto(`/reading`);
-			}
-		} catch (e) {
-			alert(e);
-		}
-	};
-
-	const clickFile = () => {
+	const clickFile = async () => {
 		let input = document.createElement('input');
+		const readFile = (await import('$lib/utils')).readFile;
+
 		input.type = 'file';
 		input.onchange = (e) => {
 			const files = (e.target as HTMLInputElement).files;
 			if (files && files.length > 0) {
-				readFiles(files[0]);
+				readFile(files[0]);
 			}
 		};
 
