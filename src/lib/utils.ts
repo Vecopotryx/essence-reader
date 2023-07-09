@@ -2,6 +2,8 @@ import bookDB from '$lib/db';
 import { goto } from '$app/navigation';
 import { setLoaded } from '$lib/stores';
 import { parseEpub } from './services/parse';
+import { page } from '$app/stores';
+import { get } from 'svelte/store';
 
 export const readFile = async (file: File) => {
     try {
@@ -13,6 +15,11 @@ export const readFile = async (file: File) => {
 
         if (/*saveBooksOn && */file.size < 30000000) {
             const id = await bookDB.addBook(meta, book) as number;
+            if(get(page).route.id?.includes("reading")) {
+                 // Not an ideal solution, but makes sure that reading page is
+                 // reloaded with new book when already on reading page.
+                await goto(`/`);
+            }
             goto(`/reading/${id}`);
         } else {
             goto(`/reading`);
