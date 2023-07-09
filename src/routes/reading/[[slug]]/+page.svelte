@@ -15,10 +15,9 @@
 	import ChevronLeft from 'carbon-icons-svelte/lib/ChevronLeft.svelte';
 	import DirectionLoopLeft from 'carbon-icons-svelte/lib/DirectionLoopLeft.svelte';
 
-	// export let currentBook: Book;
 	import type { PageData } from './$types';
 	import { unzip, type ZipInfo } from 'unzipit';
-	import bookDB from '$lib/db';
+	import { openBookDB } from '$lib/db';
 	import TocNode from './TocNode.svelte';
 
 	export let data: PageData;
@@ -61,7 +60,7 @@
 			scrolled = 0;
 			meta.progress = section;
 			if (meta.id) {
-				bookDB.updateMeta(meta);
+				(await openBookDB).put('metas', meta);
 			}
 			container.replaceChildren(await assembleChapter(book.spine[section], entries, jumpTo));
 		}

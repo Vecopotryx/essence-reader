@@ -1,4 +1,4 @@
-import bookDB from '$lib/db';
+import { addBook } from '$lib/db';
 import { goto } from '$app/navigation';
 import { setLoaded } from '$lib/stores';
 import { parseEpub } from './services/parse';
@@ -14,7 +14,7 @@ export const readFile = async (file: File) => {
         setLoaded({ meta, book });
 
         if (/*saveBooksOn && */file.size < 30000000) {
-            const id = await bookDB.addBook(meta, book) as number;
+            const id = await addBook(meta, book) as number;
             if (get(page).route.id?.includes("reading")) {
                 // Not an ideal solution, but makes sure that reading page is
                 // reloaded with new book when already on reading page.

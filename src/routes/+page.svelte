@@ -9,10 +9,10 @@
 	import ThemePicker from '$lib/components/ThemePicker.svelte';
 	import { flip } from 'svelte/animate';
 	import BookPreview from './BookPreview.svelte';
+	let openBookDB: typeof import('$lib/db').openBookDB;
+
 
 	let saveBooksOn = true;
-	let bookDB: typeof import('$lib/db').default;
-
 	const clickFile = async () => {
 		let input = document.createElement('input');
 		const readFile = (await import('$lib/utils')).readFile;
@@ -32,17 +32,34 @@
 
 	const deleteBook = async (id: number) => {
 		bookList = bookList.filter((book) => book.id !== id);
-		bookDB.deleteBook(id);
+		try {
+			const db = await openBookDB;
+			const tx = db.transaction(['metas', 'books'], 'readwrite');
+			tx.objectStore('metas').delete(id);
+			tx.objectStore('books').delete(id);
+			await tx.done;
+		} catch (error) {
+			console.error('Failed to delete book:', error);
+		}
 	};
 
 	const deleteAllBooks = async () => {
 		bookList = [];
-		bookDB.deleteAll();
+		try {
+			const db = await openBookDB;
+			const tx = db.transaction(['metas', 'books'], 'readwrite');
+			tx.objectStore('metas').clear();
+			tx.objectStore('books').clear();
+			await tx.done;
+		} catch (error) {
+			console.error('Failed to delete all books:', error);
+		}
 	};
 
 	onMount(async () => {
-		bookDB = (await import('$lib/db')).default;
-		bookDB.getAllMetas().then((books) => {
+		const libdb = await import('$lib/db');
+		openBookDB = libdb.openBookDB;
+		libdb.getAllMetas().then((books) => {
 			bookList = books;
 		});
 	});

@@ -6,98 +6,54 @@ const DB_VERSION = 1;
 const BOOKS_STORE = 'books';
 const METAS_STORE = 'metas';
 
-const openBookDB = openDB(DB_NAME, DB_VERSION, {
+export const openBookDB = openDB(DB_NAME, DB_VERSION, {
   upgrade(db) {
     db.createObjectStore(BOOKS_STORE, { keyPath: 'id', autoIncrement: true });
     db.createObjectStore(METAS_STORE, { keyPath: 'id' });
   },
 });
 
-const bookDB = {
-  async addBook(meta: Metadata, book: Book) {
-    try {
-      const db = (await openBookDB);
-      const metas = await db.getAll(METAS_STORE);
-      const foundBook = metas.find((b) => b.title === meta.title);
 
-      // Don't save duplicate books
-      if (foundBook) {
-        return foundBook.id;
-      }
+export const addBook = async (meta: Metadata, book: Book) => {
+  try {
+    const db = await openBookDB;
+    const tx = db.transaction([BOOKS_STORE, METAS_STORE], 'readwrite');
+    const booksStore = tx.objectStore(BOOKS_STORE);
+    const metasStore = tx.objectStore(METAS_STORE);
 
-      const tx = db.transaction([BOOKS_STORE, METAS_STORE], 'readwrite');
-      const bookStore = tx.objectStore(BOOKS_STORE);
-      const metasStore = tx.objectStore(METAS_STORE);
+    const foundBook = (await metasStore.getAll()).find((b) => b.title === meta.title);
+    if (foundBook) return foundBook.id; // Don't save duplicate books
 
-      const bookID = await bookStore.add(book);
+    const bookID = await booksStore.add(book);
 
-      meta.id = Number(bookID);
-      await metasStore.add(meta);
+    meta.id = Number(bookID);
+    await metasStore.add(meta);
 
-      await tx.done;
-      return bookID;
-    } catch (error) {
-      console.error('Failed to add book:', error);
-      return -1;
-    }
-  },
+    await tx.done;
 
-  async updateMeta(meta: Metadata) {
-    try {
-      return (await openBookDB).put(METAS_STORE, meta);
-    } catch (error) {
-      console.error('Failed to update book metadata:', error);
-      return -1;
-    };
-  },
-
-  async deleteBook(id: number) {
-    try {
-      (await openBookDB).delete(METAS_STORE, id);
-      (await openBookDB).delete(BOOKS_STORE, id);
-    } catch (error) {
-      console.error('Failed to delete book:', error);
-    }
-  },
-
-  async deleteAll() {
-    try {
-      (await openBookDB).clear(METAS_STORE);
-      (await openBookDB).clear(BOOKS_STORE);
-    } catch (error) {
-      console.error('Failed to delete all books:', error);
-    }
-  },
-
-  async getBook(id: number): Promise<{ meta: Metadata, book: Book }> {
-    const meta = await (await openBookDB).get(METAS_STORE, id);
-    const book = await (await openBookDB).get(BOOKS_STORE, id);
-    if (!book) throw new Error("Book not found");
-    return { meta, book };
-  },
-
-
-  async getAllMetas() {
-    return this.getAll(METAS_STORE);
-  },
-
-  async getAll(storeName: string) {
-    try {
-      const store = (await openBookDB).transaction(storeName).objectStore(storeName);
-      return await store.getAll();
-    } catch (error) {
-      console.error('Failed to get all books:', error);
-      if (error.message.includes("version") || error.message.includes("store name")) {
-        // This is primarily such that if an old (higher version) 
-        // database is found (like one from Dexie),
-        // a new one can be created and allow the app to continue.
-        console.log("Deleting old database");
-        await deleteDB(DB_NAME);
-        location.reload();
-      }
-      return [];
-    }
-  },
+    return bookID;
+  } catch (error) {
+    console.error('Failed to add book:', error);
+    return -1;
+  }
 };
 
-export default bookDB;
+export const getAllMetas = async (): Promise<Metadata[]> => {
+  try {
+    const store = (await openBookDB).transaction(METAS_STORE).objectStore(METAS_STORE);
+    return await store.getAll();
+  } catch (error) {
+    console.error('Failed to get all books:', error);
+    if ((error as Error).message.includes("version") || (error as Error).message.includes("store name")) {
+      // This is primarily such that if an old (higher version) 
+      // database is found (like one from Dexie),
+      // a new one can be created and allow the app to continue.
+      console.log("Deleting old database");
+      await deleteDB(DB_NAME);
+      location.reload();
+    }
+    return [];
+  }
+}
+
+
