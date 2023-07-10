@@ -1,43 +1,6 @@
 import { relativeToAbs } from "$lib/utils";
 import type { ZipInfo } from "unzipit";
 
-export const applySettings = (settings: { scale: number, fontFamily: string, paginated: boolean }) => {
-    let styleE = document.getElementById("user-settings");
-    if (!styleE) {
-        styleE = document.createElement("style");
-        styleE.id = "user-settings";
-        document.head.appendChild(styleE);
-    }
-
-    if (settings.paginated) {
-        styleE.innerText = `#container p, #container a, #container span {
-        font-size: ${20 * settings.scale / 10}px !important;
-        line-height: normal !important;
-        font-family: ${settings.fontFamily} !important;
-    }`
-    } else {
-        styleE.innerText = `
-        #container {
-            transform: scale(${settings.scale / 10});
-            width: ${50 / (settings.scale / 10)}%;
-        }
-  
-        @media (max-width: 1500px) {
-            #container {
-                width: ${90 / (settings.scale / 10)}%;
-            }
-        }
-  
-        ${settings.fontFamily !== "Default" ?
-                `#container p, #container a, #container span {
-            font-family: ${settings.fontFamily} !important;
-        }`
-                : ""}
-    `;
-    }
-    localStorage.setItem("settings", JSON.stringify(settings));
-};
-
 const injectStyles = (styles: string[]) => {
     // TODO: Keep track of stylesheets and only update if changed
     const fragment = document.createDocumentFragment();

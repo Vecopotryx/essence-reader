@@ -5,7 +5,7 @@
 	import Topbar from '$lib/components/Topbar.svelte';
 	import ReaderSettings from './ReaderSettings.svelte';
 	import Popover from '$lib/components/Popover.svelte';
-	import { applySettings, assembleChapter } from './reader';
+	import { assembleChapter } from './reader';
 
 	// Icons:
 	import SettingsIcon from 'carbon-icons-svelte/lib/Settings.svelte';
@@ -43,7 +43,7 @@
 				paginated: true
 		  };
 
-	$: settings, applySettings(settings);
+	$: settings, localStorage.setItem('settings', JSON.stringify(settings));
 
 	let entries: ZipInfo['entries'];
 	let previousJumps: number[] = [];
@@ -217,8 +217,6 @@
 				<SettingsIcon size={24} slot="icon" />
 				<ReaderSettings bind:settings />
 			</Popover>
-			<button on:click={() => console.log(container.scrollWidth)}>Hi</button>
-
 			<button on:click={() => incrementSection(-1)}><ArrowLeft size={24} /></button>
 			<button on:click={() => incrementSection(1)}><ArrowRight size={24} /></button>
 		</svelte:fragment>
@@ -226,8 +224,9 @@
 	<div id={settings.paginated ? 'containerContainer' : ''}>
 		<div
 			id="container"
-			class={settings.paginated ? 'paginated' : ''}
+			class={settings.paginated ? 'paginated' : 'scrolled'}
 			data-sveltekit-preload-data="off"
+			style={`--fontSize: ${settings.scale * 1.5}px; --fontFamily: ${settings.fontFamily}`}
 			bind:this={container}
 		/>
 	</div>
@@ -243,6 +242,14 @@
 		margin: auto;
 	}
 
+	#container :global(p),
+	#container :global(a),
+	#container :global(span) {
+		font-size: var(--fontSize) !important;
+		line-height: normal !important;
+		font-family: var(--fontFamily) !important;
+	}
+
 	.paginated {
 		padding-right: 2em;
 		column-count: 2;
@@ -250,6 +257,15 @@
 		width: auto;
 		height: calc(100vh - 7.5em);
 		overflow: hidden;
+	}
+
+	.scrolled {
+		width: 50%;
+	}
+	@media (max-width: 1500px) {
+		.scrolled {
+			width: 90%;
+		}
 	}
 
 	#containerContainer {
