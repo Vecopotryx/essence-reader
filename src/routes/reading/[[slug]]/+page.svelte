@@ -48,13 +48,19 @@
 	let entries: ZipInfo['entries'];
 	let previousJumps: number[] = [];
 
-	onMount(() => {
-		unzip(book.file).then((zip) => {
-			entries = zip.entries;
-			updateSection(meta.progress);
-		});
+	onMount(async () => {
+		try {
+			entries = (await unzip(book.file)).entries;
+		} catch (e) {
+			if((e as Error).message.includes("permission")) {
+				// Workaround to fix error in Chromium incognito mode.
+				// See: https://github.com/GoogleChrome/developer.chrome.com/issues/2563
+				const buffer = await book.file.arrayBuffer();
+				entries = (await unzip(buffer)).entries;
+			}
+		}
+		updateSection(meta.progress);
 	});
-
 
 	onDestroy(() => {
 		document.head.querySelectorAll('.essence-reader').forEach((styleE) => styleE.remove());
