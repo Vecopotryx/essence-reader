@@ -112,11 +112,8 @@
 	let pagesScrolled = 0;
 
 	const nextPage = () => {
-		if (
-			pagesScrolled * (container.clientWidth + gapSize) <
-			container.scrollWidth - 1.2 * container.clientWidth
-		) {
-			pagesScrolled++; //+= (container.clientWidth + 10*em);
+		if ((pagesScrolled + 1) * (container.clientWidth + gapSize) < container.scrollWidth) {
+			pagesScrolled++;
 		} else {
 			updateSection(section + 1);
 			pagesScrolled = 0;
@@ -133,7 +130,7 @@
 		if (pagesScrolled > 0) {
 			pagesScrolled--;
 		} else {
-			await updateSection(section - 1);		
+			await updateSection(section - 1);
 			await delay(50); // Wait so that CSS styles can be applied on previous chapter
 			// Necessary since the width changes when styles are applied
 			pagesScrolled = Math.floor(container.scrollWidth / (container.clientWidth + gapSize));
