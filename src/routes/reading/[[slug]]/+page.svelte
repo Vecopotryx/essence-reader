@@ -28,27 +28,33 @@
 	let section: number = 0;
 	let scrolled: number = 0;
 
+	type settingsType = {
+		scale: number;
+		fontFamily: string;
+		paginated: boolean;
+	};
+
 	let storedSettingsJson = localStorage.getItem('settings');
-	let settings = storedSettingsJson
+	let settings: settingsType = storedSettingsJson
 		? JSON.parse(storedSettingsJson)
 		: {
 				scale: 10,
-				fontFamily: 'Default'
+				fontFamily: 'Default',
+				paginated: true
 		  };
 
 	$: settings, applySettings(settings);
+
 	let entries: ZipInfo['entries'];
 	let previousJumps: number[] = [];
 
 	onMount(() => {
-		book = data.book;
-		meta = data.meta;
-
 		unzip(book.file).then((zip) => {
 			entries = zip.entries;
 			updateSection(meta.progress);
 		});
 	});
+
 
 	onDestroy(() => {
 		document.head.querySelectorAll('.essence-reader').forEach((styleE) => styleE.remove());
@@ -70,6 +76,10 @@
 		previousJumps = [...previousJumps, section];
 		const [chapter, elemId] = href.split('#');
 
+		if(settings.paginated) {
+			pagesScrolled = 0;
+			container.scrollTo({left: 0});
+		}
 		if (chapter) {
 			const chapterIndex = book.spine.indexOf(chapter);
 			await updateSection(chapterIndex);
@@ -91,8 +101,52 @@
 		}
 	};
 
+	const em = parseFloat(window.getComputedStyle(document.body).fontSize);
+	const gapSize = 2 * em;
+	let pagesScrolled = 0;
+
+	const nextPage = () => {
+		if (
+			pagesScrolled * (container.clientWidth + gapSize) <
+			container.scrollWidth - 1.2 * container.clientWidth
+		) {
+			pagesScrolled++; //+= (container.clientWidth + 10*em);
+		} else {
+			updateSection(section + 1);
+			pagesScrolled = 0;
+		}
+		container.scrollTo({
+			left: pagesScrolled * (container.clientWidth + gapSize),
+			behavior: 'smooth'
+		});
+	};
+
+	const prevPage = () => {
+		if (pagesScrolled > 0) {
+			pagesScrolled--;
+			container.scrollTo({
+				left: pagesScrolled * (container.clientWidth + gapSize),
+				behavior: 'smooth'
+			});
+		} else {
+			updateSection(section - 1);
+			pagesScrolled = 0;
+			container.scrollTo({
+				left: 0 // TODO: Go to the end of the previous chapter
+			});
+		}
+	};
+
 	const incrementSection = (inc: number) => {
-		updateSection(section + inc);
+		if (!settings.paginated) {
+			updateSection(section + inc);
+		} else {
+			if (inc > 0) {
+				nextPage();
+			} else {
+				prevPage();
+			}
+		}
 		if (previousJumps.length !== 0) {
 			previousJumps = [];
 		}
@@ -159,22 +213,44 @@
 				<SettingsIcon size={24} slot="icon" />
 				<ReaderSettings bind:settings />
 			</Popover>
+			<button on:click={() => (settings.paginated = !settings.paginated)}>Toggle pagination</button>
 			<button on:click={() => incrementSection(-1)}><ArrowLeft size={24} /></button>
 			<button on:click={() => incrementSection(1)}><ArrowRight size={24} /></button>
 		</svelte:fragment>
 	</Topbar>
-
-	<div id="container" data-sveltekit-preload-data="off" bind:this={container} />
+	<div id={settings.paginated ? 'containerContainer' : ''}>
+		<div
+			id="container"
+			class={settings.paginated ? 'paginated' : ''}
+			data-sveltekit-preload-data="off"
+			bind:this={container}
+		/>
+	</div>
 </div>
 
 <svelte:window bind:scrollY={scrolled} on:keydown={handleKeydown} />
 
 <style>
 	#container {
-		margin: auto;
 		padding-top: 3em;
 		padding-bottom: 2em;
 		transform-origin: top;
+		margin: auto;
+	}
+
+	.paginated {
+		padding-right: 2em;
+		column-count: 2;
+		column-gap: 4em;
+		width: auto;
+		height: calc(100vh - 7.5em);
+		overflow: hidden;
+	}
+
+	#containerContainer {
+		width: 90%;
+		overflow: hidden;
+		margin: auto;
 	}
 
 	#jumpbtn {

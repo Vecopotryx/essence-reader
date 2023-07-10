@@ -1,7 +1,7 @@
 import { relativeToAbs } from "$lib/utils";
 import type { ZipInfo } from "unzipit";
 
-export const applySettings = (settings: { scale: number, fontFamily: string }) => {
+export const applySettings = (settings: { scale: number, fontFamily: string, paginated: boolean }) => {
     let styleE = document.getElementById("user-settings");
     if (!styleE) {
         styleE = document.createElement("style");
@@ -9,7 +9,14 @@ export const applySettings = (settings: { scale: number, fontFamily: string }) =
         document.head.appendChild(styleE);
     }
 
-    styleE.innerText = `
+    if (settings.paginated) {
+        styleE.innerText = `#container p, #container a, #container span {
+        font-size: ${20 * settings.scale / 10}px !important;
+        line-height: normal !important;
+        font-family: ${settings.fontFamily} !important;
+    }`
+    } else {
+        styleE.innerText = `
         #container {
             transform: scale(${settings.scale / 10});
             width: ${50 / (settings.scale / 10)}%;
@@ -22,11 +29,12 @@ export const applySettings = (settings: { scale: number, fontFamily: string }) =
         }
   
         ${settings.fontFamily !== "Default" ?
-            `#container p, #container a, #container span {
+                `#container p, #container a, #container span {
             font-family: ${settings.fontFamily} !important;
         }`
-            : ""}
+                : ""}
     `;
+    }
     localStorage.setItem("settings", JSON.stringify(settings));
 };
 
