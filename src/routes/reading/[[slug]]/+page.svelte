@@ -29,18 +29,20 @@
 	let scrolled: number = 0;
 
 	type settingsType = {
-		scale: number;
+		fontSize: number;
 		fontFamily: string;
 		paginated: boolean;
+		animations: boolean;
 	};
 
 	let storedSettingsJson = localStorage.getItem('settings');
 	let settings: settingsType = storedSettingsJson
 		? JSON.parse(storedSettingsJson)
 		: {
-				scale: 10,
+				fontSize: 10,
 				fontFamily: 'Default',
-				paginated: true
+				paginated: true,
+				animations: true
 		  };
 
 	$: settings, localStorage.setItem('settings', JSON.stringify(settings));
@@ -120,7 +122,7 @@
 		}
 		container.scrollTo({
 			left: pagesScrolled * (container.clientWidth + gapSize),
-			behavior: 'smooth'
+			behavior: settings.animations ? 'smooth' : 'instant'
 		});
 	};
 
@@ -137,7 +139,7 @@
 		}
 		container.scrollTo({
 			left: pagesScrolled * (container.clientWidth + gapSize),
-			behavior: 'smooth'
+			behavior: settings.animations ? 'smooth' : 'instant'
 		});
 	};
 
@@ -226,7 +228,7 @@
 			id="container"
 			class={settings.paginated ? 'paginated' : 'scrolled'}
 			data-sveltekit-preload-data="off"
-			style={`--fontSize: ${settings.scale * 1.5}px; --fontFamily: ${settings.fontFamily}`}
+			style={`--fontSize: ${settings.fontSize * 1.5}px; --fontFamily: ${settings.fontFamily}`}
 			bind:this={container}
 		/>
 	</div>

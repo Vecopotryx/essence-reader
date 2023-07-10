@@ -4,9 +4,10 @@
 	import TextLineSpacing from 'carbon-icons-svelte/lib/TextLineSpacing.svelte';
 
 	interface settingsInterface {
-		scale: number;
+		fontSize: number;
 		fontFamily: string;
 		paginated: boolean;
+		animations: boolean;
 	}
 
 	export let settings: settingsInterface;
@@ -26,21 +27,33 @@
 		Scrolled
 	</label>
 </div>
-<label for="fontpicker">Font:</label>
 
-<select name="fontpicker" bind:value={settings.fontFamily} style="width: 100%;">
-	<option>Default</option>
-	<option style="font-family:'Verdana'">Verdana</option>
-	<option style="font-family:'Arial'">Arial</option>
-	<option style="font-family:'Courier New '">Courier New </option>
-	<option style="font-family:'Helvetica'">Helvetica</option>
-	<option style="font-family:'Times New Roman'">Times New Roman</option>
-</select>
-<br />
-<label for="scale">Scale:</label>
-<br />
-<input name="scale" type="range" min="5" max="30" bind:value={settings.scale} />
+{#if settings.paginated}
+	<label>
+		Animations:
+		<input type="checkbox" bind:checked={settings.animations} />
+	</label>
+	<br />
+{/if}
+<label>
+	Font:
+	<select name="fontpicker" bind:value={settings.fontFamily} style="width: 100%;">
+		<option>Default</option>
+		<option style="font-family:'Verdana'">Verdana</option>
+		<option style="font-family:'Arial'">Arial</option>
+		<option style="font-family:'Courier New '">Courier New </option>
+		<option style="font-family:'Helvetica'">Helvetica</option>
+		<option style="font-family:'Times New Roman'">Times New Roman</option>
+	</select>
+</label>
 
+<br />
+
+<label>
+	Font size:
+	<br />
+	<input name="scale" type="range" min="5" max="30" bind:value={settings.fontSize} />
+</label>
 <ThemePicker />
 
 <style>
