@@ -225,7 +225,6 @@
 				<SettingsIcon size={24} slot="icon" />
 				<ReaderSettings bind:settings />
 			</Popover>
-			<button on:click={() => (settings.paginated = !settings.paginated)}>Toggle pagination</button>
 			<button on:click={() => incrementSection(-1)}><ArrowLeft size={24} /></button>
 			<button on:click={() => incrementSection(1)}><ArrowRight size={24} /></button>
 		</svelte:fragment>
