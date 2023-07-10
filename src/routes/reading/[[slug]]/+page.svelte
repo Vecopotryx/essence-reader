@@ -127,7 +127,7 @@
 		});
 	};
 
-	const prevPage = () => {
+	const prevPage = async() => {
 		if (pagesScrolled > 0) {
 			pagesScrolled--;
 			container.scrollTo({
@@ -135,10 +135,16 @@
 				behavior: 'smooth'
 			});
 		} else {
-			updateSection(section - 1);
-			pagesScrolled = 0;
+			await updateSection(section - 1);
+			await tick();
+			// Go to the end of the previous chapter
+			pagesScrolled = Math.floor(
+				(container.scrollWidth - 1.2 * container.clientWidth) /
+					(container.clientWidth + gapSize)
+			) + 1; // Adding 1 to account for the last page
 			container.scrollTo({
-				left: 0 // TODO: Go to the end of the previous chapter
+				left: pagesScrolled * (container.clientWidth + gapSize),
+				behavior: 'smooth'
 			});
 		}
 	};
