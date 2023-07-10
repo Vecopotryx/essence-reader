@@ -52,7 +52,7 @@
 		try {
 			entries = (await unzip(book.file)).entries;
 		} catch (e) {
-			if((e as Error).message.includes("permission")) {
+			if ((e as Error).message.includes('permission')) {
 				// Workaround to fix error in Chromium incognito mode.
 				// See: https://github.com/GoogleChrome/developer.chrome.com/issues/2563
 				const buffer = await book.file.arrayBuffer();
@@ -82,9 +82,9 @@
 		previousJumps = [...previousJumps, section];
 		const [chapter, elemId] = href.split('#');
 
-		if(settings.paginated) {
+		if (settings.paginated) {
 			pagesScrolled = 0;
-			container.scrollTo({left: 0});
+			container.scrollTo({ left: 0 });
 		}
 		if (chapter) {
 			const chapterIndex = book.spine.indexOf(chapter);
@@ -127,26 +127,21 @@
 		});
 	};
 
-	const prevPage = async() => {
+	const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
+
+	const prevPage = async () => {
 		if (pagesScrolled > 0) {
 			pagesScrolled--;
-			container.scrollTo({
-				left: pagesScrolled * (container.clientWidth + gapSize),
-				behavior: 'smooth'
-			});
 		} else {
-			await updateSection(section - 1);
-			await tick();
-			// Go to the end of the previous chapter
-			pagesScrolled = Math.floor(
-				(container.scrollWidth - 1.2 * container.clientWidth) /
-					(container.clientWidth + gapSize)
-			) + 1; // Adding 1 to account for the last page
-			container.scrollTo({
-				left: pagesScrolled * (container.clientWidth + gapSize),
-				behavior: 'smooth'
-			});
+			await updateSection(section - 1);		
+			await delay(50); // Wait so that CSS styles can be applied on previous chapter
+			// Necessary since the width changes when styles are applied
+			pagesScrolled = Math.floor(container.scrollWidth / (container.clientWidth + gapSize));
 		}
+		container.scrollTo({
+			left: pagesScrolled * (container.clientWidth + gapSize),
+			behavior: 'smooth'
+		});
 	};
 
 	const incrementSection = (inc: number) => {
@@ -225,6 +220,8 @@
 				<SettingsIcon size={24} slot="icon" />
 				<ReaderSettings bind:settings />
 			</Popover>
+			<button on:click={() => console.log(container.scrollWidth)}>Hi</button>
+
 			<button on:click={() => incrementSection(-1)}><ArrowLeft size={24} /></button>
 			<button on:click={() => incrementSection(1)}><ArrowRight size={24} /></button>
 		</svelte:fragment>
