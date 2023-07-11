@@ -29,7 +29,7 @@
 	let scrolled: number = 0;
 
 	type settingsType = {
-		fontSize: number;
+		scale: number;
 		fontFamily: string;
 		paginated: boolean;
 		animations: boolean;
@@ -39,7 +39,7 @@
 	let settings: settingsType = storedSettingsJson
 		? JSON.parse(storedSettingsJson)
 		: {
-				fontSize: 10,
+				scale: 10,
 				fontFamily: 'Default',
 				paginated: true,
 				animations: true
@@ -244,12 +244,14 @@
 			<button on:click={() => incrementSection(1)}><ArrowRight size={24} /></button>
 		</svelte:fragment>
 	</Topbar>
-	<div id={settings.paginated ? 'containerContainer' : ''}>
+	<div
+		id={settings.paginated ? 'containerContainer' : ''}
+		style={`--scale: ${settings.scale / 10}; --fontFamily: ${settings.fontFamily}`}
+	>
 		<div
 			id="container"
 			class={settings.paginated ? 'paginated' : 'scrolled'}
 			data-sveltekit-preload-data="off"
-			style={`--fontSize: ${settings.fontSize * 1.5}px; --fontFamily: ${settings.fontFamily}`}
 			bind:this={container}
 		/>
 	</div>
@@ -268,7 +270,6 @@
 	#container :global(p),
 	#container :global(a),
 	#container :global(span) {
-		font-size: var(--fontSize) !important;
 		line-height: normal !important;
 		font-family: var(--fontFamily) !important;
 	}
@@ -279,16 +280,19 @@
 		column-count: 2;
 		column-gap: 4em;
 		width: auto;
-		height: calc(100vh - 7.5em);
+		height: calc(90vh / var(--scale));
 		overflow: hidden;
 	}
 
 	.scrolled {
-		width: 50%;
+		transform: scale(var(--scale));
+		transform-origin: top;
+		width: calc(50% / var(--scale));
 	}
+
 	@media (max-width: 1500px) {
 		.scrolled {
-			width: 90%;
+			width: calc(90% / max(var(--scale), 1));
 		}
 
 		.paginated {
@@ -297,9 +301,11 @@
 	}
 
 	#containerContainer {
-		width: 90%;
 		overflow: hidden;
 		margin: auto;
+		transform: scale(var(--scale));
+		transform-origin: top;
+		width: calc(90% / max(var(--scale), 1));
 	}
 
 	#jumpbtn {

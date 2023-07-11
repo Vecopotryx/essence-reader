@@ -4,7 +4,7 @@
 	import TextLineSpacing from 'carbon-icons-svelte/lib/TextLineSpacing.svelte';
 
 	interface settingsInterface {
-		fontSize: number;
+		scale: number;
 		fontFamily: string;
 		paginated: boolean;
 		animations: boolean;
@@ -52,7 +52,7 @@
 <label>
 	Font size:
 	<br />
-	<input name="scale" type="range" min="5" max="30" bind:value={settings.fontSize} />
+	<input name="scale" type="range" min="5" max="30" bind:value={settings.scale} />
 </label>
 <ThemePicker />
 
