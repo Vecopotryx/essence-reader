@@ -41,7 +41,7 @@
 		: {
 				scale: 10,
 				fontFamily: 'Default',
-				paginated: true,
+				paginated: window.innerWidth > 1000, // Default to paginated if screen is big enough
 				animations: true
 		  };
 
@@ -271,8 +271,7 @@
 	}
 
 	.paginated {
-		padding-left: 2em;
-		padding-right: 2em;
+		padding: 0 2em;
 		column-count: 2;
 		column-gap: 4em;
 		width: auto;
@@ -288,14 +287,17 @@
 		width: calc(50% / var(--scale));
 	}
 
-	@media (max-width: 1500px) {
+	@media (max-width: 1000px) {
 		.scrolled {
 			width: calc(90% / max(var(--scale), 1));
 		}
 
-		.paginated {
-			column-count: 1;
-		}
+		/* Doesn't work with iOS, so recommending scrolled
+		for smaller screens for now. See similar issue: 
+		https://developer.apple.com/forums/thread/22213 */
+		/* .paginated {
+			column-count: 1;			
+		} */
 	}
 
 	#containerContainer {
