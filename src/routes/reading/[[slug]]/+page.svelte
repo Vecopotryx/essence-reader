@@ -173,6 +173,24 @@
 				break;
 		}
 	};
+
+	let timeout: number;
+
+	const handleResize = () => {
+		if (settings.paginated) {
+			clearTimeout(timeout);
+			timeout = setTimeout(updateAfterResize, 100);
+		}
+	};
+
+	const updateAfterResize = () => {
+		if (settings.paginated) {
+			container.scrollTo({
+				left: pagesScrolled * container.clientWidth,
+				behavior: settings.animations ? 'smooth' : 'instant'
+			});
+		}
+	};
 </script>
 
 <svelte:head>
@@ -237,7 +255,7 @@
 	</div>
 </div>
 
-<svelte:window bind:scrollY={scrolled} on:keydown={handleKeydown} />
+<svelte:window bind:scrollY={scrolled} on:resize={handleResize} on:keydown={handleKeydown} />
 
 <style>
 	#container {
