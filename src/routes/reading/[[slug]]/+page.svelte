@@ -45,8 +45,6 @@
 				animations: true
 		  };
 
-	$: settings, localStorage.setItem('settings', JSON.stringify(settings));
-
 	let entries: ZipInfo['entries'];
 	let previousJumps: number[] = [];
 
@@ -238,7 +236,7 @@
 			</Popover>
 			<Popover>
 				<SettingsIcon size={24} slot="icon" />
-				<ReaderSettings bind:settings />
+				<ReaderSettings bind:settings onScaleChange={updateAfterResize} />
 			</Popover>
 			<button on:click={() => incrementSection(-1)}><ArrowLeft size={24} /></button>
 			<button on:click={() => incrementSection(1)}><ArrowRight size={24} /></button>
@@ -278,7 +276,7 @@
 		column-count: 2;
 		column-gap: 4em;
 		width: auto;
-		height: calc(calc(100vh - 5em) / max(var(--scale), 1));
+		height: calc(calc(100vh - 6em) / max(var(--scale), 1));
 		overflow: hidden;
 	}
 

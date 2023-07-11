@@ -2,6 +2,7 @@
 	import ThemePicker from '$lib/components/ThemePicker.svelte';
 	import Book from 'carbon-icons-svelte/lib/Book.svelte';
 	import TextLineSpacing from 'carbon-icons-svelte/lib/TextLineSpacing.svelte';
+	import { onDestroy } from 'svelte';
 
 	interface settingsInterface {
 		scale: number;
@@ -11,6 +12,10 @@
 	}
 
 	export let settings: settingsInterface;
+	export let onScaleChange: () => void;
+	onDestroy(() => {
+		localStorage.setItem('settings', JSON.stringify(settings));
+	});
 </script>
 
 <div id="paginationSelectors">
@@ -52,7 +57,14 @@
 <label>
 	Font size:
 	<br />
-	<input name="scale" type="range" min="5" max="30" bind:value={settings.scale} />
+	<input
+		name="scale"
+		type="range"
+		min="5"
+		max="30"
+		bind:value={settings.scale}
+		on:change={onScaleChange}
+	/>
 </label>
 <ThemePicker />
 
