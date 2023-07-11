@@ -261,8 +261,6 @@
 
 <style>
 	#container {
-		padding-top: 3em;
-		padding-bottom: 2em;
 		transform-origin: top;
 		margin: auto;
 	}
@@ -280,11 +278,13 @@
 		column-count: 2;
 		column-gap: 4em;
 		width: auto;
-		height: calc(90vh / var(--scale));
+		height: calc(calc(100vh - 5em) / max(var(--scale), 1));
 		overflow: hidden;
 	}
 
 	.scrolled {
+		padding-top: 3em;
+		padding-bottom: 2em;
 		transform: scale(var(--scale));
 		transform-origin: top;
 		width: calc(50% / var(--scale));
@@ -306,6 +306,7 @@
 		transform: scale(var(--scale));
 		transform-origin: top;
 		width: calc(90% / max(var(--scale), 1));
+		padding-top: calc(3em / var(--scale));
 	}
 
 	#jumpbtn {
