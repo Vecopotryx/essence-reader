@@ -99,9 +99,9 @@
 			if (!element) return;
 			if (settings.paginated) {
 				const left = element.getBoundingClientRect().left - container.getBoundingClientRect().left;
-				pagesScrolled = Math.floor(left / (container.clientWidth + gapSize));
+				pagesScrolled = Math.floor(left / container.clientWidth);
 				container.scrollTo({
-					left: pagesScrolled * (container.clientWidth + gapSize),
+					left: pagesScrolled * container.clientWidth,
 					behavior: settings.animations ? 'smooth' : 'instant'
 				});
 			} else {
@@ -114,19 +114,17 @@
 		}
 	};
 
-	const em = parseFloat(window.getComputedStyle(document.body).fontSize);
-	const gapSize = 2 * em;
 	let pagesScrolled = 0;
 
 	const nextPage = () => {
-		if ((pagesScrolled + 1) * (container.clientWidth + gapSize) < container.scrollWidth) {
+		if ((pagesScrolled + 1) * container.clientWidth < container.scrollWidth) {
 			pagesScrolled++;
 		} else {
 			updateSection(section + 1);
 			pagesScrolled = 0;
 		}
 		container.scrollTo({
-			left: pagesScrolled * (container.clientWidth + gapSize),
+			left: pagesScrolled * container.clientWidth,
 			behavior: settings.animations ? 'smooth' : 'instant'
 		});
 	};
@@ -140,10 +138,10 @@
 			await updateSection(section - 1);
 			await delay(50); // Wait so that CSS styles can be applied on previous chapter
 			// Necessary since the width changes when styles are applied
-			pagesScrolled = Math.floor(container.scrollWidth / (container.clientWidth + gapSize));
+			pagesScrolled = Math.floor(container.scrollWidth / container.clientWidth);
 		}
 		container.scrollTo({
-			left: pagesScrolled * (container.clientWidth + gapSize),
+			left: pagesScrolled * container.clientWidth,
 			behavior: settings.animations ? 'smooth' : 'instant'
 		});
 	};
@@ -258,6 +256,7 @@
 	}
 
 	.paginated {
+		padding-left: 2em;
 		padding-right: 2em;
 		column-count: 2;
 		column-gap: 4em;
@@ -272,6 +271,10 @@
 	@media (max-width: 1500px) {
 		.scrolled {
 			width: 90%;
+		}
+
+		.paginated {
+			column-count: 1;
 		}
 	}
 
