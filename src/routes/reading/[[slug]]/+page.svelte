@@ -97,15 +97,20 @@
 			await tick(); // Wait until chapter has been loaded
 			const element = document.getElementById(elemId);
 			if (!element) return;
-			element.style.fontSize = '100px';
-			element.scrollIntoView({
-				behavior: 'auto',
-				block: 'center',
-				inline: 'center'
-			});
-			// Make the element "pop" and then resize back into its normal size.
-			element.style.transition = 'font 1s ease';
-			element.style.fontSize = '';
+			if (settings.paginated) {
+				const left = element.getBoundingClientRect().left - container.getBoundingClientRect().left;
+				pagesScrolled = Math.floor(left / (container.clientWidth + gapSize));
+				container.scrollTo({
+					left: pagesScrolled * (container.clientWidth + gapSize),
+					behavior: settings.animations ? 'smooth' : 'instant'
+				});
+			} else {
+				element.scrollIntoView({
+					behavior: 'auto',
+					block: 'center',
+					inline: 'center'
+				});
+			}
 		}
 	};
 
