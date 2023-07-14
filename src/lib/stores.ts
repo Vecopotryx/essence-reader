@@ -20,5 +20,10 @@ if (browser && localStorage.getItem('shouldSave') !== null) {
     } catch {
         localStorage.removeItem('shouldSave');
     }
-    shouldSaveStore.subscribe((value) => localStorage.setItem('shouldSave', JSON.stringify(value)));
 }
+
+shouldSaveStore.subscribe((value) => {
+    if (browser) {
+        localStorage.setItem('shouldSave', JSON.stringify(value))
+    }
+});
