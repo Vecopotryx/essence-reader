@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { setLoaded } from '$lib/stores';
+	import { shouldSaveStore } from '$lib/stores';
 	import type { Metadata } from '$lib/types';
 	import { onMount } from 'svelte';
 	import Topbar from '$lib/components/Topbar.svelte';
@@ -12,7 +12,6 @@
 	let openBookDB: typeof import('$lib/db').openBookDB;
 
 
-	let saveBooksOn = true;
 	const clickFile = async () => {
 		let input = document.createElement('input');
 		const readFile = (await import('$lib/utils')).readFile;
@@ -77,7 +76,7 @@
 		<Settings slot="icon" size={24} />
 		<div style="width: 8em">
 			<label>
-				<input type="checkbox" bind:checked={saveBooksOn} />
+				<input type="checkbox" bind:checked={$shouldSaveStore} />
 				Save books
 			</label>
 			<button on:click={deleteAllBooks}>Remove all</button>

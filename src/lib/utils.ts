@@ -1,6 +1,6 @@
 import { addBook } from '$lib/db';
 import { goto } from '$app/navigation';
-import { setLoaded } from '$lib/stores';
+import { setLoaded, shouldSaveStore } from '$lib/stores';
 import { parseEpub } from './services/parse';
 import { page } from '$app/stores';
 import { get } from 'svelte/store';
@@ -13,7 +13,7 @@ export const readFile = async (file: File) => {
         const { meta, book } = await parseEpub(file);
         let id = "";
 
-        if (/*saveBooksOn && */file.size < 30000000) {
+        if (get(shouldSaveStore) && file.size < 30000000) {
             id = await addBook(meta, book);
         }
 
