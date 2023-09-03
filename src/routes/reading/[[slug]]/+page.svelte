@@ -63,7 +63,9 @@
 	});
 
 	onDestroy(() => {
-		document.head.querySelectorAll('.essence-reader').forEach((styleE) => styleE.remove());
+		document.head
+			.querySelectorAll('.essence-reader')
+			.forEach((styleE) => styleE.remove());
 	});
 
 	const updateSection = async (index: number) => {
@@ -74,7 +76,9 @@
 			if (meta.id) {
 				(await openBookDB).put('metas', meta);
 			}
-			container.replaceChildren(await assembleChapter(book.spine[section], entries, jumpTo));
+			container.replaceChildren(
+				await assembleChapter(book.spine[section], entries, jumpTo)
+			);
 		}
 	};
 
@@ -96,7 +100,9 @@
 			const element = document.getElementById(elemId);
 			if (!element) return;
 			if (settings.paginated) {
-				const left = element.getBoundingClientRect().left - container.getBoundingClientRect().left;
+				const left =
+					element.getBoundingClientRect().left -
+					container.getBoundingClientRect().left;
 				pagesScrolled = Math.floor(left / container.clientWidth);
 				container.scrollTo({
 					left: pagesScrolled * container.clientWidth,
@@ -222,8 +228,7 @@
 						if (lastJump !== undefined) {
 							updateSection(lastJump);
 						}
-					}}
-				>
+					}}>
 					<DirectionLoopLeft />
 					{previousJumps[previousJumps.length - 1]}
 				</button>
@@ -238,24 +243,29 @@
 				<SettingsIcon size={24} slot="icon" />
 				<ReaderSettings bind:settings onScaleChange={updateAfterResize} />
 			</Popover>
-			<button on:click={() => incrementSection(-1)}><ArrowLeft size={24} /></button>
-			<button on:click={() => incrementSection(1)}><ArrowRight size={24} /></button>
+			<button on:click={() => incrementSection(-1)}
+				><ArrowLeft size={24} /></button>
+			<button on:click={() => incrementSection(1)}
+				><ArrowRight size={24} /></button>
 		</svelte:fragment>
 	</Topbar>
 	<div
 		id={settings.paginated ? 'containerContainer' : ''}
-		style={`--scale: ${settings.scale / 10}; --fontFamily: ${settings.fontFamily}`}
-	>
+		style={`--scale: ${settings.scale / 10}; --fontFamily: ${
+			settings.fontFamily
+		}`}>
 		<div
 			id="container"
 			class={settings.paginated ? 'paginated' : 'scrolled'}
 			data-sveltekit-preload-data="off"
-			bind:this={container}
-		/>
+			bind:this={container} />
 	</div>
 </div>
 
-<svelte:window bind:scrollY={scrolled} on:resize={handleResize} on:keydown={handleKeydown} />
+<svelte:window
+	bind:scrollY={scrolled}
+	on:resize={handleResize}
+	on:keydown={handleKeydown} />
 
 <style>
 	#container {

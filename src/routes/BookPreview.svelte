@@ -13,12 +13,13 @@
 		on:click={(e) => {
 			e.stopPropagation();
 			if (meta.id) deleteBook(meta.id);
-		}}
-	>
+		}}>
 		<TrashCan size={20} />
 	</button>
 
-	<img src={meta.cover !== undefined ? URL.createObjectURL(meta.cover) : ''} alt="cover" />
+	<img
+		src={meta.cover !== undefined ? URL.createObjectURL(meta.cover) : ''}
+		alt="cover" />
 
 	<div class="bookInfo">
 		<h4>{meta.author}</h4>

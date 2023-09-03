@@ -17,7 +17,9 @@
 		if (tocitem.index === currentSection) {
 			selected = true;
 		} else if (tocitem.children) {
-			selected = tocitem.children.some((child) => child.index === currentSection);
+			selected = tocitem.children.some(
+				(child) => child.index === currentSection
+			);
 			if (selected) expanded = true; // Auto-Expanded if any child is selected
 		} else {
 			selected = false;
@@ -28,9 +30,13 @@
 </script>
 
 <div class="tocNode">
-	<button class="tocButton" class:selected on:click={() => onClick(tocitem.href)}>
+	<button
+		class="tocButton"
+		class:selected
+		on:click={() => onClick(tocitem.href)}>
 		{#if tocitem.children}
-			<button class="expansionBtn" class:expanded on:click={toggleExpansion}>▶</button>
+			<button class="expansionBtn" class:expanded on:click={toggleExpansion}
+				>▶</button>
 		{/if}
 		{tocitem.title}
 	</button>

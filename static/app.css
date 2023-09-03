@@ -1,4 +1,5 @@
-html, body {
+html,
+body {
 	position: relative;
 	width: 100%;
 }
@@ -9,11 +10,16 @@ body {
 	box-sizing: border-box;
 	background: rgb(var(--primary-bg));
 	color: rgb(var(--primary-color));
-	transition: background-color 0.5s, color 0.5s;
-	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+	transition:
+		background-color 0.5s,
+		color 0.5s;
+	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+		Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
 }
 
-#container a, #container p, #container span {
+#container a,
+#container p,
+#container span {
 	color: var(--primary-color) !important;
 }
 
@@ -23,20 +29,20 @@ body {
 	--secondary-bg: 249, 249, 249;
 }
 
-[data-theme="dark"] {
+[data-theme='dark'] {
 	--primary-color: 233, 233, 233;
 	--primary-bg: 3, 32, 56;
-    --secondary-bg: 7, 37, 62;
+	--secondary-bg: 7, 37, 62;
 }
 
-[data-theme="warm"] {
+[data-theme='warm'] {
 	--primary-color: 0, 0, 0;
 	--primary-bg: 246, 228, 189;
-    --secondary-bg: 251, 238, 210;
+	--secondary-bg: 251, 238, 210;
 }
 
-[data-theme="black"] {
+[data-theme='black'] {
 	--primary-color: 233, 233, 233;
 	--primary-bg: 0, 0, 0;
-    --secondary-bg: 28, 32, 34;
+	--secondary-bg: 28, 32, 34;
 }

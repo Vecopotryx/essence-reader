@@ -11,16 +11,15 @@
 	import BookPreview from './BookPreview.svelte';
 	let openBookDB: typeof import('$lib/db').openBookDB;
 
-
 	const clickFile = async () => {
 		let input = document.createElement('input');
 		const readFile = (await import('$lib/utils')).readFile;
-		
+
 		input.type = 'file';
 		input.multiple = true;
 		input.onchange = (e) => {
 			const files = (e.target as HTMLInputElement).files;
-			if(!files) return;
+			if (!files) return;
 			for (const file of files) {
 				readFile(file); // Perhaps want to pass saveBooksOn here
 			}
@@ -93,8 +92,7 @@
 			<button
 				class="libraryItem"
 				on:click={() => goto(`reading/${meta.id}`)}
-				animate:flip={{ duration: 200 }}
-			>
+				animate:flip={{ duration: 200 }}>
 				<BookPreview {meta} {deleteBook} />
 			</button>
 		{/each}
