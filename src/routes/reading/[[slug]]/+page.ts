@@ -1,7 +1,6 @@
 export const ssr = false;
 import type { PageLoad } from './$types';
 import { getLoaded, setLoaded } from '$lib/stores';
-import type { Book, Metadata } from '$lib/types';
 import { error } from '@sveltejs/kit';
 
 export const load = (async ({ params }) => {
