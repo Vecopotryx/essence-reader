@@ -285,7 +285,8 @@
 		column-count: 2;
 		column-gap: 4em;
 		width: auto;
-		height: calc(calc(100vh - 6em) / max(var(--scale), 1));
+		margin-bottom: 2em;
+		height: calc(calc(100vh - 5em) / max(var(--scale), 1));
 		overflow: hidden;
 	}
 

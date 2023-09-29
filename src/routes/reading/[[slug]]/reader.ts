@@ -68,7 +68,7 @@ export const assembleChapter = async (
 				const blob = await entries[filename].blob();
 				e.setAttribute('src', URL.createObjectURL(blob));
 				e.style.cssText +=
-					'max-height: 100%; max-width: 100%; object-fit: scale-down;';
+					'max-height: 80vh; max-width: 100%; object-fit: scale-down;';
 				break;
 			}
 
