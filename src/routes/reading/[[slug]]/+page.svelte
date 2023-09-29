@@ -142,7 +142,12 @@
 			await updateSection(section - 1);
 			await delay(50); // Wait so that CSS styles can be applied on previous chapter
 			// Necessary since the width changes when styles are applied
-			pagesScrolled = Math.floor(container.scrollWidth / container.clientWidth);
+
+			if(container.scrollWidth > container.clientWidth) {
+				pagesScrolled = Math.floor(container.scrollWidth / container.clientWidth);
+			} else {
+				pagesScrolled = 0;
+			}
 		}
 		container.scrollTo({
 			left: pagesScrolled * container.clientWidth,
