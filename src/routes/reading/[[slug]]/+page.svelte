@@ -280,6 +280,13 @@
 		font-family: var(--fontFamily) !important;
 	}
 
+	#container :global(img),
+	#container :global(svg) {
+		max-height: calc(calc(100vh - 6em) / max(var(--scale), 1));
+		max-width: 100%;
+		object-fit: scale-down;
+	}
+
 	.paginated {
 		padding: 0 2em;
 		column-count: 2;

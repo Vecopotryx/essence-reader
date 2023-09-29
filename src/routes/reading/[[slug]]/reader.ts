@@ -67,8 +67,6 @@ export const assembleChapter = async (
 				const filename = relativeToAbs(src, chapterPath).path;
 				const blob = await entries[filename].blob();
 				e.setAttribute('src', URL.createObjectURL(blob));
-				e.style.cssText +=
-					'max-height: 80vh; max-width: 100%; object-fit: scale-down;';
 				break;
 			}
 
@@ -83,6 +81,15 @@ export const assembleChapter = async (
 					'href',
 					URL.createObjectURL(blob)
 				);
+				e.setAttribute('height', '100%');
+				e.setAttribute('width', '100%');
+
+				// // Set SVG element (parent) width and height
+				if(e.parentElement?.tagName.toLowerCase() === 'svg') {
+					e.parentElement?.setAttribute('height', 'auto');
+				 	e.parentElement?.setAttribute('width', 'auto');
+				}
+
 				break;
 			}
 
