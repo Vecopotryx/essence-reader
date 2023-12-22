@@ -80,6 +80,12 @@ export const assembleChapter = async (
 			const filename = relativeToAbs(url, chapterPath).path;
 			const blob = await entries[filename].blob();
 			e.setAttribute(attribute, URL.createObjectURL(blob));
+
+			// Fixes some SVGs not playing nicely
+			if (e.parentElement?.tagName.toLowerCase() === 'svg') {
+				e.parentElement?.setAttribute('height', 'auto');
+				e.parentElement?.setAttribute('width', 'auto');
+			}
 		}
 	}
 
