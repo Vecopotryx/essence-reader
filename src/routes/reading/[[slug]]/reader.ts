@@ -56,65 +56,30 @@ export const assembleChapter = async (
 
 	injectStyles(styles);
 
-	for (const e of newHTML.body.querySelectorAll<HTMLElement>(
-		'[src],[href], image'
-	)) {
-		switch (e.tagName) {
-			case 'IMG':
-			case 'img': {
-				const src = e.getAttribute('src');
-				if (!src) break;
-				const filename = relativeToAbs(src, chapterPath).path;
-				const blob = await entries[filename].blob();
-				e.setAttribute('src', URL.createObjectURL(blob));
-				break;
+	// Process all URLs in the chapter
+	for (const e of newHTML.body.querySelectorAll('[src], svg image, a[href]')) {
+		if (e.tagName.toLowerCase() === 'a') {
+			const href = e.getAttribute('href');
+			if (href && !href.includes('http')) {
+				e.addEventListener('click', (event) => {
+					event.preventDefault();
+					const relativeToAbsResult = relativeToAbs(href, chapterPath);
+					const absHref = relativeToAbsResult.path + relativeToAbsResult.hash;
+					jumpTo(absHref); // Internal links within the book
+				});
+			} else {
+				e.setAttribute('target', '_blank'); // External links open in a new tab
 			}
+			continue;
+		}
 
-			case 'IMAGE':
-			case 'image': {
-				const href = e.getAttributeNS('http://www.w3.org/1999/xlink', 'href');
-				if (!href) break;
-				const filename = relativeToAbs(href, chapterPath).path;
-				const blob = await entries[filename].blob();
-				e.setAttributeNS(
-					'http://www.w3.org/1999/xlink',
-					'href',
-					URL.createObjectURL(blob)
-				);
-				e.setAttribute('height', '100%');
-				e.setAttribute('width', '100%');
+		const attribute = e.tagName.toLowerCase() === 'img' ? 'src' : 'xlink:href';
+		const url = e.getAttribute(attribute);
 
-				// // Set SVG element (parent) width and height
-				if(e.parentElement?.tagName.toLowerCase() === 'svg') {
-					e.parentElement?.setAttribute('height', 'auto');
-				 	e.parentElement?.setAttribute('width', 'auto');
-				}
-
-				break;
-			}
-
-			default: {
-				const href = e.getAttribute('href');
-				if (href !== null) {
-					if (href.includes('http')) {
-						e.setAttribute('target', '_blank');
-					} else {
-						const relativeToAbsResult = relativeToAbs(href, chapterPath);
-						const absHref = relativeToAbsResult.path + relativeToAbsResult.hash;
-						e.addEventListener('click', (event) => {
-							event.preventDefault();
-							jumpTo(absHref);
-						});
-					}
-				}
-
-				const src = e.getAttribute('src');
-				if (src && !src.includes('http')) {
-					e.removeAttribute('src');
-				}
-
-				break;
-			}
+		if (url && !url.includes('http')) {
+			const filename = relativeToAbs(url, chapterPath).path;
+			const blob = await entries[filename].blob();
+			e.setAttribute(attribute, URL.createObjectURL(blob));
 		}
 	}
 
