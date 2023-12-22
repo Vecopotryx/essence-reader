@@ -22,7 +22,7 @@ export const load = (async ({ params }) => {
 		const book = await tx.objectStore('books').get(slugID);
 		await tx.done;
 
-		if (!book) throw error(404, 'Book not found in database');
+		if (!book) error(404, 'Book not found in database');
 
 		const stored = { meta, book };
 		setLoaded(stored);
