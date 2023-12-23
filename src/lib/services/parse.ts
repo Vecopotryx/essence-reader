@@ -26,7 +26,6 @@ const parseOpf = (opf: string, opfPath: string) => {
 	}
 
 	const ncxPath = manifestItems.get('ncx');
-	if (!ncxPath) throw new Error('NCX file not found in OPF');
 
 	return { title, author, coverPath, spine, ncxPath };
 };
@@ -167,9 +166,13 @@ export const parseEpub = async (
 
 		const { title, author, coverPath, spine, ncxPath } = parseOpf(opf, opfPath);
 
-		const ncx = await entries[ncxPath].text();
+		let toc: TableOfContentsItem[] = [];
+		if (ncxPath) {
+			// Allowing for books without a ncx file
+			const ncx = await entries[ncxPath].text();
+			toc = parseToc(ncx, ncxPath, spine);
+		}
 
-		const toc: TableOfContentsItem[] = parseToc(ncx, ncxPath, spine);
 		let cover: Blob | undefined;
 
 		try {
