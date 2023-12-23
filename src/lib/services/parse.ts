@@ -1,73 +1,34 @@
-import { unzip, type ZipInfo } from 'unzipit';
+import { unzip } from 'unzipit';
 import type { Metadata, Book, TableOfContentsItem } from '$lib/types';
 import { relativeToAbs, removeHash } from '$lib/utils';
 const domParser = new DOMParser();
 
-const parseOpf = (opf: {
-	text: string;
-	href: string;
-}): {
-	title: string;
-	author: string[];
-	coverFile: string | undefined;
-	spine: string[];
-} => {
-	const parsed = domParser.parseFromString(opf.text, 'text/xml');
+const parseOpf = (opf: string, opfPath: string) => {
+	const opfDocument = domParser.parseFromString(opf, 'text/xml');
 
-	const metadata = parsed.querySelector('metadata');
-	const { title, author, coverId } = metadata
-		? parseMeta(metadata)
-		: { title: '', author: [], coverId: undefined };
+	const metadata = opfDocument.querySelector('metadata');
+	if (!metadata) throw new Error('Metadata element not found in OPF');
+	const { title, author, coverId } = parseMeta(metadata);
 
-	const manifestElement = parsed.querySelector('manifest');
+	const manifestElement = opfDocument.querySelector('manifest');
 	if (!manifestElement) throw new Error('Manifest element not found in OPF');
+	const manifestItems = parseManifest(manifestElement, opfPath);
 
-	const manifestItems = parseManifest(manifestElement, opf.href);
-
-	const spineElement = parsed.querySelector('spine');
+	const spineElement = opfDocument.querySelector('spine');
 	if (!spineElement) throw new Error('Spine element not found in OPF');
-
 	const spine = parseSpine(spineElement, manifestItems);
 
-	let coverFile: string | undefined;
+	let coverPath: string | undefined;
 	if (coverId && manifestItems.has(coverId)) {
-		coverFile = manifestItems.get(coverId);
+		coverPath = manifestItems.get(coverId);
 	} else {
-		coverFile = undefined;
+		coverPath = undefined;
 	}
 
-	return { title, author, coverFile, spine };
-};
+	const ncxPath = manifestItems.get('ncx');
+	if (!ncxPath) throw new Error('NCX file not found in OPF');
 
-interface extractInterface {
-	opf: { text: string; href: string };
-	ncx: { text: string; href: string };
-	entries: ZipInfo['entries'];
-}
-
-const extract = async (file: File): Promise<extractInterface> => {
-	const { entries } = await unzip(file);
-
-	const opf = { text: '', href: '' };
-	const ncx = { text: '', href: '' };
-
-	for (const [href, entry] of Object.entries(entries)) {
-		switch (href.substring(href.lastIndexOf('.'))) {
-			case '.opf':
-				opf.text = await entry.text();
-				opf.href = href;
-				break;
-			case '.ncx': {
-				ncx.text = await entry.text();
-				ncx.href = href;
-				break;
-			}
-			default:
-				break;
-		}
-	}
-
-	return { opf, ncx, entries };
+	return { title, author, coverPath, spine, ncxPath };
 };
 
 const parseMeta = (
@@ -90,15 +51,22 @@ const parseMeta = (
 
 const parseManifest = (
 	manifest: Element,
-	opfHref: string
+	opfPath: string
 ): Map<string, string> => {
 	const manifestItems: Map<string, string> = new Map();
 
 	for (const item of manifest.children) {
+		if (item.getAttribute('media-type') === 'application/x-dtbncx+xml') {
+			const href = item.getAttribute('href');
+			if (href) {
+				manifestItems.set('ncx', relativeToAbs(href, opfPath));
+			}
+			continue;
+		}
 		const id = item.getAttribute('id');
 		const href = item.getAttribute('href');
 		if (id && href) {
-			manifestItems.set(id, relativeToAbs(href, opfHref));
+			manifestItems.set(id, relativeToAbs(href, opfPath));
 		}
 	}
 
@@ -133,63 +101,86 @@ const getCoverFromFirstPage = (
 const TocRecursive = (
 	navPoint: Element,
 	spine: string[],
-	ncxHref: string
+	ncxPath: string
 ): TableOfContentsItem => {
 	const title = navPoint.querySelector('text')?.textContent || '';
 
 	const contentElement = navPoint.querySelector('content');
 	const href = contentElement?.getAttribute('src');
 
-	const relativeHref = href ? relativeToAbs(href, ncxHref) : '';
+	const relativePath = href ? relativeToAbs(href, ncxPath) : '';
 
-	const index = spine.indexOf(removeHash(relativeHref));
+	const index = spine.indexOf(removeHash(relativePath));
 
 	const children = Array.from(navPoint.querySelectorAll('navPoint')).map((x) =>
-		TocRecursive(x, spine, ncxHref)
+		TocRecursive(x, spine, ncxPath)
 	);
 	return {
 		title,
-		href: relativeHref,
+		href: relativePath,
 		index,
 		children: children.length > 0 ? children : undefined
 	};
 };
 
 const parseToc = (
-	ncx: { text: string; href: string },
+	ncx: string,
+	ncxPath: string,
 	spine: string[]
 ): TableOfContentsItem[] => {
 	const TOC: TableOfContentsItem[] = [];
 	const navMap = domParser
-		.parseFromString(ncx.text, 'application/xml')
+		.parseFromString(ncx, 'application/xml')
 		.querySelector('navMap');
 	if (navMap) {
 		for (const navPoint of navMap.children) {
-			TOC.push(TocRecursive(navPoint, spine, ncx.href));
+			TOC.push(TocRecursive(navPoint, spine, ncxPath));
 		}
 	}
 	return TOC;
 };
 
+const parseContainer = (containerFileContent: string): string => {
+	const containerDocument = domParser.parseFromString(
+		containerFileContent,
+		'text/xml'
+	);
+
+	const opfPath = containerDocument
+		.querySelector('rootfile')
+		?.getAttribute('full-path');
+
+	if (!opfPath) throw new Error('OPF file not found in container.xml');
+
+	return opfPath;
+};
+
 export const parseEpub = async (
 	epub: File
 ): Promise<{ meta: Metadata; book: Book }> => {
-	// Perhaps want to extract here and then pass entries to function that gets toc and opf
 	try {
-		const { opf, ncx, entries } = await extract(epub);
-		const { title, author, coverFile, spine } = parseOpf(opf);
-		const toc: TableOfContentsItem[] = parseToc(ncx, spine);
+		const { entries } = await unzip(epub);
+
+		const container = await entries['META-INF/container.xml'].text();
+		const opfPath = parseContainer(container);
+		const opf = await entries[opfPath].text();
+
+		const { title, author, coverPath, spine, ncxPath } = parseOpf(opf, opfPath);
+
+		const ncx = await entries[ncxPath].text();
+
+		const toc: TableOfContentsItem[] = parseToc(ncx, ncxPath, spine);
 		let cover: Blob | undefined;
 
 		try {
-			if (coverFile === undefined) {
+			if (coverPath === undefined) {
 				const firstPageImage = getCoverFromFirstPage(
 					await entries[spine[0]].text(),
 					spine[0]
 				);
 				cover = await entries[firstPageImage].blob();
 			} else {
-				cover = await entries[coverFile].blob();
+				cover = await entries[coverPath].blob();
 			}
 		} catch (e) {
 			cover = undefined;
