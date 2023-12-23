@@ -1,6 +1,6 @@
 import { unzip, type ZipInfo } from 'unzipit';
 import type { Metadata, Book, TableOfContentsItem } from '$lib/types';
-import { relativeToAbs } from '$lib/utils';
+import { relativeToAbs, removeHash } from '$lib/utils';
 const domParser = new DOMParser();
 
 const parseOpf = (opf: {
@@ -98,7 +98,7 @@ const parseManifest = (
 		const id = item.getAttribute('id');
 		const href = item.getAttribute('href');
 		if (id && href) {
-			manifestItems.set(id, relativeToAbs(href, opfHref).path);
+			manifestItems.set(id, relativeToAbs(href, opfHref));
 		}
 	}
 
@@ -124,7 +124,7 @@ const getCoverFromFirstPage = (
 		.querySelector('img');
 	if (imageElement && imageElement.hasAttribute('src')) {
 		const path = imageElement.getAttribute('src');
-		return path ? relativeToAbs(path, relativeTo).path : '';
+		return path ? relativeToAbs(path, relativeTo) : '';
 	} else {
 		return '';
 	}
@@ -140,18 +140,16 @@ const TocRecursive = (
 	const contentElement = navPoint.querySelector('content');
 	const href = contentElement?.getAttribute('src');
 
-	const { path, hash } = href
-		? relativeToAbs(href, ncxHref)
-		: { path: '', hash: '' };
+	const relativeHref = href ? relativeToAbs(href, ncxHref) : '';
 
-	const index = spine.indexOf(path);
+	const index = spine.indexOf(removeHash(relativeHref));
 
 	const children = Array.from(navPoint.querySelectorAll('navPoint')).map((x) =>
 		TocRecursive(x, spine, ncxHref)
 	);
 	return {
 		title,
-		href: path + hash,
+		href: relativeHref,
 		index,
 		children: children.length > 0 ? children : undefined
 	};

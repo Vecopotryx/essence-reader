@@ -47,7 +47,7 @@ export const assembleChapter = async (
 		if (e.tagName.toLowerCase() === 'link') {
 			const href = e.getAttribute('href');
 			if (!href) continue;
-			const filename = relativeToAbs(href, chapterPath).path;
+			const filename = relativeToAbs(href, chapterPath);
 			styles.push(await entries[filename].text());
 		} else {
 			styles.push(e.innerHTML);
@@ -63,8 +63,7 @@ export const assembleChapter = async (
 			if (href && !href.includes('http')) {
 				e.addEventListener('click', (event) => {
 					event.preventDefault();
-					const relativeToAbsResult = relativeToAbs(href, chapterPath);
-					const absHref = relativeToAbsResult.path + relativeToAbsResult.hash;
+					const absHref = relativeToAbs(href, chapterPath);
 					jumpTo(absHref); // Internal links within the book
 				});
 			} else {
@@ -77,7 +76,7 @@ export const assembleChapter = async (
 		const url = e.getAttribute(attribute);
 
 		if (url && !url.includes('http')) {
-			const filename = relativeToAbs(url, chapterPath).path;
+			const filename = relativeToAbs(url, chapterPath);
 			const blob = await entries[filename].blob();
 			e.setAttribute(attribute, URL.createObjectURL(blob));
 

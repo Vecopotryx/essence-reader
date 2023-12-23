@@ -31,7 +31,11 @@ export const readFile = async (file: File) => {
 };
 
 export const relativeToAbs = (href: string, relativeTo: string) => {
-	const [nohash, hash] = href.split('#');
-	const url = new URL(nohash, `http://localhost/${relativeTo}`);
-	return { path: decodeURI(url.pathname.slice(1)), hash: `#${hash}` };
+	const url = new URL(href, `http://localhost/${relativeTo}`);
+	return decodeURI(url.pathname.slice(1));
+};
+
+export const removeHash = (path: string) => {
+	const hashIndex = path.indexOf('#');
+	return hashIndex === -1 ? path : path.slice(0, hashIndex);
 };
