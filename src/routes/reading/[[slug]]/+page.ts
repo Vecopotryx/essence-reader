@@ -6,7 +6,9 @@ import { error } from '@sveltejs/kit';
 export const load = (async ({ params }) => {
 	const loaded = getLoaded();
 
-	if (loaded) return loaded;
+	if (loaded && (!params.slug || loaded.meta.id === Number(params.slug))) {
+		return loaded;
+	}
 
 	if (!params.slug) error(400, 'No book loaded and no book ID provided');
 
