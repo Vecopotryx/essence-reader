@@ -198,6 +198,9 @@ export const parseEpub = async (
 		return { meta, book };
 	} catch (e) {
 		console.error(e);
-		throw new Error(epub.name + ' does not appear to be a valid EPUB file');
+		if (e instanceof Error) {
+			throw new Error(`Error parsing EPUB file - ${e.message}`);
+		}
+		throw new Error('Error parsing EPUB file');
 	}
 };
