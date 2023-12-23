@@ -6,29 +6,27 @@ import { error } from '@sveltejs/kit';
 export const load = (async ({ params }) => {
 	const loaded = getLoaded();
 
-	// Handles the case where book is loaded, but saving of books is off.
-	if (!params.slug && !loaded) {
-		throw new Error('No book loaded');
-	} else if (!params.slug) {
-		return loaded;
-	}
+	if (loaded) return loaded;
+
+	if (!params.slug) error(400, 'No book loaded and no book ID provided');
 
 	const slugID = Number(params.slug);
-	if (!loaded || loaded.meta.id !== slugID) {
-		const db = await (await import('$lib/db')).openBookDB;
 
-		const tx = db.transaction(['metas', 'books'], 'readonly');
-		const meta = await tx.objectStore('metas').get(slugID);
-		const book = await tx.objectStore('books').get(slugID);
-		await tx.done;
-
-		if (!book) error(404, 'Book not found in database');
-
-		const stored = { meta, book };
-		setLoaded(stored);
-
-		return stored;
+	if (isNaN(slugID) || !Number.isInteger(slugID) || slugID <= 0) {
+		error(400, 'Invalid or non-numeric book ID provided');
 	}
 
-	return loaded;
+	const db = await (await import('$lib/db')).openBookDB;
+
+	const tx = db.transaction(['metas', 'books'], 'readonly');
+	const meta = await tx.objectStore('metas').get(slugID);
+	const book = await tx.objectStore('books').get(slugID);
+	await tx.done;
+
+	if (!book) error(404, `Book with ID ${slugID} not found in your saved books`);
+
+	const stored = { meta, book };
+	setLoaded(stored);
+
+	return stored;
 }) satisfies PageLoad;
