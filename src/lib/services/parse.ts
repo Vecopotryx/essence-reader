@@ -18,11 +18,20 @@ const parseOpf = (opf: string, opfPath: string) => {
 	if (!spineElement) throw new Error('Spine element not found in OPF');
 	const spine = parseSpine(spineElement, manifestItems);
 
-	let coverPath: string | undefined;
+	let coverPath: string | undefined = undefined;
 	if (coverId && manifestItems.has(coverId)) {
+		// Found cover following EPUB 2 spec
 		coverPath = manifestItems.get(coverId);
 	} else {
-		coverPath = undefined;
+		// Try to find cover following EPUB 3 spec
+		const coverItem = manifestElement.querySelector(
+			"item[properties='cover-image']"
+		);
+		const href = coverItem?.getAttribute('href');
+
+		if (href) {
+			coverPath = relativeToAbs(href, opfPath);
+		}
 	}
 
 	const ncxPath = manifestItems.get('ncx');
@@ -79,23 +88,6 @@ const parseSpine = (
 	Array.from(spine.children).map(
 		(x) => manifestItems.get(x.getAttribute('idref') ?? '') ?? ''
 	);
-
-const getCoverFromFirstPage = (
-	firstPageHTML: string,
-	relativeTo: string
-): string => {
-	// Fallback to taking image from first page if no cover from opf metadata.
-	// Should only be used if no cover from opf metadata.
-	const imageElement = domParser
-		.parseFromString(firstPageHTML, 'application/xhtml+xml')
-		.querySelector('img');
-	if (imageElement && imageElement.hasAttribute('src')) {
-		const path = imageElement.getAttribute('src');
-		return path ? relativeToAbs(path, relativeTo) : '';
-	} else {
-		return '';
-	}
-};
 
 const TocRecursive = (
 	navPoint: Element,
@@ -174,15 +166,8 @@ export const parseEpub = async (
 		}
 
 		let cover: Blob | undefined;
-
 		try {
-			if (coverPath === undefined) {
-				const firstPageImage = getCoverFromFirstPage(
-					await entries[spine[0]].text(),
-					spine[0]
-				);
-				cover = await entries[firstPageImage].blob();
-			} else {
+			if (coverPath) {
 				cover = await entries[coverPath].blob();
 			}
 		} catch (e) {
