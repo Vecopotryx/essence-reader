@@ -2,9 +2,7 @@
 	export let toned: boolean = false;
 </script>
 
-<div
-	id="topbar"
-	style={toned ? 'color: rgba(var(--primary-color), 0.6);' : ' '}>
+<div id="topbar" style={toned ? 'color: rgba(var(--primary-color), 0.6);' : ' '}>
 	<div class="buttonbar" id="leftbar">
 		<slot name="leftbar" />
 	</div>
@@ -68,15 +66,12 @@
 		transition:
 			background-color 0.5s,
 			color 0.5s;
-		filter: drop-shadow(0 20px 13px rgb(0 0 0 / 0.03))
-			drop-shadow(0 8px 5px rgb(0 0 0 / 0.08));
+		filter: drop-shadow(0 20px 13px rgb(0 0 0 / 0.03)) drop-shadow(0 8px 5px rgb(0 0 0 / 0.08));
 		z-index: 100;
 		user-select: none;
 	}
 
-	@supports not (
-		(-webkit-backdrop-filter: blur(5px)) or (backdrop-filter: blur(5px))
-	) {
+	@supports not ((-webkit-backdrop-filter: blur(5px)) or (backdrop-filter: blur(5px))) {
 		#topbar {
 			background-color: rgb(var(--secondary-bg));
 		}

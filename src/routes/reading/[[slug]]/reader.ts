@@ -5,9 +5,7 @@ const injectStyles = (styles: string[]) => {
 	// TODO: Keep track of stylesheets and only update if changed
 	const fragment = document.createDocumentFragment();
 
-	document.head
-		.querySelectorAll('.essence-reader')
-		.forEach((styleE) => styleE.remove());
+	document.head.querySelectorAll('.essence-reader').forEach((styleE) => styleE.remove());
 
 	styles.forEach((stylesheet) => {
 		const styleE = document.createElement('style');
@@ -41,9 +39,7 @@ export const assembleChapter = async (
 	}
 
 	const styles: string[] = [];
-	for (const e of newHTML.head.querySelectorAll(
-		'link[rel="stylesheet"], style'
-	)) {
+	for (const e of newHTML.head.querySelectorAll('link[rel="stylesheet"], style')) {
 		if (e.tagName.toLowerCase() === 'link') {
 			const href = e.getAttribute('href');
 			if (!href) continue;

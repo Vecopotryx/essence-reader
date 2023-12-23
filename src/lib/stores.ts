@@ -16,9 +16,7 @@ export const shouldSaveStore = writable<boolean>(true);
 
 if (browser && localStorage.getItem('shouldSave') !== null) {
 	try {
-		shouldSaveStore.set(
-			JSON.parse(localStorage.getItem('shouldSave') as string)
-		);
+		shouldSaveStore.set(JSON.parse(localStorage.getItem('shouldSave') as string));
 	} catch {
 		localStorage.removeItem('shouldSave');
 	}

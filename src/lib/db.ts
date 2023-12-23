@@ -20,9 +20,7 @@ export const addBook = async (meta: Metadata, book: Book) => {
 		const booksStore = tx.objectStore(BOOKS_STORE);
 		const metasStore = tx.objectStore(METAS_STORE);
 
-		const foundBook = (await metasStore.getAll()).find(
-			(b) => b.title === meta.title
-		);
+		const foundBook = (await metasStore.getAll()).find((b) => b.title === meta.title);
 		if (foundBook) return foundBook.id; // Don't save duplicate books
 
 		const bookID = await booksStore.add(book);
@@ -41,9 +39,7 @@ export const addBook = async (meta: Metadata, book: Book) => {
 
 export const getAllMetas = async (): Promise<Metadata[]> => {
 	try {
-		const store = (await openBookDB)
-			.transaction(METAS_STORE)
-			.objectStore(METAS_STORE);
+		const store = (await openBookDB).transaction(METAS_STORE).objectStore(METAS_STORE);
 		return await store.getAll();
 	} catch (error) {
 		console.error('Failed to get all books:', error);

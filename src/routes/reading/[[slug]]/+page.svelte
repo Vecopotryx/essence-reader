@@ -43,7 +43,7 @@
 				fontFamily: 'Default',
 				paginated: window.innerWidth > 1000, // Default to paginated if screen is big enough
 				animations: true
-		  };
+			};
 
 	let entries: ZipInfo['entries'];
 	let previousJumps: number[] = [];
@@ -63,9 +63,7 @@
 	});
 
 	onDestroy(() => {
-		document.head
-			.querySelectorAll('.essence-reader')
-			.forEach((styleE) => styleE.remove());
+		document.head.querySelectorAll('.essence-reader').forEach((styleE) => styleE.remove());
 	});
 
 	const updateSection = async (index: number) => {
@@ -76,9 +74,7 @@
 			if (meta.id) {
 				(await openBookDB).put('metas', meta);
 			}
-			container.replaceChildren(
-				await assembleChapter(book.spine[section], entries, jumpTo)
-			);
+			container.replaceChildren(await assembleChapter(book.spine[section], entries, jumpTo));
 		}
 	};
 
@@ -100,9 +96,7 @@
 			const element = document.getElementById(elemId);
 			if (!element) return;
 			if (settings.paginated) {
-				const left =
-					element.getBoundingClientRect().left -
-					container.getBoundingClientRect().left;
+				const left = element.getBoundingClientRect().left - container.getBoundingClientRect().left;
 				pagesScrolled = Math.floor(left / container.clientWidth);
 				container.scrollTo({
 					left: pagesScrolled * container.clientWidth,
@@ -143,7 +137,7 @@
 			await delay(50); // Wait so that CSS styles can be applied on previous chapter
 			// Necessary since the width changes when styles are applied
 
-			if(container.scrollWidth > container.clientWidth) {
+			if (container.scrollWidth > container.clientWidth) {
 				pagesScrolled = Math.floor(container.scrollWidth / container.clientWidth);
 			} else {
 				pagesScrolled = 0;
@@ -248,17 +242,13 @@
 				<SettingsIcon size={24} slot="icon" />
 				<ReaderSettings bind:settings onScaleChange={updateAfterResize} />
 			</Popover>
-			<button on:click={() => incrementSection(-1)}
-				><ArrowLeft size={24} /></button>
-			<button on:click={() => incrementSection(1)}
-				><ArrowRight size={24} /></button>
+			<button on:click={() => incrementSection(-1)}><ArrowLeft size={24} /></button>
+			<button on:click={() => incrementSection(1)}><ArrowRight size={24} /></button>
 		</svelte:fragment>
 	</Topbar>
 	<div
 		id={settings.paginated ? 'containerContainer' : ''}
-		style={`--scale: ${settings.scale / 10}; --fontFamily: ${
-			settings.fontFamily
-		}`}>
+		style={`--scale: ${settings.scale / 10}; --fontFamily: ${settings.fontFamily}`}>
 		<div
 			id="container"
 			class={settings.paginated ? 'paginated' : 'scrolled'}
@@ -267,10 +257,7 @@
 	</div>
 </div>
 
-<svelte:window
-	bind:scrollY={scrolled}
-	on:resize={handleResize}
-	on:keydown={handleKeydown} />
+<svelte:window bind:scrollY={scrolled} on:resize={handleResize} on:keydown={handleKeydown} />
 
 <style>
 	#container {

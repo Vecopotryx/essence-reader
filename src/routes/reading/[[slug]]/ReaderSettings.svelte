@@ -42,10 +42,7 @@
 {/if}
 <label>
 	Font:
-	<select
-		name="fontpicker"
-		bind:value={settings.fontFamily}
-		style="width: 100%;">
+	<select name="fontpicker" bind:value={settings.fontFamily} style="width: 100%;">
 		<option>Default</option>
 		<option style="font-family:'Verdana'">Verdana</option>
 		<option style="font-family:'Arial'">Arial</option>
