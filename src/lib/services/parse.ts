@@ -3,8 +3,8 @@ import type { Metadata, Book, TableOfContentsItem } from '$lib/types';
 import { relativeToAbs, removeHash } from '$lib/utils';
 const domParser = new DOMParser();
 
-const parseOpf = (opf: string, opfPath: string) => {
-	const opfDocument = domParser.parseFromString(opf, 'application/xml');
+const parseOpf = (opfContent: string, opfPath: string) => {
+	const opfDocument = domParser.parseFromString(opfContent, 'application/xml');
 
 	const metadataElement = opfDocument.querySelector('metadata');
 	const manifestElement = opfDocument.querySelector('manifest');
@@ -60,9 +60,8 @@ const parseManifest = (manifest: Element, opfPath: string): Map<string, string> 
 	for (const item of manifest.children) {
 		const id = item.getAttribute('id');
 		const href = item.getAttribute('href');
-		if (id && href) {
-			manifestItems.set(id, relativeToAbs(href, opfPath));
-		}
+		if (!(id && href)) continue;
+		manifestItems.set(id, relativeToAbs(href, opfPath));
 	}
 
 	return manifestItems;
@@ -75,30 +74,25 @@ const TocRecursive = (navPoint: Element, spine: string[], ncxPath: string): Tabl
 	const title = navPoint.querySelector('text')?.textContent || '';
 
 	const contentElement = navPoint.querySelector('content');
-	const href = contentElement?.getAttribute('src');
+	const src = contentElement?.getAttribute('src');
 
-	const relativePath = href ? relativeToAbs(href, ncxPath) : '';
+	const href = src ? relativeToAbs(src, ncxPath) : '';
 
-	const index = spine.indexOf(removeHash(relativePath));
+	const index = spine.indexOf(removeHash(href));
 
 	const children = Array.from(navPoint.querySelectorAll('navPoint')).map((x) =>
 		TocRecursive(x, spine, ncxPath)
 	);
-	return {
-		title,
-		href: relativePath,
-		index,
-		children: children.length > 0 ? children : undefined
-	};
+	return { title, href, index, children: children.length > 0 ? children : undefined };
 };
 
 const parseToc = (ncx: string, ncxPath: string, spine: string[]): TableOfContentsItem[] => {
 	const TOC: TableOfContentsItem[] = [];
 	const navMap = domParser.parseFromString(ncx, 'application/xml').querySelector('navMap');
-	if (navMap) {
-		for (const navPoint of navMap.children) {
-			TOC.push(TocRecursive(navPoint, spine, ncxPath));
-		}
+	if (!navMap) return [];
+
+	for (const navPoint of navMap.children) {
+		TOC.push(TocRecursive(navPoint, spine, ncxPath));
 	}
 	return TOC;
 };
