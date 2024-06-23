@@ -1,18 +1,35 @@
 <script lang="ts">
-	export let toned: boolean = false;
+	import type { Snippet } from 'svelte';
+	let {
+		toned,
+		leftbar,
+		toptext,
+		rightbar
+	}: {
+		toned?: boolean;
+		leftbar?: Snippet;
+		toptext?: Snippet;
+		rightbar?: Snippet;
+	} = $props();
 </script>
 
 <div id="topbar" style={toned ? 'color: rgba(var(--primary-color), 0.6);' : ' '}>
 	<div class="buttonbar" id="leftbar">
-		<slot name="leftbar" />
+		{#if leftbar}
+			{@render leftbar()}
+		{/if}
 	</div>
 
 	<div id="toptext">
-		<slot name="toptext" />
+		{#if toptext}
+			{@render toptext()}
+		{/if}
 	</div>
 
 	<div class="buttonbar" id="rightbar">
-		<slot name="rightbar" />
+		{#if rightbar}
+			{@render rightbar()}
+		{/if}
 	</div>
 </div>
 

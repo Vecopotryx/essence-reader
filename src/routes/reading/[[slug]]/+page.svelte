@@ -204,19 +204,21 @@
 
 <div in:fade={{ duration: 200 }}>
 	<Topbar toned={scrolled > 100}>
-		<a slot="leftbar" href="/">
-			<ChevronLeft size={24} />
-		</a>
+		{#snippet leftbar()}
+			<a href="/">
+				<ChevronLeft size={24} />
+			</a>
+		{/snippet}
 
-		<svelte:fragment slot="toptext">
+		{#snippet toptext()}
 			<h4>
 				<b>{meta.title} - </b>
 				{meta.author}
 			</h4>
 			<p>{section}/{meta.length}</p>
-		</svelte:fragment>
+		{/snippet}
 
-		<svelte:fragment slot="rightbar">
+		{#snippet rightbar()}
 			{#if previousJumps.length !== 0}
 				<button
 					transition:fade={{ duration: 200 }}
@@ -233,18 +235,22 @@
 				</button>
 			{/if}
 			<Popover>
-				<TableOfContents size={24} slot="icon" />
+				{#snippet icon()}
+					<TableOfContents size={24} />
+				{/snippet}
 				{#each book.toc as tocitem}
 					<TocNode {tocitem} onClick={jumpTo} currentSection={section} />
 				{/each}
 			</Popover>
 			<Popover>
-				<SettingsIcon size={24} slot="icon" />
+				{#snippet icon()}
+					<SettingsIcon size={24} />
+				{/snippet}
 				<ReaderSettings bind:settings onScaleChange={updateAfterResize} />
 			</Popover>
 			<button on:click={() => incrementSection(-1)}><ArrowLeft size={24} /></button>
 			<button on:click={() => incrementSection(1)}><ArrowRight size={24} /></button>
-		</svelte:fragment>
+		{/snippet}
 	</Topbar>
 	<div
 		id={settings.paginated ? 'containerContainer' : ''}

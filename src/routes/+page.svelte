@@ -70,20 +70,26 @@
 </svelte:head>
 
 <Topbar>
-	<h3 slot="toptext">Essence Reader</h3>
-	<Popover slot="rightbar">
-		<Settings slot="icon" size={24} />
-		<div style="width: 8em">
-			<label>
-				<input type="checkbox" bind:checked={$shouldSaveStore} />
-				Save books
-			</label>
-			<button on:click={deleteAllBooks}>Remove all</button>
-			<hr />
-			Select theme
-			<ThemePicker />
-		</div>
-	</Popover>
+	{#snippet toptext()}
+		<h3>Essence Reader</h3>
+	{/snippet}
+	{#snippet rightbar()}
+		<Popover>
+			{#snippet icon()}
+				<Settings size={24} />
+			{/snippet}
+			<div style="width: 8em">
+				<label>
+					<input type="checkbox" bind:checked={$shouldSaveStore} />
+					Save books
+				</label>
+				<button on:click={deleteAllBooks}>Remove all</button>
+				<hr />
+				Select theme
+				<ThemePicker />
+			</div>
+		</Popover>
+	{/snippet}
 </Topbar>
 
 <div id="parent">

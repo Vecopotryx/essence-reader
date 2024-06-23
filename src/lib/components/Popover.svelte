@@ -1,6 +1,9 @@
 <script lang="ts">
+	import type { Snippet } from 'svelte';
 	import { fly } from 'svelte/transition';
-	let visible: boolean;
+
+	let { icon, children }: { icon: Snippet; children: Snippet } = $props();
+	let visible: boolean = $state(false);
 
 	let button: Element;
 
@@ -23,8 +26,8 @@
 	}
 </script>
 
-<button class="popoverBtn" bind:this={button} on:click={() => (visible = !visible)}>
-	<slot name="icon" />
+<button class="popoverBtn" bind:this={button} onclick={() => (visible = !visible)}>
+	{@render icon()}
 </button>
 
 {#if visible}
@@ -32,7 +35,7 @@
 		<!-- Wrapper needed since WebKit on iOS cuts off content when scrolling otherwise -->
 		<!-- See: https://stackoverflow.com/questions/26704903/only-in-safari-positionfixed-child-cut-off-when-parent-is-positionfixed-and -->
 		<div class="wrapper">
-			<slot />
+			{@render children()}
 		</div>
 	</div>
 {/if}
