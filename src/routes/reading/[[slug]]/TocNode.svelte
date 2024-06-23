@@ -24,14 +24,14 @@
 		}
 	};
 
-	$: currentSection, updateSelected();
+	//$: currentSection, updateSelected(); TODO: Unsupported syntax in Svelte 5
 </script>
 
 <div class="tocNode">
+	{#if tocitem.children}
+		<button class="expansionBtn" class:expanded on:click={toggleExpansion}>▶</button>
+	{/if}
 	<button class="tocButton" class:selected on:click={() => onClick(tocitem.href)}>
-		{#if tocitem.children}
-			<button class="expansionBtn" class:expanded on:click={toggleExpansion}>▶</button>
-		{/if}
 		{tocitem.title}
 	</button>
 	{#if expanded && tocitem.children}
