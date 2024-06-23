@@ -223,7 +223,7 @@
 				<button
 					transition:fade={{ duration: 200 }}
 					id="jumpbtn"
-					on:click={() => {
+					onclick={() => {
 						let lastJump = previousJumps.pop();
 						previousJumps = previousJumps;
 						if (lastJump !== undefined) {
@@ -248,8 +248,8 @@
 				{/snippet}
 				<ReaderSettings bind:settings onScaleChange={updateAfterResize} />
 			</Popover>
-			<button on:click={() => incrementSection(-1)}><ArrowLeft size={24} /></button>
-			<button on:click={() => incrementSection(1)}><ArrowRight size={24} /></button>
+			<button onclick={() => incrementSection(-1)}><ArrowLeft size={24} /></button>
+			<button onclick={() => incrementSection(1)}><ArrowRight size={24} /></button>
 		{/snippet}
 	</Topbar>
 	<div
@@ -263,7 +263,7 @@
 	</div>
 </div>
 
-<svelte:window bind:scrollY={scrolled} on:resize={handleResize} on:keydown={handleKeydown} />
+<svelte:window bind:scrollY={scrolled} onresize={handleResize} onkeydown={handleKeydown} />
 
 <style>
 	#container {

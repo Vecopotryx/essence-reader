@@ -29,9 +29,9 @@
 
 <div class="tocNode">
 	{#if tocitem.children}
-		<button class="expansionBtn" class:expanded on:click={toggleExpansion}>▶</button>
+		<button class="expansionBtn" class:expanded onclick={toggleExpansion}>▶</button>
 	{/if}
-	<button class="tocButton" class:selected on:click={() => onClick(tocitem.href)}>
+	<button class="tocButton" class:selected onclick={() => onClick(tocitem.href)}>
 		{tocitem.title}
 	</button>
 	{#if expanded && tocitem.children}

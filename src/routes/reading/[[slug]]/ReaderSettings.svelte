@@ -63,7 +63,7 @@
 		min="5"
 		max="30"
 		bind:value={settings.scale}
-		on:change={onScaleChange} />
+		onchange={onScaleChange} />
 </label>
 <ThemePicker />
 

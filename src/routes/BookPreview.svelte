@@ -10,7 +10,7 @@
 <div class="book" in:fade={{ duration: 200 }}>
 	<button
 		class="deleteBtn"
-		on:click={(e) => {
+		onclick={(e) => {
 			e.stopPropagation();
 			if (meta.id) deleteBook(meta.id);
 		}}>

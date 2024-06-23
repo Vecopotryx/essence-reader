@@ -83,7 +83,7 @@
 					<input type="checkbox" bind:checked={$shouldSaveStore} />
 					Save books
 				</label>
-				<button on:click={deleteAllBooks}>Remove all</button>
+				<button onclick={deleteAllBooks}>Remove all</button>
 				<hr />
 				Select theme
 				<ThemePicker />
@@ -97,14 +97,14 @@
 		{#each bookList as meta (meta.id)}
 			<button
 				class="libraryItem"
-				on:click={() => goto(`reading/${meta.id}`)}
+				onclick={() => goto(`reading/${meta.id}`)}
 				animate:flip={{ duration: 200 }}>
 				<BookPreview {meta} {deleteBook} />
 			</button>
 		{/each}
 	{/if}
 
-	<button class="libraryItem" on:click={() => clickFile()}>
+	<button class="libraryItem" onclick={() => clickFile()}>
 		<h1 id="dropInfoIcon">📚</h1>
 
 		<h2 style="color: gray">Drop anywhere or click to select a file</h2>
