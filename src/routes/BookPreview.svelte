@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { Metadata } from '$lib/types';
-	import TrashCan from 'carbon-icons-svelte/lib/TrashCan.svelte';
+	import CarbonTrashCan from '~icons/carbon/trash-can';
 	import { fade } from 'svelte/transition';
 
 	let { meta, deleteBook }: { meta: Metadata; deleteBook: (id: number) => void } = $props();
@@ -13,7 +13,7 @@
 			e.stopPropagation();
 			if (meta.id) deleteBook(meta.id);
 		}}>
-		<TrashCan size={20} />
+		<CarbonTrashCan />
 	</button>
 
 	<img src={meta.cover !== undefined ? URL.createObjectURL(meta.cover) : ''} alt="cover" />
@@ -49,7 +49,8 @@
 		position: absolute;
 		background-color: transparent;
 		right: 0;
-		font-size: 1.5em;
+		font-size: 1.3em;
+		padding: 0.25em;
 		border-radius: 0 0.5em;
 		color: inherit;
 		cursor: pointer;

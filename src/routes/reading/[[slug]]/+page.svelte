@@ -8,12 +8,12 @@
 	import { assembleChapter } from './reader';
 
 	// Icons:
-	import SettingsIcon from 'carbon-icons-svelte/lib/Settings.svelte';
-	import TableOfContents from 'carbon-icons-svelte/lib/TableOfContents.svelte';
-	import ArrowRight from 'carbon-icons-svelte/lib/ArrowRight.svelte';
-	import ArrowLeft from 'carbon-icons-svelte/lib/ArrowLeft.svelte';
-	import ChevronLeft from 'carbon-icons-svelte/lib/ChevronLeft.svelte';
-	import DirectionLoopLeft from 'carbon-icons-svelte/lib/DirectionLoopLeft.svelte';
+	import CarbonSettings from '~icons/carbon/settings';
+	import CarbonTableOfContents from '~icons/carbon/table-of-contents';
+	import CarbonArrowRight from '~icons/carbon/arrow-right';
+	import CarbonArrowLeft from '~icons/carbon/arrow-left';
+	import CarbonChevronLeft from '~icons/carbon/chevron-left';
+	import CarbonDirectionLoopLeft from '~icons/carbon/direction-loop-left';
 
 	import { unzip, type ZipInfo } from 'unzipit';
 	import { openBookDB } from '$lib/db';
@@ -207,7 +207,7 @@
 	<Topbar toned={scrolled > 100}>
 		{#snippet leftbar()}
 			<a href="/">
-				<ChevronLeft size={24} />
+				<CarbonChevronLeft />
 			</a>
 		{/snippet}
 
@@ -231,13 +231,13 @@
 							updateSection(lastJump);
 						}
 					}}>
-					<DirectionLoopLeft />
+					<CarbonDirectionLoopLeft />
 					{previousJumps[previousJumps.length - 1]}
 				</button>
 			{/if}
 			<Popover>
 				{#snippet icon()}
-					<TableOfContents size={24} />
+					<CarbonTableOfContents />
 				{/snippet}
 				{#each book.toc as tocitem}
 					<TocNode {tocitem} onClick={jumpTo} currentSection={section} />
@@ -245,12 +245,12 @@
 			</Popover>
 			<Popover>
 				{#snippet icon()}
-					<SettingsIcon size={24} />
+					<CarbonSettings />
 				{/snippet}
 				<ReaderSettings bind:settings onScaleChange={updateAfterResize} />
 			</Popover>
-			<button onclick={() => incrementSection(-1)}><ArrowLeft size={24} /></button>
-			<button onclick={() => incrementSection(1)}><ArrowRight size={24} /></button>
+			<button onclick={() => incrementSection(-1)}><CarbonArrowLeft /></button>
+			<button onclick={() => incrementSection(1)}><CarbonArrowRight /></button>
 		{/snippet}
 	</Topbar>
 	<div

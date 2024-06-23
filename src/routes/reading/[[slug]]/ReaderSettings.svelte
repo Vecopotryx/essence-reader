@@ -1,8 +1,7 @@
 <script lang="ts">
 	import ThemePicker from '$lib/components/ThemePicker.svelte';
-	import Book from 'carbon-icons-svelte/lib/Book.svelte';
-	import TextLineSpacing from 'carbon-icons-svelte/lib/TextLineSpacing.svelte';
-
+	import CarbonBook from '~icons/carbon/book';
+	import CarbonTextLineSpacing from '~icons/carbon/text-line-spacing';
 	interface settingsInterface {
 		scale: number;
 		fontFamily: string;
@@ -20,13 +19,13 @@
 
 <div id="paginationSelectors">
 	<label>
-		<Book size={32} />
+		<CarbonBook />
 		<br />
 		<input type="radio" bind:group={settings.paginated} value={true} />
 		Paginated
 	</label>
 	<label>
-		<TextLineSpacing size={32} />
+		<CarbonTextLineSpacing />
 		<br />
 		<input type="radio" bind:group={settings.paginated} value={false} />
 		Scrolled

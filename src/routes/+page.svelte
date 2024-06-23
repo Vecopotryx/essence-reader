@@ -5,7 +5,7 @@
 	import { onMount } from 'svelte';
 	import Topbar from '$lib/components/Topbar.svelte';
 	import Popover from '$lib/components/Popover.svelte';
-	import { Settings } from 'carbon-icons-svelte';
+	import CarbonSettings from '~icons/carbon/settings';
 	import ThemePicker from '$lib/components/ThemePicker.svelte';
 	import { flip } from 'svelte/animate';
 	import BookPreview from './BookPreview.svelte';
@@ -76,7 +76,7 @@
 	{#snippet rightbar()}
 		<Popover>
 			{#snippet icon()}
-				<Settings size={24} />
+				<CarbonSettings />
 			{/snippet}
 			<div style="width: 8em">
 				<label>

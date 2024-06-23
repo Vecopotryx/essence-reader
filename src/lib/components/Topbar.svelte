@@ -52,7 +52,8 @@
 		color: inherit;
 	}
 
-	.buttonbar > :global(button) {
+	.buttonbar > :global(button),
+	.buttonbar > :global(a) {
 		margin: 0;
 		padding: 0 0.15em;
 		border: none;
@@ -60,9 +61,12 @@
 		cursor: pointer;
 		color: inherit;
 		vertical-align: middle;
+		line-height: 1em;
+		font-size: 1em;
 	}
 
-	.buttonbar > :global(button:hover) {
+	.buttonbar > :global(button:hover),
+	.buttonbar > :global(a:hover) {
 		filter: invert(0.5);
 	}
 
