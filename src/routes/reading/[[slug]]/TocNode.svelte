@@ -1,19 +1,23 @@
 <script lang="ts">
 	import type { TableOfContentsItem } from '$lib/types';
 
-	export let tocitem: TableOfContentsItem;
-	export let onClick: (href: string) => void;
-	export let currentSection: number;
+	let {
+		tocitem,
+		onClick,
+		currentSection
+	}: { tocitem: TableOfContentsItem; onClick: (href: string) => void; currentSection: number } =
+		$props();
 
-	let expanded = false;
 	const toggleExpansion = (e: Event) => {
 		e.stopPropagation();
 		expanded = !expanded;
 	};
 
-	let selected: boolean = false;
+	let expanded: boolean = $state(false);
 
-	const updateSelected = () => {
+	let selected: boolean = $state(false);
+
+	$effect(() => {
 		if (tocitem.index === currentSection) {
 			selected = true;
 		} else if (tocitem.children) {
@@ -22,9 +26,7 @@
 		} else {
 			selected = false;
 		}
-	};
-
-	//$: currentSection, updateSelected(); TODO: Unsupported syntax in Svelte 5
+	});
 </script>
 
 <div class="tocNode">

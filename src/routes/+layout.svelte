@@ -1,5 +1,6 @@
 <script>
 	import { onMount } from 'svelte';
+	let { children } = $props();
 	let dragging = false;
 	let dragCounter = 0;
 
@@ -35,4 +36,4 @@
 	});
 </script>
 
-<slot />
+{@render children()}

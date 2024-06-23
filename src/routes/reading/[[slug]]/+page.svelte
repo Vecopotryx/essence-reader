@@ -15,18 +15,17 @@
 	import ChevronLeft from 'carbon-icons-svelte/lib/ChevronLeft.svelte';
 	import DirectionLoopLeft from 'carbon-icons-svelte/lib/DirectionLoopLeft.svelte';
 
-	import type { PageData } from './$types';
 	import { unzip, type ZipInfo } from 'unzipit';
 	import { openBookDB } from '$lib/db';
 	import TocNode from './TocNode.svelte';
 
-	export let data: PageData;
+	const { data } = $props();
 	let meta: Metadata = data.meta;
 	let book: Book = data.book;
 
 	let container: HTMLElement;
-	let section: number = 0;
-	let scrolled: number = 0;
+	let section: number = $state(0);
+	let scrolled: number = $state(0);
 
 	type settingsType = {
 		scale: number;
@@ -36,17 +35,19 @@
 	};
 
 	let storedSettingsJson = localStorage.getItem('settings');
-	let settings: settingsType = storedSettingsJson
-		? JSON.parse(storedSettingsJson)
-		: {
-				scale: 10,
-				fontFamily: 'Default',
-				paginated: window.innerWidth > 1000, // Default to paginated if screen is big enough
-				animations: true
-			};
+	let settings: settingsType = $state(
+		storedSettingsJson
+			? JSON.parse(storedSettingsJson)
+			: {
+					scale: 10,
+					fontFamily: 'Default',
+					paginated: window.innerWidth > 1000, // Default to paginated if screen is big enough
+					animations: true
+				}
+	);
 
 	let entries: ZipInfo['entries'];
-	let previousJumps: number[] = [];
+	let previousJumps: number[] = $state([]);
 
 	onMount(async () => {
 		try {
@@ -72,7 +73,7 @@
 			scrolled = 0;
 			meta.progress = section;
 			if (meta.id) {
-				(await openBookDB).put('metas', meta);
+				(await openBookDB).put('metas', $state.snapshot(data.meta));
 			}
 			container.replaceChildren(await assembleChapter(book.spine[section], entries, jumpTo));
 		}
@@ -112,7 +113,7 @@
 		}
 	};
 
-	let pagesScrolled = 0;
+	let pagesScrolled = $state(0);
 
 	const nextPage = () => {
 		if ((pagesScrolled + 1) * container.clientWidth < container.scrollWidth) {
@@ -182,7 +183,7 @@
 	const handleResize = () => {
 		if (settings.paginated) {
 			clearTimeout(timeout);
-			timeout = setTimeout(updateAfterResize, 100);
+			timeout = window.setTimeout(updateAfterResize, 100);
 		}
 	};
 
@@ -259,7 +260,8 @@
 			id="container"
 			class={settings.paginated ? 'paginated' : 'scrolled'}
 			data-sveltekit-preload-data="off"
-			bind:this={container} />
+			bind:this={container}>
+		</div>
 	</div>
 </div>
 

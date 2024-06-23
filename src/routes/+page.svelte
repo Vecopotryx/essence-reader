@@ -28,7 +28,7 @@
 		input.click();
 	};
 
-	let bookList: Metadata[] = [];
+	let bookList: Metadata[] = $state([]);
 
 	const deleteBook = async (id: number) => {
 		bookList = bookList.filter((book) => book.id !== id);

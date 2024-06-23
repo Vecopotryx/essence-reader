@@ -3,8 +3,7 @@
 	import TrashCan from 'carbon-icons-svelte/lib/TrashCan.svelte';
 	import { fade } from 'svelte/transition';
 
-	export let meta: Metadata;
-	export let deleteBook: (id: number) => void;
+	let { meta, deleteBook }: { meta: Metadata; deleteBook: (id: number) => void } = $props();
 </script>
 
 <div class="book" in:fade={{ duration: 200 }}>

@@ -2,7 +2,6 @@
 	import ThemePicker from '$lib/components/ThemePicker.svelte';
 	import Book from 'carbon-icons-svelte/lib/Book.svelte';
 	import TextLineSpacing from 'carbon-icons-svelte/lib/TextLineSpacing.svelte';
-	import { onDestroy } from 'svelte';
 
 	interface settingsInterface {
 		scale: number;
@@ -11,11 +10,12 @@
 		animations: boolean;
 	}
 
-	export let settings: settingsInterface;
-	export let onScaleChange: () => void;
-	onDestroy(() => {
-		localStorage.setItem('settings', JSON.stringify(settings));
-	});
+	let {
+		settings = $bindable(),
+		onScaleChange
+	}: { settings: settingsInterface; onScaleChange: () => void } = $props();
+
+	$effect(() => localStorage.setItem('settings', JSON.stringify(settings)));
 </script>
 
 <div id="paginationSelectors">
