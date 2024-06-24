@@ -42,7 +42,7 @@
 					scale: 10,
 					fontFamily: 'Default',
 					paginated: window.innerWidth > 1000, // Default to paginated if screen is big enough
-					animations: true
+					animations: false
 				}
 	);
 
@@ -195,6 +195,14 @@
 			});
 		}
 	};
+
+	const ContainerClasses = () => {
+		let classes = settings.paginated ? 'paginated' : 'scrolled';
+		if (settings.fontFamily !== 'Default') {
+			classes += ' applyFont';
+		}
+		return classes;
+	};
 </script>
 
 <svelte:head>
@@ -258,7 +266,7 @@
 		style={`--scale: ${settings.scale / 10}; --fontFamily: ${settings.fontFamily}`}>
 		<div
 			id="container"
-			class={settings.paginated ? 'paginated' : 'scrolled'}
+			class={ContainerClasses()}
 			data-sveltekit-preload-data="off"
 			bind:this={container}>
 		</div>
@@ -273,9 +281,9 @@
 		margin: auto;
 	}
 
-	#container :global(p),
-	#container :global(a),
-	#container :global(span) {
+	.applyFont :global(p),
+	.applyFont :global(a),
+	.applyFont :global(span) {
 		line-height: normal !important;
 		font-family: var(--fontFamily) !important;
 	}

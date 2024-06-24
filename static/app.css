@@ -21,6 +21,7 @@ body {
 #container p,
 #container span {
 	color: var(--primary-color) !important;
+	font-family: 'Times New Roman', Times, serif; /* Default if epub doesn't specify */
 }
 
 :root {

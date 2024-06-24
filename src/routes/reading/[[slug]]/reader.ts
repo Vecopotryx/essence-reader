@@ -17,6 +17,29 @@ const injectStyles = (styles: string[]) => {
 	document.head.appendChild(fragment);
 };
 
+const processCSS = async (
+	css: string,
+	cssPath: string,
+	entries: ZipInfo['entries']
+): Promise<string> => {
+	const urlRegex = /url\(([^)]+)\)/g;
+
+	const matches = css.matchAll(urlRegex);
+	for (const [match, relPath] of matches) {
+		const filename = relativeToAbs(relPath, cssPath);
+		try {
+			const blob = await entries[filename].blob();
+			const url = URL.createObjectURL(blob);
+			css = css.replace(match, `url("${url}")`);
+		} catch (e) {
+			console.error(e);
+			continue;
+		}
+	}
+
+	return css;
+};
+
 const nestCSSSelectors = (css: string): string =>
 	css.replace(/([^\r\n,{}]+)(,(?=[^}]*{)|\s*{)/g, '#container $1$2');
 
@@ -44,7 +67,8 @@ export const assembleChapter = async (
 			const href = e.getAttribute('href');
 			if (!href) continue;
 			const filename = relativeToAbs(href, chapterPath);
-			styles.push(await entries[filename].text());
+			const css = await entries[filename].text();
+			styles.push(await processCSS(css, filename, entries));
 		} else {
 			styles.push(e.innerHTML);
 		}
