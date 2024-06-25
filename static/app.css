@@ -28,22 +28,28 @@ body {
 	--primary-color: 0, 0, 0;
 	--primary-bg: 255, 255, 255;
 	--secondary-bg: 249, 249, 249;
+	--highlight-bg: 0, 0, 0;
 }
 
 [data-theme='dark'] {
 	--primary-color: 233, 233, 233;
 	--primary-bg: 3, 32, 56;
 	--secondary-bg: 7, 37, 62;
+	--highlight-bg: 255,255,255;
 }
 
 [data-theme='warm'] {
 	--primary-color: 0, 0, 0;
 	--primary-bg: 246, 228, 189;
 	--secondary-bg: 251, 238, 210;
+	--highlight-bg: 0, 0, 0;
+
 }
 
 [data-theme='black'] {
 	--primary-color: 233, 233, 233;
 	--primary-bg: 0, 0, 0;
 	--secondary-bg: 28, 32, 34;
+	--highlight-bg: 255,255,255;
+
 }

@@ -78,14 +78,13 @@
 			{#snippet icon()}
 				<CarbonSettings />
 			{/snippet}
-			<div style="width: 8em">
+			<div>
 				<label>
 					<input type="checkbox" bind:checked={$shouldSaveStore} />
 					Save books
 				</label>
 				<button onclick={deleteAllBooks}>Remove all</button>
 				<hr />
-				Select theme
 				<ThemePicker />
 			</div>
 		</Popover>
