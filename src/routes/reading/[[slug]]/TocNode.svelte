@@ -29,19 +29,21 @@
 	});
 </script>
 
-<div class="tocNode">
+<div class="tocNode" class:selected>
 	{#if tocitem.children}
 		<button class="expansionBtn" class:expanded onclick={toggleExpansion}>▶</button>
 	{/if}
-	<button class="tocButton" class:selected onclick={() => onClick(tocitem.href)}>
+	<button class="tocButton" onclick={() => onClick(tocitem.href)}>
 		{tocitem.title}
 	</button>
-	{#if expanded && tocitem.children}
+</div>
+{#if expanded && tocitem.children}
+	<div style="margin-left: 1em;">
 		{#each tocitem.children as tocsection}
 			<svelte:self tocitem={tocsection} {onClick} {currentSection} />
 		{/each}
-	{/if}
-</div>
+	</div>
+{/if}
 
 <style>
 	button {
@@ -54,17 +56,21 @@
 
 	.tocButton {
 		text-align: left;
-		padding: 0.5em;
-		border-radius: 0.2em;
+		width: 100%;
 	}
 
 	.tocNode {
+		padding: 0 0.5em;
+		height: 2em;
 		text-align: left;
-		margin-left: 1em;
+		display: flex;
+		align-items: center;
+		border-radius: 0.5em;
+		margin: 0.25em 0;
 	}
 
 	.selected {
-		border: 1px solid lightblue;
+		background-color: rgba(var(--highlight-bg), 0.2);
 	}
 
 	.expansionBtn {
@@ -81,8 +87,8 @@
 		transform: rotate(90deg);
 	}
 
-	.tocButton:hover {
+	.tocNode:hover {
 		cursor: pointer;
-		border: 1px solid rgb(var(--primary-color));
+		background-color: rgba(var(--highlight-bg), 0.1);
 	}
 </style>

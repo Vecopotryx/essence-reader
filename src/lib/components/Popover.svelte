@@ -43,7 +43,7 @@
 <style>
 	.popover {
 		position: fixed;
-		padding: 0.5em;
+		padding: 1em;
 		background: rgba(var(--secondary-bg), 0.8);
 		backdrop-filter: blur(15px);
 		-webkit-backdrop-filter: blur(15px);
