@@ -80,9 +80,9 @@ const TocRecursive = (navPoint: Element, spine: string[], ncxPath: string): Tabl
 
 	const index = spine.indexOf(removeHash(href));
 
-	const children = Array.from(navPoint.querySelectorAll('navPoint')).map((x) =>
-		TocRecursive(x, spine, ncxPath)
-	);
+	const navPoints = Array.from(navPoint.children).filter((x) => x.tagName === 'navPoint');
+	const children = navPoints.map((x) => TocRecursive(x, spine, ncxPath));
+
 	return { title, href, index, children: children.length > 0 ? children : undefined };
 };
 
