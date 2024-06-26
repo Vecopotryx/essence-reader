@@ -55,6 +55,7 @@
 		right: 0;
 		top: 2em;
 		width: min(20em, 100vw);
+		height: calc(100vh - 2em);
 		border-top: 1px solid rgba(var(--primary-color), 0.5);
 		box-sizing: border-box;
 	}
