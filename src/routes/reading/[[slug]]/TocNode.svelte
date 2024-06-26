@@ -57,6 +57,8 @@
 	.tocButton {
 		text-align: left;
 		width: 100%;
+		height: 100%;
+		font-size: 0.8em;
 	}
 
 	.tocNode {
@@ -74,9 +76,10 @@
 	}
 
 	.expansionBtn {
-		margin-right: 0.5em;
+		padding-right: 0.5em;
 		transform: rotate(0deg);
 		transition: transform 0.2s;
+		height: 100%;
 	}
 
 	.expansionBtn:hover {
