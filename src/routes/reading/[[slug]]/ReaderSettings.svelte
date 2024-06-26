@@ -25,11 +25,11 @@
 		<span>Mode</span>
 		<button class={settings.paginated ? 'active' : ''} onclick={() => (settings.paginated = true)}>
 			<CarbonBook style="vertical-align: middle; height: 1.5em; width: 1.5em;" />
-			Paginated
+			<span>Paginated</span>
 		</button>
 		<button class={settings.paginated ? '' : 'active'} onclick={() => (settings.paginated = false)}>
 			<CarbonTextLineSpacing style="vertical-align: middle; height: 1.5em; width: 1.5em;" />
-			Scrolled
+			<span>Scrolled</span>
 		</button>
 	</div>
 
@@ -39,7 +39,7 @@
 			<label class={settings.animations ? 'active' : ''}>
 				<CarbonSidePanelOpenFilled style="vertical-align: middle; height: 1.5em; width: 1.5em;" />
 
-				Page Slide
+				<span>Page Slide</span>
 				<input type="checkbox" bind:checked={settings.animations} />
 			</label>
 		</div>
@@ -79,7 +79,7 @@
 		display: flex;
 		flex-direction: column;
 		gap: 0.5em;
-		width: 16em;
+		width: 100%;
 	}
 
 	#modeSettings,
@@ -126,6 +126,19 @@
 	#animationSettings label:hover,
 	#fontSettings label:hover {
 		background-color: rgba(var(--highlight-bg), 0.2);
+	}
+
+	#fontScaleSlider > input {
+		min-width: 0;
+		flex-grow: 1;
+	}
+
+	span,
+	label,
+	button {
+		overflow: hidden;
+		white-space: nowrap;
+		text-overflow: ellipsis;
 	}
 
 	#fontSelector > select {

@@ -53,13 +53,15 @@
 		border-radius: 0.25em;
 		z-index: 10;
 		right: 0;
-		top: 2.5em;
-		max-width: 50%;
+		top: 2em;
+		width: min(20em, 100vw);
+		border-top: 1px solid rgba(var(--primary-color), 0.5);
+		box-sizing: border-box;
 	}
 
 	.wrapper {
 		overflow: auto;
-		max-height: 80vh;
+		height: 100%;
 	}
 
 	.popoverBtn > :global(*) {

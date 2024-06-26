@@ -160,8 +160,8 @@
 	.librarySettings {
 		display: flex;
 		flex-direction: column;
-		width: 16em;
 		gap: 0.25em;
+		width: 100%;
 	}
 
 	.saveBooksSetting,

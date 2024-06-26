@@ -34,6 +34,7 @@
 		display: grid;
 		grid-template-columns: repeat(2, 1fr);
 		gap: 0.25em;
+		min-width: 0;
 	}
 
 	.theme-preview {
@@ -57,6 +58,13 @@
 		display: flex;
 		align-items: center;
 		gap: 0.5em;
+		min-width: 0;
+	}
+
+	.theme-button span {
+		overflow: hidden;
+		white-space: nowrap;
+		text-overflow: ellipsis;
 	}
 
 	.theme-button:hover {
