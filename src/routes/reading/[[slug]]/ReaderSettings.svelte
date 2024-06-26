@@ -79,6 +79,7 @@
 		display: flex;
 		flex-direction: column;
 		gap: 0.5em;
+		width: 16em;
 	}
 
 	#modeSettings,
@@ -106,6 +107,8 @@
 		border-radius: 10px;
 		border: 1px solid rgba(var(--primary-color), 0.5);
 		height: 2.5em;
+		width: 100%;
+		box-sizing: border-box;
 	}
 
 	#animationSettings input[type='checkbox'] {
@@ -117,7 +120,6 @@
 	#modeSettings button.active,
 	#animationSettings label.active {
 		background-color: rgba(var(--highlight-bg), 0.1);
-		border-radius: 10px;
 	}
 
 	#modeSettings button:hover,

@@ -9,6 +9,8 @@
 	import ThemePicker from '$lib/components/ThemePicker.svelte';
 	import { flip } from 'svelte/animate';
 	import BookPreview from './BookPreview.svelte';
+	import CarbonTrashCan from '~icons/carbon/trash-can';
+	import CarbonSave from '~icons/carbon/save';
 	let openBookDB: typeof import('$lib/db').openBookDB;
 
 	const clickFile = async () => {
@@ -78,13 +80,21 @@
 			{#snippet icon()}
 				<CarbonSettings />
 			{/snippet}
-			<div>
-				<label>
-					<input type="checkbox" bind:checked={$shouldSaveStore} />
+			<div class="librarySettings">
+				<span>Library settings</span>
+				<span class="libraryInfo">
+					By default, imported books are stored locally across sessions in your browser.
+					<br /> When disabled, new books are not saved.
+				</span>
+				<label class={$shouldSaveStore ? 'saveBooksSetting active' : 'saveBooksSetting'}>
+					<CarbonSave style="vertical-align: middle; height: 1.5em; width: 1.5em;" />
 					Save books
+					<input type="checkbox" bind:checked={$shouldSaveStore} />
 				</label>
-				<button onclick={deleteAllBooks}>Remove all</button>
-				<hr />
+				<button class="deleteAllBtn" onclick={deleteAllBooks}>
+					<CarbonTrashCan style="vertical-align: middle; height: 1.5em; width: 1.5em;" />
+					Delete all books
+				</button>
 				<ThemePicker />
 			</div>
 		</Popover>
@@ -145,5 +155,57 @@
 	.libraryItem:focus {
 		cursor: pointer;
 		transform: translateY(-0.5em);
+	}
+
+	.librarySettings {
+		display: flex;
+		flex-direction: column;
+		width: 16em;
+		gap: 0.25em;
+	}
+
+	.saveBooksSetting,
+	.deleteAllBtn {
+		all: unset;
+		cursor: pointer;
+		display: flex;
+		align-items: center;
+		gap: 0.5em;
+		padding: 0 0.5em;
+		border-radius: 10px;
+		border: 1px solid rgba(var(--primary-color), 0.5);
+		height: 2.5em;
+		width: 100%;
+		box-sizing: border-box;
+	}
+
+	.saveBooksSetting:hover,
+	.saveBooksSetting.active:hover {
+		background-color: rgba(var(--highlight-bg), 0.2);
+	}
+
+	.saveBooksSetting.active {
+		background-color: rgba(var(--highlight-bg), 0.1);
+	}
+
+	.saveBooksSetting input[type='checkbox'] {
+		width: 1.5em;
+		height: 1.5em;
+		margin-left: auto;
+	}
+
+	.deleteAllBtn:hover {
+		background-color: rgba(255, 0, 0, 0.6);
+	}
+
+	.libraryInfo {
+		font-size: 0.75em;
+		color: rgba(var(--primary-color), 0.8);
+		text-wrap: wrap;
+		text-align: left;
+		margin: auto;
+		padding: 0 0.5em;
+		line-height: 1em;
+		padding-bottom: 0.5em;
 	}
 </style>
