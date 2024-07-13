@@ -25,7 +25,7 @@ export const load = (async ({ params }) => {
 	const book = await tx.objectStore('books').get(slugID);
 	await tx.done;
 
-	if (!book) error(404, `Book with ID ${slugID} not found in your saved books`);
+	if (!book) error(404, `Book with ID ${slugID} not found in your library`);
 
 	const stored = { meta, book };
 	setLoaded(stored);

@@ -1,34 +1,44 @@
 <script>
 	import { page } from '$app/stores';
+	import CarbonArrowLeft from '~icons/carbon/arrow-left';
 </script>
 
 <svelte:head>
 	<title>Error {$page.status}: {$page.error?.message}</title>
 </svelte:head>
 
-<h1>Error {$page.status}: {$page.error?.message}</h1>
-
-<a href="/">Go back to book selector</a>
+<div>
+	<h2>Error {$page.status}</h2>
+	<p>{$page.error?.message}</p>
+	<a href="/"><CarbonArrowLeft /> Go back to library</a>
+</div>
 
 <style>
-	h1 {
-		color: red;
-		font-size: 2em;
+	div {
+		margin: auto;
+		font-size: 1.5em;
+		width: min(20em, 100vw);
+		padding: 0 1em;
+	}
+	h2 {
 		text-align: center;
-		padding-top: 10%;
+		margin-bottom: 0;
 	}
 
 	a {
-		display: block;
-		width: 20em;
-		height: 50px;
-		margin: 20px auto;
-		background-color: #4e9caf;
-		text-align: center;
+		all: unset;
+		min-height: 2.5em;
+		padding: 0 0.5em;
+		border: 1px solid rgba(var(--primary-color), 0.5);
+		background-color: transparent;
 		border-radius: 10px;
-		color: white;
-		font-weight: bold;
-		line-height: 50px;
-		text-decoration: none;
+		cursor: pointer;
+		display: flex;
+		align-items: center;
+		gap: 0.5em;
+	}
+
+	a:hover {
+		background-color: rgba(var(--highlight-bg), 0.2);
 	}
 </style>
