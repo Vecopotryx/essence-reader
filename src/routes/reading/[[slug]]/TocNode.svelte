@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { TableOfContentsItem } from '$lib/types';
+	import TocNode from './TocNode.svelte';
 
 	let {
 		tocitem,
@@ -40,7 +41,7 @@
 {#if expanded && tocitem.children}
 	<div style="margin-left: 1em;">
 		{#each tocitem.children as tocsection}
-			<svelte:self tocitem={tocsection} {onClick} {currentSection} />
+			<TocNode tocitem={tocsection} {onClick} {currentSection} />
 		{/each}
 	</div>
 {/if}
